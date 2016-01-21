@@ -4,7 +4,7 @@
     var argv = process.argv;
     var task = require('./task');
 
-    const cmds = ['init', 'dev', 'release', 'test', 'help']
+    const cmds = ['init', 'dev', 'release', 'test', 'help', 'clean']
 
     if (argv.length === 2) {
         task.help();

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "[kil]: start install kil in your os."
 cur=$(cd "$(dirname "$0")"; pwd)
 kilAlias="alias kil='node $cur/cli.js'"
@@ -32,14 +32,12 @@ if [ $UNAME == "Darwin" ]; then
     process
     echo "[kil]: source ~/$file"
     source ~/$file
-    alias kil='node $cur/cli.js'
     echo "[kil]: kil is installed. please restart the terminal!"
 elif [ $UNAME == "Linux" ]; then
     file=".bashrc"
     process
     echo "[kil]: source ~/$file"
     source ~/$file
-    alias kil='node $cur/cli.js'
     echo "[kil]: kil is installed. please restart the terminal!"
 else
     echo "Windows"

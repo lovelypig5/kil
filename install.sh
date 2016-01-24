@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo "[kil]: start install kil in your os."
 cur=$(cd "$(dirname "$0")"; pwd)
 kilAlias="alias kil='node $cur/cli.js'"

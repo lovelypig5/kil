@@ -34,10 +34,10 @@ if [ $UNAME == "Darwin" ]; then
     source ~/$file
     echo "[kil]: kil is installed. please restart the terminal!"
 elif [ $UNAME == "Linux" ]; then
-    file=".bashrc"
+    file=".bash_aliases"
     process
-    echo "[kil]: source ~/$file"
-    source ~/$file
+    echo "[kil]: source ~/.bashrc"
+    source ~/.bashrc
     echo "[kil]: kil is installed. please restart the terminal!"
 else
     echo "Windows"

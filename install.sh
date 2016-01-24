@@ -32,12 +32,14 @@ if [ $UNAME == "Darwin" ]; then
     process
     echo "[kil]: source ~/$file"
     source ~/$file
+    alias kil='node $cur/cli.js'
     echo "[kil]: kil is installed. please restart the terminal!"
 elif [ $UNAME == "Linux" ]; then
     file=".bashrc"
     process
     echo "[kil]: source ~/$file"
     source ~/$file
+    alias kil='node $cur/cli.js'
     echo "[kil]: kil is installed. please restart the terminal!"
 else
     echo "Windows"

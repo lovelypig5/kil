@@ -3,8 +3,11 @@ kil is a tool based on nodejs, it helps improve the develop, test and release
 
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
-*  git clone [out2man](https://github.com/lovelypig5/out2man.git) to your local workspace
-*  run ${workspace}/out2man/kil/install.sh
+*  git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace
+*  install kil use source/. shell cmd, otherwise you need source file manually
+```bash
+. ${workspace}/kil/install.sh
+```
 
 Then kil is installed in your pc succeccfully.
 

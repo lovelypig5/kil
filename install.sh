@@ -1,6 +1,10 @@
-#!/bin/bash
-echo "[kil]: start install kil in your os."
-cur=$(cd "$(dirname "$0")"; pwd)
+#!/bin/sh
+echo "[kil]: begin install kil in your system."
+if [ $0 == "-bash" ]; then
+    cur=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
+else
+    cur=$(cd "$(dirname "$0")"; pwd)
+fi
 kilAlias="alias kil='node $cur/cli.js'"
 
 addAlias(){
@@ -24,21 +28,15 @@ process(){
     fi
 }
 
-echo "[kil]: start check your os..."
+echo "[kil]: start checking your os..."
 UNAME=$(uname)
-echo "[kil]: os $UNAME found."
-if [ $UNAME == "Darwin" ]; then
+echo "[kil]: os $UNAME is found."
+if [ $UNAME == "Darwin" ] || [ $UNAME == "Linux" ]; then
     file=".bash_profile"
     process
     echo "[kil]: source ~/$file"
     source ~/$file
-    echo "[kil]: kil is installed. please restart the terminal!"
-elif [ $UNAME == "Linux" ]; then
-    file=".bash_aliases"
-    process
-    echo "[kil]: source ~/.bashrc"
-    source ~/.bashrc
-    echo "[kil]: kil is installed. please restart the terminal!"
+    echo "[kil]: kil is installed. please restart bash or source ~/$file manually to enable kil alias!"
 else
     echo "Windows"
 fi

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "[kil]: begin install kil in your system."
 if [ $0 == "-bash" ]; then
     cur=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)

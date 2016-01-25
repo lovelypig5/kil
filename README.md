@@ -4,9 +4,9 @@ kil is a tool based on nodejs, it helps improve the develop, test and release
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
 *  git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace
-*  install kil use source/. shell cmd, otherwise you need source file manually
+*  run install.sh kil use "source / ." , otherwise you need source file manually
 ```bash
-. ${workspace}/kil/install.sh
+source ${workspace}/kil/install.sh
 ```
 
 Then kil is installed in your pc succeccfully.

@@ -149,7 +149,7 @@ module.exports = {
             console.log('bundle built, copy files to dist folder');
 
             //TODO lib be cdn liked
-            const copyList = ['index.html', 'js', 'img', 'images', 'lib'];
+            const copyList = ['index.html', 'js', 'img', 'images', 'lib', 'css'];
             copyList.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (!err) {

@@ -39,7 +39,7 @@ module.exports = {
         }
 
         var initDefFiles = function() {
-            const folders = ['js', 'less', 'test', 'test/mocha', 'test/phantom', 'mock'];
+            const folders = ['css', 'js', 'less', 'test', 'test/mocha', 'test/phantom', 'mock'];
             folders.forEach((folder) => {
                 try {
                     fs.statSync(folder);
@@ -80,7 +80,7 @@ module.exports = {
             pack_config = utils.loadWebpack('dev');
         var compiler = webpack(pack_config);
         var WebpackDevServer = require(`${node_m}/webpack-dev-server`);
-        var server = new WebpackDevServer(compiler, {
+        var serverCfg = {
             hot: true,
             watchOptions: {
                 poll: 1000
@@ -88,7 +88,11 @@ module.exports = {
             stats: {
                 colors: true
             }
-        }).listen(PORT, 'localhost', (err) => {
+        }
+        if (pack_config.devServer && pack_config.devServer.proxy) {
+            serverCfg.proxy = pack_config.devServer.proxy;
+        }
+        new WebpackDevServer(compiler, serverCfg).listen(PORT, 'localhost', (err) => {
             if (err) {
                 throw err;
             }

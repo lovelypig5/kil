@@ -1,1 +1,1 @@
-document.getElementsByTagName('body')[0].innerHTML = 'It Works!'
+require('./js/main.js')

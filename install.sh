@@ -6,10 +6,12 @@ else
     cur=$(cd "$(dirname "$0")"; pwd)
 fi
 kilAlias="alias kil='node $cur/cli.js'"
+setPath="export KIL_HOME=$cur"
 
 addAlias(){
     echo "[kil]: add alias to $file. "
     echo $kilAlias >> ~/$file
+    echo $setPath >> ~/$file
 }
 
 process(){

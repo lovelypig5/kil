@@ -1,15 +1,19 @@
 #!/bin/bash
 echo "[kil]: begin install kil in your system."
+flag=false
 if [ $0 == "-bash" ]; then
     cur=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 else
     cur=$(cd "$(dirname "$0")"; pwd)
+    flag=true
 fi
 kilAlias="alias kil='node $cur/cli.js'"
+setPath="export KIL_HOME=$cur"
 
 addAlias(){
     echo "[kil]: add alias to $file. "
     echo $kilAlias >> ~/$file
+    echo $setPath >> ~/$file
 }
 
 process(){
@@ -36,7 +40,10 @@ if [ $UNAME == "Darwin" ] || [ $UNAME == "Linux" ]; then
     process
     echo "[kil]: source ~/$file"
     source ~/$file
-    echo "[kil]: kil is installed. please restart bash or source ~/$file manually to enable kil alias!"
+    echo "[kil]: kil is installed."
+    if [ $flag == true ]; then
+        echo "[kil]: please restart bash or source ~/$file manually to enable kil alias!"
+    fi
 else
     echo "Windows"
 fi

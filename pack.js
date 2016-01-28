@@ -2,13 +2,14 @@
     'use strict';
 
     var path = require('path');
+    var HtmlWebpackPlugin = require('html-webpack-plugin')
 
     module.exports = {
-        entry: ['./main'],
+        entry: ['./index'],
         output: {
             path: `${process.cwd()}/dist`,
-            filename: '[name].js',
-            chunkFilename: '[id].js'
+            filename: '[name].[hash].js',
+            chunkFilename: '[id].[hash].js'
         },
         module: {
             loaders: [
@@ -61,7 +62,11 @@
          * plugins to hot reload source file
          * @type {Array}
          */
-        plugins: [],
+        plugins: [
+            new HtmlWebpackPlugin({
+                template: './index.html'
+            })
+        ],
         externals: [
             'style', 'css', 'less', 'imports', 'exports', 'json', 'babel'
         ]

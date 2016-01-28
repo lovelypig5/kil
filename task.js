@@ -49,7 +49,7 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js'];
+            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
@@ -75,10 +75,10 @@ module.exports = {
      * @return {[type]} [description]
      */
     dev: function() {
-        var webpack = require(`webpack`),
+        var webpack = require('webpack'),
             pack_config = utils.loadWebpack('dev');
         var compiler = webpack(pack_config);
-        var WebpackDevServer = require(`webpack-dev-server`);
+        var WebpackDevServer = require('webpack-dev-server');
         var serverCfg = {
             hot: true,
             watchOptions: {
@@ -127,7 +127,7 @@ module.exports = {
      * @return {[type]} [description]
      */
     release: function() {
-        var webpack = require(`${process.cwd()}/node_modules/webpack`),
+        var webpack = require('webpack'),
             pack_config = utils.loadWebpack('release');
 
         this.clean();
@@ -150,7 +150,7 @@ module.exports = {
             console.log('bundle built, copy files to dist folder');
 
             //TODO lib be cdn liked
-            const copyList = ['index.html', 'js', 'img', 'images', 'lib', 'css'];
+            const copyList = ['js', 'img', 'images', 'lib', 'css'];
             copyList.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (!err) {

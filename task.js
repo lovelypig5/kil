@@ -5,7 +5,6 @@ var child_process = require('child_process'),
     fs = require('fs');
 
 const PORT = 9000;
-const node_m = `${process.cwd()}/node_modules`;
 
 module.exports = {
 
@@ -20,7 +19,7 @@ module.exports = {
          * @return {[type]}      [description]
          */
         var initDepends = function(code) {
-            var pack = utils.mergepkcfg();
+            var pack = require(`${process.cwd()}/package.json`);
             fs.writeFile('package.json', JSON.stringify(pack), function(err) {
                 if (err) {
                     throw err
@@ -76,10 +75,10 @@ module.exports = {
      * @return {[type]} [description]
      */
     dev: function() {
-        var webpack = require(`${node_m}/webpack`),
+        var webpack = require(`webpack`),
             pack_config = utils.loadWebpack('dev');
         var compiler = webpack(pack_config);
-        var WebpackDevServer = require(`${node_m}/webpack-dev-server`);
+        var WebpackDevServer = require(`webpack-dev-server`);
         var serverCfg = {
             hot: true,
             watchOptions: {
@@ -108,14 +107,16 @@ module.exports = {
      * @return {[type]} [description]
      */
     test: function() {
-        spawn('./node_modules/karma/bin/karma', ['start', './test/karma.conf.js'], {
-            stdio: 'inherit'
+        spawn('./node_modules/karma/bin/karma', ['start', `${process.cwd()}/test/karma.conf.js`], {
+            stdio: 'inherit',
+            cwd: __dirname
         }).on('close', (code) => {
             console.log('karma process exited with code ' + code);
         });
 
-        spawn('./node_modules/phantomjs/bin/phantomjs', ['./test/phantom/index.test.js'], {
-            stdio: 'inherit'
+        spawn('./node_modules/phantomjs/bin/phantomjs', [`${process.cwd()}/test/phantom/index.test.js`], {
+            stdio: 'inherit',
+            cwd: __dirname
         }).on('close', (code) => {
             console.log('phontom process exited with code ' + code);
         });

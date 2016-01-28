@@ -12,7 +12,7 @@ class Utils {
      * @return config
      */
     loadWebpack(target) {
-        var webpack = require(`${process.cwd()}/node_modules/webpack`);
+        var webpack = require(`webpack`);
 
         var pack_def = require('./pack');
         var pack = {};
@@ -47,7 +47,7 @@ class Utils {
                     console.info('Info: use default pack.js provided by kil.');
                 }
 
-                var ExtractTextPlugin = require(`${process.cwd()}/node_modules/extract-text-webpack-plugin`);
+                var ExtractTextPlugin = require(`extract-text-webpack-plugin`);
                 var pack_config = this.mergeConfig(pack_def, pack);
                 // source map for production
                 pack_config.devtool = 'source-map';
@@ -127,7 +127,7 @@ class Utils {
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
             pack_config.resolve = pack.resolve || pack_def.resolve;
-
+            pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
             if (pack_config.module && pack_config.module.loaders) {
                 Array.prototype.push.apply(pack_def.module.loaders, pack_config.module.loaders);
             }
@@ -142,58 +142,8 @@ class Utils {
                 Array.prototype.push.apply(pack_def.externals, pack_config.externals);
             }
             pack_config.externals = pack_def.externals;
-
             return pack_config;
         }
-    }
-
-    /**
-     * add dev dependencies to package.json
-     * @param  {[type]} code: exit code
-     * @return {[type]}
-     *     merged package file
-     */
-    mergepkcfg(code) {
-        var pack = require(`${process.cwd()}/package.json`);
-        pack.devDependencies = {
-            "webpack": "^1.12.10",
-            "webpack-dev-server": "^1.14.0",
-            "less": "^2.5.3",
-            "imports-loader": "^0.6.5",
-            "exports-loader": "^0.6.2",
-            "less-loader": "^2.2.2",
-            "css-loader": "^0.23.1",
-            "style-loader": "^0.13.0",
-            "json-loader": "^0.5.4",
-
-            // Mock data for dev
-            "mockjs": "^1.0.0",
-
-            // babel translate es6 to es5
-            "babel-core": "^6.3.26",
-            "babel-loader": "^6.2.0",
-            "babel-plugin-transform-runtime": "^6.3.13",
-            "babel-preset-es2015": "^6.3.13",
-
-            // test runner, frameworks and endless broswers
-            "karma": "^0.13.19",
-            "karma-chrome-launcher": "^0.2.2",
-            "karma-coverage": "^0.5.3",
-            "karma-mocha": "^0.2.1",
-            "karma-mocha-reporter": "^1.1.5",
-            "karma-phantomjs-launcher": "^0.2.3",
-            "karma-requirejs": "^0.2.2",
-            "karma-sourcemap-loader": "^0.3.6",
-            "karma-webpack": "^1.7.0",
-            "phantomjs": "^1.9.19",
-            "mocha": "^2.3.4",
-            "mocha-loader": "^0.7.1",
-
-            // extract css
-            "extract-text-webpack-plugin": "^1.0.1"
-        };
-
-        return pack;
     }
 }
 

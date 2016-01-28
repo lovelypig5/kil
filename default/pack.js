@@ -1,6 +1,6 @@
 (() => {
-
-    var webpack = require('webpack');
+    var path = require('path');
+    var webpack = require(path.resolve(process.env.KIL_HOME, 'node_modules', 'webpack'));
 
     module.exports = {
         // if single entry is used, bundle name will be named as main.js
@@ -10,25 +10,8 @@
             // new webpack.ProvidePlugin({
             //     $: "jquery",
             //     jQuery: "jquery"
-            // }),
-            // new webpack.optimize.CommonsChunkPlugin({
-            //     name: "common"
             // })
         ],
-        devServer: {
-            proxy: {
-                '/*': {
-                    target: 'activity.gongzuojihui.com',
-                    secure: false,
-                    bypass: function(req, res, proxyOptions) {
-                        if (req.headers.accept.indexOf('html') !== -1) {
-                            console.log('Skipping proxy for browser request.');
-                            return '/index.html';
-                        }
-                    },
-                },
-            },
-        },
         module: {
             loaders: []
         },

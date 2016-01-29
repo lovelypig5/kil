@@ -4,8 +4,6 @@ var child_process = require('child_process'),
     spawn = child_process.spawn,
     fs = require('fs');
 
-const PORT = 9000;
-
 module.exports = {
 
     /**
@@ -49,19 +47,13 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
+            const cpfiles = ['kil.config.js', 'pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
                         fs.createReadStream(`${__dirname}/default/${file}`).pipe(fs.createWriteStream(`${process.cwd()}/${file}`));
                     }
                 })
-            })
-
-            fs.stat('pack.js', (err, stats) => {
-                if (err) {
-                    fs.createReadStream(`${__dirname}/pack.js`).pipe(fs.createWriteStream(`${process.cwd()}/test/kil.pack.js`));
-                }
             })
         }
 
@@ -76,7 +68,9 @@ module.exports = {
      */
     dev: function() {
         var webpack = require('webpack'),
-            pack_config = utils.loadWebpack('dev');
+            pack_config = utils.loadWebpack('dev'),
+            conf = utils.loadConfig();
+
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
         var serverCfg = {
@@ -91,13 +85,14 @@ module.exports = {
         if (pack_config.devServer && pack_config.devServer.proxy) {
             serverCfg.proxy = pack_config.devServer.proxy;
         }
-        new WebpackDevServer(compiler, serverCfg).listen(PORT, 'localhost', (err) => {
+
+        new WebpackDevServer(compiler, serverCfg).listen(conf.port, 'localhost', (err) => {
             if (err) {
                 throw err;
             }
 
             console.log('----------------------------------');
-            console.log(`Server listening at localhost:${PORT}`);
+            console.log(`Server listening at localhost:${conf.port}`);
             console.log('----------------------------------');
         });
     },

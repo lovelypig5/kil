@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path');
-const PORT = 9000;
 
 class Utils {
 
@@ -13,6 +12,7 @@ class Utils {
      */
     loadWebpack(target) {
         var webpack = require(`webpack`);
+        var conf = this.loadConfig();
 
         var pack_def = require('./pack');
         var pack = {};
@@ -28,12 +28,20 @@ class Utils {
                 var pack_config = this.mergeConfig(pack_def, pack, true);
                 pack_config.devtool = 'eval';
 
-                //load mock.js before all
-                pack_config.module.loaders.push({
-                    test: path.resolve(process.cwd(), './index.js'),
-                    exclude: /(node_modules|bower_components)/,
-                    loaders: ['imports?Mock=./mock/mock.js', `babel?presets[]=${require.resolve('babel-preset-es2015')}&plugins[]=${require.resolve('babel-plugin-transform-runtime')}&cacheDirectory`]
-                });
+                if (conf.mock === true) {
+                    var babelqrstr = '';
+                    if (conf.react === true) {
+                        babelqrstr = `presets[]=${require.resolve('babel-preset-react')}&`;
+                    }
+                    babelqrstr = `${babelqrstr}presets[]=${require.resolve('babel-preset-es2015')}&plugins[]=${require.resolve('babel-plugin-transform-runtime')}&cacheDirectory=true`;
+
+                    //load mock.js before all
+                    pack_config.module.loaders.push({
+                        test: path.resolve(process.cwd(), './index.js'),
+                        exclude: /(node_modules|bower_components)/,
+                        loaders: ['imports?Mock=./mock/mock.js', `babel?${babelqrstr}`]
+                    });
+                }
 
                 // add plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
@@ -75,12 +83,13 @@ class Utils {
      * @return {[type]}
      */
     parseEntry(entry, dev) {
+        var conf = this.loadConfig();
         if (entry) {
             var type = Object.prototype.toString.call(entry);
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${PORT}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 entry.forEach((entryNext, index) => {
@@ -150,6 +159,22 @@ class Utils {
             return pack_config;
         }
     }
+
+    /**
+     * load config for kil
+     */
+    loadConfig() {
+        if (this.conf) {
+            return this.conf;
+        }
+
+        this.conf = require(`${process.cwd()}/kil.config`);
+        this.conf.port = this.conf.port || 9000;
+        this.conf.mock = !!this.conf.mock;
+        this.conf.react = !!this.conf.react;
+
+        return this.conf;
+    }
 }
 
-module.exports = new Utils()
+module.exports = new Utils();

@@ -21,7 +21,12 @@
                 {
                     test: /\.jsx?$/,
                     exclude: /(node_modules|bower_components)/,
-                    loaders: ['babel?presets[]=es2015&plugins[]=transform-runtime']
+                    loader: 'babel',
+                    query: {
+                        cacheDirectory: true,
+                        presets: [require.resolve('babel-preset-es2015')],
+                        plugins: [require.resolve('babel-plugin-transform-runtime')]
+                    }
                 }, {
                     test: /\.(woff|woff2)$/,
                     loader: "url-loader?limit=10000&mimetype=application/font-woff"
@@ -48,14 +53,14 @@
         },
         resolve: {
             root: [
-                path.resolve(__dirname, 'node_modules'),
-                path.resolve(process.cwd(), 'node_modules')
+                path.join(__dirname, 'node_modules'),
+                path.join(process.cwd(), 'node_modules')
             ]
         },
         resolveLoader: {
             root: [
-                path.resolve(__dirname, 'node_modules'),
-                path.resolve(process.cwd(), 'node_modules')
+                path.join(__dirname, 'node_modules'),
+                path.join(process.cwd(), 'node_modules')
             ]
         },
         /**

@@ -32,7 +32,7 @@ class Utils {
                 pack_config.module.loaders.push({
                     test: path.resolve(process.cwd(), './index.js'),
                     exclude: /(node_modules|bower_components)/,
-                    loaders: ['imports?Mock=./mock/mock.js', 'babel?presets[]=es2015&plugins[]=transform-runtime']
+                    loaders: ['imports?Mock=./mock/mock.js', `babel?presets[]=${require.resolve('babel-preset-es2015')}&plugins[]=${require.resolve('babel-plugin-transform-runtime')}&cacheDirectory`]
                 });
 
                 // add plugin

@@ -4,12 +4,18 @@
 
     module.exports = {
         // if single entry is used, bundle name will be named as main.js
-        entry: "./index",
+        entry: {
+            main: "./index"
+                // common: ['jquery']
+        },
         // plugins example, default no more
         plugins: [
             // new webpack.ProvidePlugin({
             //     $: "jquery",
             //     jQuery: "jquery"
+            // }),
+            // new webpack.optimize.CommonsChunkPlugin({
+            //     name: "common"
             // })
         ],
         module: {

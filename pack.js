@@ -1,8 +1,15 @@
 (() => {
     'use strict';
 
+    const conf = require(`${process.cwd()}/kil.config`);
+    var babelqrstr = '';
+    if (conf.react === true) {
+        babelqrstr = `presets[]=${require.resolve('babel-preset-react')}&`;
+    }
+    babelqrstr = `${babelqrstr}presets[]=${require.resolve('babel-preset-es2015')}&plugins[]=${require.resolve('babel-plugin-transform-runtime')}&cacheDirectory=true`;
+
     var path = require('path');
-    var HtmlWebpackPlugin = require('html-webpack-plugin')
+    var HtmlWebpackPlugin = require('html-webpack-plugin');
 
     /**
      * only given props will be used
@@ -32,12 +39,7 @@
                 {
                     test: /\.jsx?$/,
                     exclude: /(node_modules|bower_components)/,
-                    loader: 'babel',
-                    query: {
-                        cacheDirectory: true,
-                        presets: [require.resolve('babel-preset-es2015')],
-                        plugins: [require.resolve('babel-plugin-transform-runtime')]
-                    }
+                    loaders: [`babel?${babelqrstr}`]
                 }, {
                     test: /\.(woff|woff2)$/,
                     loader: "url?limit=10000&mimetype=application/font-woff"

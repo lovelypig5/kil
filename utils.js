@@ -53,11 +53,11 @@ class Utils {
                 pack_config.devtool = 'source-map';
                 pack_config.module.loaders.forEach((loader) => {
                     if (loader.test.test('*.less')) {
-                        loader.loader = ExtractTextPlugin.extract("style", "css!less");
+                        loader.loader = ExtractTextPlugin.extract("style", "css?source-map!postcss!less");
                     }
                 })
                 pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin());
-                pack_config.plugins.push(new ExtractTextPlugin('[name].css'));
+                pack_config.plugins.push(new ExtractTextPlugin('[name].[hash].css'));
 
                 return pack_config;
             default:
@@ -126,12 +126,14 @@ class Utils {
 
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
-            pack_config.resolve = pack.resolve || pack_def.resolve;
-            pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
+
             if (pack_config.module && pack_config.module.loaders) {
                 Array.prototype.push.apply(pack_def.module.loaders, pack_config.module.loaders);
             }
             pack_config.module.loaders = pack_def.module.loaders;
+
+            pack_config.resolve = pack.resolve || pack_def.resolve;
+            pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
 
             if (pack_config.plugins) {
                 Array.prototype.push.apply(pack_def.plugins, pack_config.plugins);
@@ -141,7 +143,10 @@ class Utils {
             if (pack_config.externals) {
                 Array.prototype.push.apply(pack_def.externals, pack_config.externals);
             }
+
             pack_config.externals = pack_def.externals;
+            pack_config.postcss = pack_def.postcss;
+
             return pack_config;
         }
     }

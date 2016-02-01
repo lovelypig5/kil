@@ -3,16 +3,6 @@ var url = require('url');
 
 const enableMock = true;
 if (enableMock) {
-    $.ajaxSetup({
-        dataFilter(data, dataType) {
-            try {
-                return JSON.parse(data);
-            } catch (Ex) {
-                return data;
-            }
-        }
-    });
-
     Mock.setup({
         timeout: '200-600',
         responseType: 'json'

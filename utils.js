@@ -29,17 +29,12 @@ class Utils {
                 pack_config.devtool = 'eval';
 
                 if (conf.mock === true) {
-                    var babelqrstr = '';
-                    if (conf.react === true) {
-                        babelqrstr = `presets[]=${require.resolve('babel-preset-react')}&`;
-                    }
-                    babelqrstr = `${babelqrstr}presets[]=${require.resolve('babel-preset-es2015')}&plugins[]=${require.resolve('babel-plugin-transform-runtime')}&cacheDirectory=true`;
-
+                    var babelQueryStr = require('./babel');
                     //load mock.js before all
                     pack_config.module.loaders.push({
                         test: path.resolve(process.cwd(), './index.js'),
                         exclude: /(node_modules|bower_components)/,
-                        loaders: ['imports?Mock=./mock/mock.js', `babel?${babelqrstr}`]
+                        loaders: ['imports?Mock=./mock/mock.js', `babel?${babelQueryStr}`]
                     });
                 }
 

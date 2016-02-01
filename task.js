@@ -18,6 +18,11 @@ module.exports = {
          */
         var initDepends = function(code) {
             var pack = require(`${process.cwd()}/package.json`);
+            pack.kil = {
+                "port": 9000,
+                "mock": true, // default false
+                "react": true // use react
+            };
             fs.writeFile('package.json', JSON.stringify(pack), function(err) {
                 if (err) {
                     throw err
@@ -47,7 +52,7 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['kil.config.js', 'pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
+            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
@@ -151,9 +156,7 @@ module.exports = {
                     if (!err) {
                         spawn('cp', ['-r', file, `dist/${file}`], {
                             stdio: 'inherit'
-                        }).on('close', function(code) {
-
-                        })
+                        }).on('close', function(code) {})
                     }
                 })
             });

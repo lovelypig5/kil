@@ -163,7 +163,7 @@ class Utils {
             return this.conf;
         }
 
-        this.conf = require(`${process.cwd()}/kil.config`);
+        this.conf = require(`${process.cwd()}/package.json`).kil;
         this.conf.port = this.conf.port || 9000;
         this.conf.mock = !!this.conf.mock;
         this.conf.react = !!this.conf.react;

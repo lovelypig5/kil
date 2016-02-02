@@ -1,4 +1,5 @@
-var utils = require('./utils');
+var config = require('./config'),
+    utils = require('./utils');
 var child_process = require('child_process'),
     exec = child_process.exec,
     spawn = child_process.spawn,
@@ -72,8 +73,8 @@ module.exports = {
      * @return {[type]} [description]
      */
     dev: function(args) {
-        var webpack = require('webpack'),
-            conf = utils.loadConfig(args),
+        var conf = config.loadConfig(args),
+            webpack = require('webpack'),
             pack_config = utils.loadWebpack('dev');
 
         var compiler = webpack(pack_config);

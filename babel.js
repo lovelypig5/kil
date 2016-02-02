@@ -3,7 +3,8 @@
  * @type {[type]}
  */
 var utils = require('./utils'),
-    conf = utils.loadConfig();
+    config = require('./config'),
+    conf = config.loadConfig();
 
 var babelQueryStr = {};
 babelQueryStr.presets = [require.resolve('babel-preset-es2015')];

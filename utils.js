@@ -1,6 +1,7 @@
 'use strict';
 
 var path = require('path');
+var config = require("./config");
 
 class Utils {
 
@@ -11,23 +12,15 @@ class Utils {
      * @return config
      */
     loadWebpack(target) {
-        var webpack = require(`webpack`);
+        var webpack = require('webpack');
+        var conf = config.loadConfig();
 
-        var pack_def = require('./pack');
-        var pack = {};
         switch (target) {
             case 'dev':
-                try {
-                    pack = require(`${process.cwd()}/pack`);
-                } catch (e) {
-                    console.info('Error: %s', e.message);
-                    console.info('Info: use default pack.js provided by kil.');
-                }
-
-                var pack_config = this.mergeConfig(pack_def, pack, true);
+                var pack_config = this.mergeConfig(true);
                 pack_config.devtool = 'eval';
 
-                if (this.conf.mock === true) {
+                if (conf.mock === true) {
                     var babelQueryStr = require('./babel');
                     //load mock.js before all
                     pack_config.module.loaders.push({
@@ -42,15 +35,8 @@ class Utils {
 
                 return pack_config;
             case 'release':
-                try {
-                    pack = require(`${process.cwd()}/pack`);
-                } catch (e) {
-                    console.info('Error: %s', e.message);
-                    console.info('Info: use default pack.js provided by kil.');
-                }
-
                 var ExtractTextPlugin = require(`extract-text-webpack-plugin`);
-                var pack_config = this.mergeConfig(pack_def, pack);
+                var pack_config = this.mergeConfig();
                 // source map for production
                 pack_config.devtool = 'source-map';
                 pack_config.module.loaders.forEach((loader) => {
@@ -77,12 +63,13 @@ class Utils {
      * @return {[type]}
      */
     parseEntry(entry, dev) {
+        var conf = config.loadConfig();
         if (entry) {
             var type = Object.prototype.toString.call(entry);
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${this.conf.port}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 entry.forEach((entryNext, index) => {
@@ -108,13 +95,14 @@ class Utils {
     }
 
     /**
-     * merge webpack config
-     * @param  {[Object]}  pack_def : default webpack config
-     * @param  {[Object]}  pack     : user's webpack config
+     * merge webpack default config, user's config, and config from package.json
      * @param  {Boolean} isDebug    : is debug mode, add dev-sever or not
      * @return {[Object]}
      */
-    mergeConfig(pack_def, pack, isDebug) {
+    mergeConfig(isDebug) {
+        var pack_def = require('./pack');
+        var pack = this.mergeJsonConfig();
+
         if (!pack) {
             return pack_def;
         } else {
@@ -123,15 +111,15 @@ class Utils {
                 pack_config.entry = pack_def.entry;
             }
             pack_config.entry = this.parseEntry(pack_config.entry, isDebug);
-
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
 
             if (pack_config.module && pack_config.module.loaders) {
                 Array.prototype.push.apply(pack_def.module.loaders, pack_config.module.loaders);
             }
-            pack_config.module.loaders = pack_def.module.loaders;
 
+            pack_config.module.loaders = pack_def.module.loaders;
+            console.log(pack_config.module.loaders);
             pack_config.resolve = pack.resolve || pack_def.resolve;
             pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
 
@@ -152,30 +140,29 @@ class Utils {
     }
 
     /**
-     * load config for kil
+     * [mergeJsonConfig description]
+     * @param  {[type]} pack [description]
+     * @return {[type]}      [description]
      */
-    loadConfig(args) {
-        if (this.conf) {
-            return this.conf;
+    mergeJsonConfig(pack) {
+        var pack;
+        try {
+            pack = require(`${process.cwd()}/pack`);
+        } catch (e) {
+            console.info('Error: %s', e.message);
+            console.info('Info: use default pack.js provided by kil.');
         }
 
-        this.conf = require(`${process.cwd()}/package.json`).kil;
-        let port = 9000;
-        if (args && args.port) {
-            try {
-                port = parseInt(args.port);
-            } catch (err) {
-                console.error('[kil]: error port!');
+        if (!pack) {
+            pack = {
+                entry: conf.entry,
+                plugins: conf.plugins
             }
-        } else {
-            port = this.conf.port || port;
         }
-        this.conf.port = port;
-        this.conf.mock = !!this.conf.mock;
-        this.conf.react = !!this.conf.react;
 
-        return this.conf;
+        return pack;
     }
+
 }
 
 module.exports = new Utils();

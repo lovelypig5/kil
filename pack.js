@@ -69,11 +69,7 @@
          * plugins to hot reload source file
          * @type {Array}
          */
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: './index.html'
-            })
-        ],
+        plugins: [],
         externals: [
             'style-loader', 'css-loader', 'postcss-loader', 'less-loader', 'imports-loader', 'exports-loader', 'json-loader', 'babel-loader', 'file-loader', 'url-loader'
         ],

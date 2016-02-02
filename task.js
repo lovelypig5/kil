@@ -51,7 +51,7 @@ module.exports = {
         }
 
         var initDefFiles = function() {
-            const folders = ['css', 'js', 'less', 'test', 'test/mocha', 'test/phantom', 'mock'];
+            const folders = ['js', 'test', 'test/mocha', 'test/phantom', 'mock'];
             folders.forEach((folder) => {
                 try {
                     fs.statSync(folder);
@@ -159,7 +159,7 @@ module.exports = {
             console.log('bundle built, copy files to dist folder');
 
             //TODO lib be cdn liked
-            const copyList = ['js', 'img', 'images', 'lib', 'css'];
+            const copyList = ['img', 'images', 'lib'];
             copyList.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (!err) {

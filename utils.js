@@ -96,10 +96,8 @@ class Utils {
                     }
                 });
             } else {
-                //TODO only first of each object will be parsed as entry
                 for (var key in entry) {
                     entry[key] = this.parseEntry(entry[key], dev);
-                    break;
                 }
             }
 
@@ -162,7 +160,17 @@ class Utils {
         }
 
         this.conf = require(`${process.cwd()}/package.json`).kil;
-        this.conf.port = args.port || this.conf.port || 9000;
+        let port = 9000;
+        if (args && args.port) {
+            try {
+                port = parseInt(args.port);
+            } catch (err) {
+                console.error('[kil]: error port!');
+            }
+        } else {
+            port = this.conf.port || port;
+        }
+        this.conf.port = port;
         this.conf.mock = !!this.conf.mock;
         this.conf.react = !!this.conf.react;
 

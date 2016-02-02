@@ -18,6 +18,11 @@ module.exports = {
          */
         var initDepends = function(code) {
             var pack = require(`${process.cwd()}/package.json`);
+            pack.kil = {
+                "port": 9000,
+                "mock": true, // default false
+                "react": true // use react
+            };
             fs.writeFile('package.json', JSON.stringify(pack), function(err) {
                 if (err) {
                     throw err
@@ -47,7 +52,7 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['kil.config.js', 'pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
+            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
@@ -66,10 +71,10 @@ module.exports = {
      * load webpack config and start webpack dev server
      * @return {[type]} [description]
      */
-    dev: function() {
+    dev: function(args) {
         var webpack = require('webpack'),
-            pack_config = utils.loadWebpack('dev'),
-            conf = utils.loadConfig();
+            conf = utils.loadConfig(args),
+            pack_config = utils.loadWebpack('dev');
 
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -102,9 +107,8 @@ module.exports = {
      * @return {[type]} [description]
      */
     test: function() {
-        spawn('./node_modules/karma/bin/karma', ['start', `${process.cwd()}/test/karma.conf.js`], {
-            stdio: 'inherit',
-            cwd: __dirname
+        spawn(`${__dirname}/node_modules/karma/bin/karma`, ['start', `${process.cwd()}/test/karma.conf.js`], {
+            stdio: 'inherit'
         }).on('close', (code) => {
             console.log('karma process exited with code ' + code);
         });
@@ -151,9 +155,7 @@ module.exports = {
                     if (!err) {
                         spawn('cp', ['-r', file, `dist/${file}`], {
                             stdio: 'inherit'
-                        }).on('close', function(code) {
-
-                        })
+                        }).on('close', function(code) {})
                     }
                 })
             });
@@ -174,9 +176,15 @@ module.exports = {
 
 
     help: function() {
-        console.log('----------------------------------');
-        console.log(`--------TODO: Help Option---------`);
-        console.log('----------------------------------');
+        console.log('  Package Commands:'.to.bold.green.color);
+        console.log();
+        console.log('    init           initialize a package');
+        console.log('    dev            develop with a dev server');
+        console.log('    test           test a package');
+        console.log('    doc            documentation manager');
+        console.log('    build          build a package');
+        console.log('    release        build a package');
+        console.log();
     }
 
 }

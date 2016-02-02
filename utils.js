@@ -6,13 +6,12 @@ class Utils {
 
     /**
      * load webpack:
-     *     @task dev: add dev-server and enable HMR
+     *     @task dev: add dev-server and enable HMR, according to mock config, enable mock
      *     @task release: add uglifyjs
      * @return config
      */
     loadWebpack(target) {
         var webpack = require(`webpack`);
-        var conf = this.loadConfig();
 
         var pack_def = require('./pack');
         var pack = {};
@@ -28,7 +27,7 @@ class Utils {
                 var pack_config = this.mergeConfig(pack_def, pack, true);
                 pack_config.devtool = 'eval';
 
-                if (conf.mock === true) {
+                if (this.conf.mock === true) {
                     var babelQueryStr = require('./babel');
                     //load mock.js before all
                     pack_config.module.loaders.push({
@@ -78,13 +77,12 @@ class Utils {
      * @return {[type]}
      */
     parseEntry(entry, dev) {
-        var conf = this.loadConfig();
         if (entry) {
             var type = Object.prototype.toString.call(entry);
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${this.conf.port}`, 'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 entry.forEach((entryNext, index) => {
@@ -113,10 +111,10 @@ class Utils {
 
     /**
      * merge webpack config
-     * @param  {[type]}  pack_def : default webpack config
-     * @param  {[type]}  pack     : user's webpack config
-     * @param  {Boolean} isDebug  : is debug mode, add dev-sever or not
-     * @return {[type]}
+     * @param  {[Object]}  pack_def : default webpack config
+     * @param  {[Object]}  pack     : user's webpack config
+     * @param  {Boolean} isDebug    : is debug mode, add dev-sever or not
+     * @return {[Object]}
      */
     mergeConfig(pack_def, pack, isDebug) {
         if (!pack) {
@@ -158,13 +156,13 @@ class Utils {
     /**
      * load config for kil
      */
-    loadConfig() {
+    loadConfig(args) {
         if (this.conf) {
             return this.conf;
         }
 
-        this.conf = require(`${process.cwd()}/kil.config`);
-        this.conf.port = this.conf.port || 9000;
+        this.conf = require(`${process.cwd()}/package.json`).kil;
+        this.conf.port = args.port || this.conf.port || 9000;
         this.conf.mock = !!this.conf.mock;
         this.conf.react = !!this.conf.react;
 

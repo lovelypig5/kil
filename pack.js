@@ -3,8 +3,6 @@
 
     var path = require('path');
     var HtmlWebpackPlugin = require('html-webpack-plugin');
-
-    const conf = require(`${process.cwd()}/kil.config`);
     const babelQueryStr = require('./babel');
 
     /**

@@ -13,7 +13,7 @@ if (process.env.KIL_HOME) {
 }
 
 var webpack = require(webpackPath);
-var pack_config = require('../pack');
+var pack_config = require('../pack.default');
 delete pack_config.entry;
 delete pack_config.output;
 // quick source map, dev tool for rebuild performance

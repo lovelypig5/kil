@@ -21,8 +21,17 @@ module.exports = {
             var pack = require(`${process.cwd()}/package.json`);
             pack.kil = {
                 "port": 9000,
-                "mock": true, // default false
-                "react": true // use react
+                "mock": false, // default false
+                "react": false, // use react
+                "webpack": {
+                    "output": {
+                        "*.html": [
+                            "[name]"
+                        ]
+                    },
+                    "commonTrunk": {},
+                    "global": {}
+                }
             };
             fs.writeFile('package.json', JSON.stringify(pack), function(err) {
                 if (err) {
@@ -53,7 +62,7 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
+            const cpfiles = ['pack.default.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {

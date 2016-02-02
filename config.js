@@ -1,49 +1,46 @@
 'use strict';
 var glob = require("glob");
+var conf;
 
 class Config {
 
     loadConfig(args) {
-        if (this.conf) {
-            return this.conf;
-        }
-
-        if (args) {
-            console.log('[kil]: init with args');
-            console.log(args);
+        if (conf) {
+            return conf;
         }
 
         var webpack = require('webpack');
         var HtmlWebpackPlugin = require('html-webpack-plugin');
-        this.conf = require(`${process.cwd()}/package.json`).kil;
-        this.conf.port = this.conf.port || 9000;
+        conf = require(`${process.cwd()}/package.json`).kil;
+        conf.port = conf.port || 9000;
         if (args && args.port) {
             try {
-                this.conf.port = parseInt(args.port);
+                conf.port = parseInt(args.port);
             } catch (err) {
                 console.error('[kil]: error port!');
             }
         }
-        this.conf.mock = !!this.conf.mock;
-        this.conf.react = !!this.conf.react;
-        this.conf.files = [];
-        this.conf.entry = {};
-        this.conf.plugins = [];
+        conf.mock = !!conf.mock;
+        conf.react = !!conf.react;
 
+        var pack = conf.webpack;
+        pack.files = [];
+        pack.entry = {};
+        pack.plugins = [];
         // add output
-        if (this.conf.output) {
-            for (let key in this.conf.output) {
+        if (pack.output) {
+            for (let key in pack.output) {
                 let files = glob.sync(key);
                 files.forEach((file) => {
                     let name = './' + file;
                     let entry = file.replace('.html', '');
-                    this.conf.files.push('./' + file);
-                    this.conf.entry[entry] = './' + entry;
+                    pack.files.push('./' + file);
+                    pack.entry[entry] = './' + entry;
 
-                    let depends = this.conf.output[key].map(function(depend) {
+                    let depends = pack.output[key].map(function(depend) {
                         return depend.replace('[name]', entry);
                     });
-                    this.conf.plugins.push(new HtmlWebpackPlugin({
+                    pack.plugins.push(new HtmlWebpackPlugin({
                         template: name,
                         filename: name,
                         chunks: depends
@@ -53,20 +50,23 @@ class Config {
         }
 
         // add common trunk
-        if (this.conf.commonTrunk) {
-            for (let key in this.conf.commonTrunk) {
-                this.conf.entry[key] = this.conf.commonTrunk[key];
-                this.conf.plugins.push(new webpack.optimize.CommonsChunkPlugin({
+        if (pack.commonTrunk) {
+            for (let key in pack.commonTrunk) {
+                pack.entry[key] = pack.commonTrunk[key];
+                pack.plugins.push(new webpack.optimize.CommonsChunkPlugin({
                     name: key
                 }))
             }
         }
 
-        if (this.conf.global) {
-            this.conf.plugins.push(new webpack.ProvidePlugin(this.conf.global))
+        if (pack.global) {
+            pack.plugins.push(new webpack.ProvidePlugin(pack.global))
         }
+        conf.webpack = pack;
 
-        return this.conf;
+        console.info('[kil]: config initialized.');
+
+        return conf;
     }
 
 }

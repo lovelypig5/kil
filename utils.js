@@ -2,6 +2,7 @@
 
 var path = require('path');
 var config = require("./config");
+var babel = require('./babel');
 
 class Utils {
 
@@ -21,7 +22,15 @@ class Utils {
                 pack_config.devtool = 'eval';
 
                 if (conf.mock === true) {
-                    var babelQueryStr = require('./babel');
+                    var babelQueryStr = babel(true);
+                    var entryPath = [];
+                    // if (conf.webpack && conf.webpack.entry) {
+                    //     entryPath = conf.webpack.entry.map((entry) => {
+                    //         return path.resolve(process.cwd(), entry);
+                    //     })
+                    // }
+
+
                     //load mock.js before all
                     pack_config.module.loaders.push({
                         test: path.resolve(process.cwd(), './index.js'),
@@ -62,7 +71,7 @@ class Utils {
      *     release: do nothing with enties expcet convert string to array
      * @return {[type]}
      */
-    parseEntry(entry, dev) {
+    parseEntry(entry, dev, depth) {
         var conf = config.loadConfig();
         if (entry) {
             var type = Object.prototype.toString.call(entry);
@@ -72,16 +81,9 @@ class Utils {
                     entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
-                entry.forEach((entryNext, index) => {
-                    // handle as ['./main.js']
-                    if (Object.prototype.toString.call(entryNext) === '[object String]') {
-                        entry = this.parseEntry(entryNext, dev);
-                    }
-                    // handle as [object1, object2]
-                    else {
-                        entryNext = this.parseEntry(entryNext, dev);
-                    }
-                });
+                if (dev) {
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
+                }
             } else {
                 for (var key in entry) {
                     entry[key] = this.parseEntry(entry[key], dev);
@@ -90,13 +92,13 @@ class Utils {
 
             return entry;
         } else {
-            //TODO are you kiding me? no entry
+            console.error('[kil]: No entry is found!'.to.bold.red.color);
         }
     }
 
     /**
      * merge webpack default config, user's config, and config from package.json
-     * @param  {Boolean} isDebug    : is debug mode, add dev-sever or not
+     * @param  {Boolean} isDebug : is debug mode, add dev-sever or not
      * @return {[Object]}
      */
     mergeConfig(isDebug) {
@@ -116,10 +118,16 @@ class Utils {
 
             if (pack_config.module && pack_config.module.loaders) {
                 Array.prototype.push.apply(pack_def.module.loaders, pack_config.module.loaders);
+            } else {
+                pack_config.module = {};
             }
 
             pack_config.module.loaders = pack_def.module.loaders;
-            console.log(pack_config.module.loaders);
+            pack_config.module.loaders.push({
+                test: /\.jsx?$/,
+                exclude: /(node_modules|bower_components)/,
+                loaders: [`babel?${babel(isDebug)}`]
+            });
             pack_config.resolve = pack.resolve || pack_def.resolve;
             pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
 
@@ -140,22 +148,22 @@ class Utils {
     }
 
     /**
-     * [mergeJsonConfig description]
-     * @param  {[type]} pack [description]
-     * @return {[type]}      [description]
+     * if pack.js not exist, read config from package.json
+     * @return {[Object]}  : config json
      */
-    mergeJsonConfig(pack) {
+    mergeJsonConfig() {
         var pack;
         try {
             pack = require(`${process.cwd()}/pack`);
         } catch (e) {
-            console.info('Error: %s', e.message);
-            console.info('Info: use default pack.js provided by kil.');
+            console.info('Error: %s'.to.bold.blue.color, e.message);
+            console.info('Info: use default pack.js provided by kil.'.to.bold.blue.color);
         }
 
         if (!pack) {
+            var conf = config.loadConfig().webpack;
             pack = {
-                entry: conf.entry,
+                entry: conf.entry || 'main',
                 plugins: conf.plugins
             }
         }

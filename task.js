@@ -107,9 +107,8 @@ module.exports = {
      * @return {[type]} [description]
      */
     test: function() {
-        spawn('./node_modules/karma/bin/karma', ['start', `${process.cwd()}/test/karma.conf.js`], {
-            stdio: 'inherit',
-            cwd: __dirname
+        spawn(`${__dirname}/node_modules/karma/bin/karma`, ['start', `${process.cwd()}/test/karma.conf.js`], {
+            stdio: 'inherit'
         }).on('close', (code) => {
             console.log('karma process exited with code ' + code);
         });

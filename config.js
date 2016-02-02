@@ -1,5 +1,6 @@
 'use strict';
-var glob = require("glob");
+var glob = require('glob');
+var path = require('path');
 var conf;
 
 class Config {
@@ -33,16 +34,16 @@ class Config {
                 let files = glob.sync(key);
                 files.forEach((file) => {
                     let name = './' + file;
-                    let entry = file.replace('.html', '');
+                    let entry = path.basename(file, '.html');
                     pack.files.push('./' + file);
-                    pack.entry[entry] = './' + entry;
+                    pack.entry[entry] = './' + file.replace('.html', '');
 
                     let depends = pack.output[key].map(function(depend) {
                         return depend.replace('[name]', entry);
                     });
                     pack.plugins.push(new HtmlWebpackPlugin({
                         template: name,
-                        filename: name,
+                        filename: entry,
                         chunks: depends
                     }))
                 })

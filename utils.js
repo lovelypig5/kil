@@ -6,7 +6,7 @@ class Utils {
 
     /**
      * load webpack:
-     *     @task dev: add dev-server and enable HMR
+     *     @task dev: add dev-server and enable HMR, according to mock config, enable mock
      *     @task release: add uglifyjs
      * @return config
      */
@@ -111,10 +111,10 @@ class Utils {
 
     /**
      * merge webpack config
-     * @param  {[type]}  pack_def : default webpack config
-     * @param  {[type]}  pack     : user's webpack config
-     * @param  {Boolean} isDebug  : is debug mode, add dev-sever or not
-     * @return {[type]}
+     * @param  {[Object]}  pack_def : default webpack config
+     * @param  {[Object]}  pack     : user's webpack config
+     * @param  {Boolean} isDebug    : is debug mode, add dev-sever or not
+     * @return {[Object]}
      */
     mergeConfig(pack_def, pack, isDebug) {
         if (!pack) {

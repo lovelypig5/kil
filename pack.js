@@ -3,7 +3,6 @@
 
     var path = require('path');
     var HtmlWebpackPlugin = require('html-webpack-plugin');
-    const babelQueryStr = require('./babel');
 
     /**
      * only given props will be used
@@ -31,10 +30,6 @@
                  * @type {Array}
                  */
                 {
-                    test: /\.jsx?$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loaders: [`babel?${babelQueryStr}`]
-                }, {
                     test: /\.(woff|woff2)$/,
                     loader: "url?limit=10000&mimetype=application/font-woff"
                 }, {
@@ -69,11 +64,7 @@
          * plugins to hot reload source file
          * @type {Array}
          */
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: './index.html'
-            })
-        ],
+        plugins: [],
         externals: [
             'style-loader', 'css-loader', 'postcss-loader', 'less-loader', 'imports-loader', 'exports-loader', 'json-loader', 'babel-loader', 'file-loader', 'url-loader'
         ],

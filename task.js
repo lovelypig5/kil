@@ -1,4 +1,5 @@
-var utils = require('./utils');
+var config = require('./config'),
+    utils = require('./utils');
 var child_process = require('child_process'),
     exec = child_process.exec,
     spawn = child_process.spawn,
@@ -20,8 +21,17 @@ module.exports = {
             var pack = require(`${process.cwd()}/package.json`);
             pack.kil = {
                 "port": 9000,
-                "mock": true, // default false
-                "react": true // use react
+                "mock": false, // default false
+                "react": false, // use react
+                "webpack": {
+                    "output": {
+                        "*.html": [
+                            "[name]"
+                        ]
+                    },
+                    "commonTrunk": {},
+                    "global": {}
+                }
             };
             fs.writeFile('package.json', JSON.stringify(pack), function(err) {
                 if (err) {
@@ -41,7 +51,7 @@ module.exports = {
         }
 
         var initDefFiles = function() {
-            const folders = ['css', 'js', 'less', 'test', 'test/mocha', 'test/phantom', 'mock'];
+            const folders = ['js', 'test', 'test/mocha', 'test/phantom', 'mock'];
             folders.forEach((folder) => {
                 try {
                     fs.statSync(folder);
@@ -52,7 +62,7 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['pack.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
+            const cpfiles = ['pack.default.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
@@ -72,8 +82,8 @@ module.exports = {
      * @return {[type]} [description]
      */
     dev: function(args) {
-        var webpack = require('webpack'),
-            conf = utils.loadConfig(args),
+        var conf = config.loadConfig(args),
+            webpack = require('webpack'),
             pack_config = utils.loadWebpack('dev');
 
         var compiler = webpack(pack_config);
@@ -149,7 +159,7 @@ module.exports = {
             console.log('bundle built, copy files to dist folder');
 
             //TODO lib be cdn liked
-            const copyList = ['js', 'img', 'images', 'lib', 'css'];
+            const copyList = ['img', 'images', 'lib'];
             copyList.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (!err) {

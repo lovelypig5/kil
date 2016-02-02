@@ -44,7 +44,6 @@ class Config {
                         filename: entry + '.html',
                         chunks: depends
                     };
-                    console.log(plugin_obj);
                     pack.plugins.push(new HtmlWebpackPlugin(plugin_obj));
                 })
             }

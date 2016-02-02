@@ -25,7 +25,6 @@ class Config {
         conf.react = !!conf.react;
 
         var pack = conf.webpack;
-        pack.files = [];
         pack.entry = {};
         pack.plugins = [];
         // add output
@@ -35,17 +34,18 @@ class Config {
                 files.forEach((file) => {
                     let name = './' + file;
                     let entry = path.basename(file, '.html');
-                    pack.files.push('./' + file);
                     pack.entry[entry] = './' + file.replace('.html', '');
 
                     let depends = pack.output[key].map(function(depend) {
                         return depend.replace('[name]', entry);
                     });
-                    pack.plugins.push(new HtmlWebpackPlugin({
+                    var plugin_obj = {
                         template: name,
-                        filename: entry,
+                        filename: entry + '.html',
                         chunks: depends
-                    }))
+                    };
+                    console.log(plugin_obj);
+                    pack.plugins.push(new HtmlWebpackPlugin(plugin_obj));
                 })
             }
         }

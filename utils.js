@@ -24,16 +24,15 @@ class Utils {
                 if (conf.mock === true) {
                     var babelQueryStr = babel(true);
                     var entryPath = [];
-                    // if (conf.webpack && conf.webpack.entry) {
-                    //     entryPath = conf.webpack.entry.map((entry) => {
-                    //         return path.resolve(process.cwd(), entry);
-                    //     })
-                    // }
-
+                    if (conf.webpack && conf.webpack.entry) {
+                        for (var entry in conf.webpack.entry) {
+                            entryPath.push(path.resolve(process.cwd(), entry + '.js'));
+                        }
+                    }
 
                     //load mock.js before all
                     pack_config.module.loaders.push({
-                        test: path.resolve(process.cwd(), './index.js'),
+                        test: new RegExp(entryPath.join('|')),
                         exclude: /(node_modules|bower_components)/,
                         loaders: ['imports?Mock=./mock/mock.js', `babel?${babelQueryStr}`]
                     });

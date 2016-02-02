@@ -71,10 +71,10 @@ module.exports = {
      * load webpack config and start webpack dev server
      * @return {[type]} [description]
      */
-    dev: function() {
+    dev: function(args) {
         var webpack = require('webpack'),
-            pack_config = utils.loadWebpack('dev'),
-            conf = utils.loadConfig();
+            conf = utils.loadConfig(args),
+            pack_config = utils.loadWebpack('dev');
 
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -176,9 +176,15 @@ module.exports = {
 
 
     help: function() {
-        console.log('----------------------------------');
-        console.log(`--------TODO: Help Option---------`);
-        console.log('----------------------------------');
+        console.log('  Package Commands:'.to.bold.green.color);
+        console.log();
+        console.log('    init           initialize a package');
+        console.log('    dev            develop with a dev server');
+        console.log('    test           test a package');
+        console.log('    doc            documentation manager');
+        console.log('    build          build a package');
+        console.log('    release        build a package');
+        console.log();
     }
 
 }

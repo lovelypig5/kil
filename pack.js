@@ -18,9 +18,7 @@
     module.exports = {
         entry: ['./index'],
         output: {
-            path: `${process.cwd()}/dist`,
-            filename: '[name].[hash].js',
-            chunkFilename: '[id].[hash].js'
+            path: `${process.cwd()}/dist`
         },
         module: {
             loaders: [

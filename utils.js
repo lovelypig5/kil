@@ -1,7 +1,7 @@
 'use strict';
 
 var path = require('path');
-var config = require("./config");
+var config = require('./config');
 var babel = require('./babel');
 
 class Utils {
@@ -43,13 +43,13 @@ class Utils {
 
                 return pack_config;
             case 'release':
-                var ExtractTextPlugin = require(`extract-text-webpack-plugin`);
+                var ExtractTextPlugin = require('extract-text-webpack-plugin');
                 var pack_config = this.mergeConfig();
                 // source map for production
                 pack_config.devtool = 'source-map';
                 pack_config.module.loaders.forEach((loader) => {
                     if (loader.test.test('*.less')) {
-                        loader.loader = ExtractTextPlugin.extract("style", "css?source-map!postcss!less");
+                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
                     }
                 })
                 pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin());

@@ -184,7 +184,6 @@ module.exports = {
         })
     },
 
-
     help: function() {
         console.log('  Package Commands:'.to.bold.green.color);
         console.log();
@@ -196,5 +195,4 @@ module.exports = {
         console.log('    release        build a package');
         console.log();
     }
-
 }

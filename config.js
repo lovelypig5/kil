@@ -42,10 +42,15 @@ class Config {
                     let name = './' + file;
                     let depends = [];
                     if (resObj && resObj.commons) {
-                        depends = resObj.commons;
+                        Array.prototype.push.apply(depends, resObj.commons);
+                    } else {
+                        if (pack.commonTrunk) {
+                            for (let key in pack.commonTrunk) {
+                                depends.push(key);
+                            }
+                        }
                     }
                     depends.push(file.replace('.html', ''));
-
                     var plugin_obj = {
                         template: name,
                         filename: file,

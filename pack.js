@@ -30,10 +30,7 @@
                  * @type {Array}
                  */
                 {
-                    test: /\.(woff|woff2)$/,
-                    loader: "url?limit=10000&mimetype=application/font-woff"
-                }, {
-                    test: /\.(ttf|eot|svg)$/,
+                    test: /\.(png|jpe?g|gif|eot|svg|ttf|woff|woff2)$/i,
                     loader: "file"
                 }, {
                     test: /\.css$/,

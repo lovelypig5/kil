@@ -127,6 +127,7 @@ class Utils {
                 exclude: /(node_modules|bower_components)/,
                 loaders: [`babel?${babel(isDebug)}`]
             });
+
             pack_config.resolve = pack.resolve || pack_def.resolve;
             pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
 
@@ -141,6 +142,17 @@ class Utils {
 
             pack_config.externals = pack_def.externals;
             pack_config.postcss = pack_def.postcss;
+
+            pack_config.module.loaders.push({
+                test: /\.vue$/,
+                exclude: /(node_modules|bower_components)/,
+                loaders: ['vue']
+            });
+            pack_config.vue = {
+                loaders: {
+                    js: `babel?${babel(isDebug)}`,
+                }
+            }
 
             return pack_config;
         }

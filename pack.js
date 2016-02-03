@@ -66,7 +66,8 @@
          */
         plugins: [],
         externals: [
-            'style-loader', 'css-loader', 'postcss-loader', 'less-loader', 'imports-loader', 'exports-loader', 'json-loader', 'babel-loader', 'file-loader', 'url-loader'
+            'style-loader', 'css-loader', 'postcss-loader', 'less-loader', 'imports-loader', 'exports-loader',
+            'json-loader', 'babel-loader', 'file-loader', 'url-loader', 'vue-loader'
         ],
         postcss: function() {
             return [require('autoprefixer')];

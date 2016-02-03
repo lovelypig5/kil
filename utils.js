@@ -40,6 +40,8 @@ class Utils {
 
                 // add plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
+                pack_config.output.filename = '[name].js';
+                pack_config.output.chunkFilename = '[id].js';
 
                 return pack_config;
             case 'release':
@@ -51,9 +53,15 @@ class Utils {
                     if (loader.test.test('*.less')) {
                         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
                     }
+                    if (loader.test.test('*.css')) {
+                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
+                    }
                 })
                 pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin());
                 pack_config.plugins.push(new ExtractTextPlugin('[name].[hash].css'));
+
+                pack_config.output.filename = '[name].[hash].js';
+                pack_config.output.chunkFilename = '[id].[hash].js';
 
                 return pack_config;
             default:

@@ -44,7 +44,7 @@ class Config {
                     if (resObj && resObj.commons) {
                         depends = resObj.commons;
                     }
-                    depends.push(file.replace('.html', '.js'));
+                    depends.push(file.replace('.html', ''));
 
                     var plugin_obj = {
                         template: name,

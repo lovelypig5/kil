@@ -57,12 +57,13 @@ kil accept two kinds of configuration, a key kil in package.json or a separate p
             "react": true,
             "webpack": {
                 "output": {
-                    "page/*.html": [
-                        "[name]", "common"
-                    ],
-                    "*.html": [
-                        "[name]", "common"
-                    ]
+                    "page/*.html": {
+                        "jsname": "page/index2",
+                        "commons": ["common"]
+                    },
+                    "*.html": {
+                        "commons": ["common"]
+                    }
                 },
                 "commonTrunk": {
                     "common": ["jquery", "react", "react-dom"]

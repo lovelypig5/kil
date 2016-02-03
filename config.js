@@ -41,7 +41,7 @@ class Config {
                     });
                     var plugin_obj = {
                         template: name,
-                        filename: entry + '.html',
+                        filename: file,
                         chunks: depends
                     };
                     pack.plugins.push(new HtmlWebpackPlugin(plugin_obj));

@@ -31,19 +31,27 @@ class Config {
         if (pack.output) {
             for (let key in pack.output) {
                 let files = glob.sync(key);
+                let resObj = pack.output[key];
                 files.forEach((file) => {
-                    let name = './' + file;
-                    let entry = path.basename(file, '.html');
-                    pack.entry[entry] = './' + file.replace('.html', '');
+                    let entry = file.replace('.html', '');
+                    if (resObj && resObj.jsname) {
+                        entry = resObj.jsname;
+                    }
+                    pack.entry[entry] = './' + entry;
 
-                    let depends = pack.output[key].map(function(depend) {
-                        return depend.replace('[name]', entry);
-                    });
+                    let name = './' + file;
+                    let depends = [];
+                    if (resObj && resObj.commons) {
+                        depends = resObj.commons;
+                    }
+                    depends.push(file.replace('.html', '.js'));
+
                     var plugin_obj = {
                         template: name,
                         filename: file,
                         chunks: depends
                     };
+
                     pack.plugins.push(new HtmlWebpackPlugin(plugin_obj));
                 })
             }

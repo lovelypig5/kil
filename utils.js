@@ -40,8 +40,6 @@ class Utils {
 
                 // add plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
-                pack_config.output.filename = '[name].js';
-                pack_config.output.chunkFilename = '[id].js';
 
                 return pack_config;
             case 'release':
@@ -59,9 +57,6 @@ class Utils {
                 })
                 pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin());
                 pack_config.plugins.push(new ExtractTextPlugin('[name].[hash].css'));
-
-                pack_config.output.filename = '[name].[hash].js';
-                pack_config.output.chunkFilename = '[id].[hash].js';
 
                 return pack_config;
             default:
@@ -122,6 +117,12 @@ class Utils {
             pack_config.entry = this.parseEntry(pack_config.entry, isDebug);
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
+            let hash = '';
+            if (!isDebug) {
+                hash = '.[hash]';
+            }
+            pack_config.output.filename = `[name]${hash}.js`;
+            pack_config.output.chunkFilename = `[id]${hash}.js`;
 
             if (pack_config.module && pack_config.module.loaders) {
                 Array.prototype.push.apply(pack_def.module.loaders, pack_config.module.loaders);

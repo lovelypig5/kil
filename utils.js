@@ -58,6 +58,18 @@ class Utils {
                     }
                 }));
 
+                pack_config.module.loaders.forEach((loader) => {
+                    if (loader.test.test('*.less')) {
+                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
+                    }
+                    if (loader.test.test('*.css')) {
+                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
+                    }
+                })
+                pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`, {
+                    allChunks: true
+                }));
+
                 logger.debug('kil release with webpack config: ');
                 logger.debug(pack_config);
 
@@ -153,10 +165,11 @@ class Utils {
             // config css and less loader
             pack_config.module.loaders.push({
                 test: /\.css$/,
-                loaders: ['style', 'css?sourceMap!postcss']
+                loaders: ['style', `css?sourceMap&root=${process.cwd()}!postcss`]
             });
             pack_config.module.loaders.push({
                 test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
                 loaders: ['style', 'css?sourceMap!postcss!less?sourceMap']
             });
 
@@ -167,17 +180,6 @@ class Utils {
                 Array.prototype.push.apply(pack_def.plugins, pack_config.plugins);
             }
             pack_config.plugins = pack_def.plugins;
-
-            // pack_config.module.loaders.forEach((loader) => {
-            //     if (loader.test.test('*.less')) {
-            //         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
-            //     }
-            //     if (loader.test.test('*.css')) {
-            //         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
-            //     }
-            // })
-            // pack_config.plugins.push(new ExtractTextPlugin(`[name]${hash}.css`));
-
 
             if (pack_config.externals) {
                 Array.prototype.push.apply(pack_def.externals, pack_config.externals);

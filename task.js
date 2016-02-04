@@ -124,7 +124,8 @@ module.exports = {
      * @return {[type]} [description]
      */
     release: function() {
-        var pack_config = utils.loadWebpack('release');
+        var conf = config.loadPackageConfig(),
+            pack_config = utils.loadWebpack('release');
 
         this.clean();
 
@@ -146,7 +147,7 @@ module.exports = {
             console.log('bundle built, copy files to dist folder');
 
             //TODO lib be cdn liked
-            const copyList = ['img', 'images', 'lib'];
+            const copyList = ['img', 'images'];
             copyList.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (!err) {

@@ -3,6 +3,7 @@
 var path = require('path');
 var config = require('./config');
 var babel = require('./babel');
+var logger = require('./logger');
 
 class Utils {
 
@@ -14,7 +15,7 @@ class Utils {
      */
     loadWebpack(target) {
         var webpack = require('webpack');
-        var conf = config.loadConfig();
+        var conf = config.getConfig();
 
         switch (target) {
             case 'dev':
@@ -34,12 +35,15 @@ class Utils {
                     pack_config.module.loaders.push({
                         test: new RegExp(entryPath.join('|')),
                         exclude: /(node_modules|bower_components)/,
-                        loaders: ['imports?Mock=./mock/mock.js', `babel?${babelQueryStr}`]
+                        loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel?${babelQueryStr}`]
                     });
                 }
 
                 // add plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
+
+                logger.debug('dev server start with webpack config: ');
+                logger.debug(pack_config);
 
                 return pack_config;
             case 'release':
@@ -55,8 +59,15 @@ class Utils {
                         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
                     }
                 })
-                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin());
+                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                    compress: {
+                        warnings: false
+                    }
+                }));
                 pack_config.plugins.push(new ExtractTextPlugin('[name].[hash].css'));
+
+                logger.debug('kil release with webpack config: ');
+                logger.debug(pack_config);
 
                 return pack_config;
             default:
@@ -74,17 +85,16 @@ class Utils {
      * @return {[type]}
      */
     parseEntry(entry, dev, depth) {
-        var conf = config.loadConfig();
         if (entry) {
             var type = Object.prototype.toString.call(entry);
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`, 'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`, 'webpack/hot/dev-server');
                 }
             } else {
                 for (var key in entry) {
@@ -94,7 +104,7 @@ class Utils {
 
             return entry;
         } else {
-            console.error('[kil]: No entry is found!'.to.bold.red.color);
+            logger.error('No entry is found!');
         }
     }
 
@@ -105,7 +115,7 @@ class Utils {
      */
     mergeConfig(isDebug) {
         var pack_def = require('./pack');
-        var pack = this.mergeJsonConfig();
+        var pack = this.mergePackageJson();
 
         if (!pack) {
             return pack_def;
@@ -117,6 +127,7 @@ class Utils {
             pack_config.entry = this.parseEntry(pack_config.entry, isDebug);
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
+            // hash control, add hash when release
             let hash = '';
             if (!isDebug) {
                 hash = '.[hash]';
@@ -129,7 +140,6 @@ class Utils {
             } else {
                 pack_config.module = {};
             }
-
             pack_config.module.loaders = pack_def.module.loaders;
             pack_config.module.loaders.push({
                 test: /\.jsx?$/,
@@ -171,17 +181,17 @@ class Utils {
      * if pack.js not exist, read config from package.json
      * @return {[Object]}  : config json
      */
-    mergeJsonConfig() {
+    mergePackageJson() {
         var pack;
         try {
             pack = require(`${process.cwd()}/pack`);
         } catch (e) {
-            console.info('Error: %s'.to.bold.blue.color, e.message);
-            console.info('Info: use default pack.js provided by kil.'.to.bold.blue.color);
+            logger.warn('error happen in pack.js, %s', e.message);
+            logger.warn("can't find pack.js, use webpack config from package.json or default.");
         }
 
         if (!pack) {
-            var conf = config.loadConfig().webpack;
+            var conf = config.getConfig().webpack;
             pack = {
                 entry: conf.entry || 'main',
                 plugins: conf.plugins

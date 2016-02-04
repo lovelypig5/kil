@@ -41,6 +41,7 @@
     "karma-webpack": "^1.7.0",
     "less": "^2.5.3",
     "less-loader": "^2.2.2",
+    "log4js": "^0.6.31",
     "mocha": "^2.3.4",
     "mocha-loader": "^0.7.1",
     "mockjs": "^1.0.0",

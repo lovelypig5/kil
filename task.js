@@ -5,6 +5,8 @@ var child_process = require('child_process'),
     spawn = child_process.spawn,
     fs = require('fs');
 
+var webpack = require('webpack');
+
 module.exports = {
 
     /**
@@ -19,20 +21,7 @@ module.exports = {
          */
         var initDepends = function(code) {
             var pack = require(`${process.cwd()}/package.json`);
-            pack.kil = {
-                "port": 9000,
-                "mock": false, // default false
-                "react": false, // use react
-                "webpack": {
-                    "output": {
-                        "*.html": [
-                            "[name]"
-                        ]
-                    },
-                    "commonTrunk": {},
-                    "global": {}
-                }
-            };
+            pack.kil = require('./default/package.default.js');
             fs.writeFile('package.json', JSON.stringify(pack), function(err) {
                 if (err) {
                     throw err
@@ -82,8 +71,7 @@ module.exports = {
      * @return {[type]} [description]
      */
     dev: function(args) {
-        var conf = config.loadConfig(args),
-            webpack = require('webpack'),
+        var conf = config.loadPackageConfig(args),
             pack_config = utils.loadWebpack('dev');
 
         var compiler = webpack(pack_config);
@@ -136,8 +124,7 @@ module.exports = {
      * @return {[type]} [description]
      */
     release: function() {
-        var webpack = require('webpack'),
-            pack_config = utils.loadWebpack('release');
+        var pack_config = utils.loadWebpack('release');
 
         this.clean();
 

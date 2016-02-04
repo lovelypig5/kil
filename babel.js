@@ -5,7 +5,7 @@
 
 module.exports = (isDebug) => {
     var config = require('./config'),
-        conf = config.loadConfig();
+        conf = config.getConfig();
 
     var babelQueryStr = {};
     babelQueryStr.presets = [require.resolve('babel-preset-es2015')];
@@ -20,7 +20,7 @@ module.exports = (isDebug) => {
                     transform: 'react-transform-hmr',
                     imports: ['react'],
                     locals: ['module']
-                }],
+                }]
             }]);
         }
     }

@@ -31,13 +31,6 @@
                     test: /\.(png|jpe?g|gif|eot|svg|ttf|woff|woff2)$/i,
                     loader: "file?name=[path][name].[ext]"
                 }, {
-                    test: /\.css$/,
-                    loaders: ['style', 'css?sourceMap!postcss']
-
-                }, {
-                    test: /\.less$/,
-                    loaders: ['style', 'css?sourceMap!postcss!less?sourceMap']
-                }, {
                     test: /\.json$/,
                     loaders: ['json']
                 }

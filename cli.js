@@ -3,6 +3,7 @@
 require('colorful').colorful();
 var program = require('commander');
 var task = require('./task');
+
 program
     .version(require('./package').version, '-v, --version')
     .usage('<command> [options]')

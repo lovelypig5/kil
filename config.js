@@ -1,24 +1,63 @@
 'use strict';
-var glob = require('glob');
+
 var path = require('path');
+var glob = require('glob');
+var logger = require('./logger');
+var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 var conf;
+
+const DEFAULT = require('./default/package.default.js');
 
 class Config {
 
-    loadConfig(args) {
+    getPort() {
+        if (!conf) {
+            throw new Error('configuration is not initialized!');
+        }
+        return conf.port;
+    }
+
+    getConfig() {
+        if (!conf) {
+            throw new Error('configuration is not initialized!');
+        }
+        return conf;
+    }
+
+    /**
+     * load config from package.json if exists, otherwise use default config
+     * @param  {[Object]} args : runtime arguments
+     * @return {[Object]}
+     *         System Config
+     */
+    loadPackageConfig(args) {
         if (conf) {
             return conf;
         }
 
-        var webpack = require('webpack');
-        var HtmlWebpackPlugin = require('html-webpack-plugin');
-        conf = require(`${process.cwd()}/package.json`).kil;
-        conf.port = conf.port || 9000;
+        var json = {};
+        var source = true;
+        try {
+            json = require(`${process.cwd()}/package.json`);
+        } catch (ex) {
+            logger.warn("can't find package.json, init system config with default.");
+
+            source = false;
+        }
+
+        if (json.kil) {
+            conf = json.kil;
+        } else {
+            logger.warn("can't find a key named kil in package.json, init system config with default.");
+            conf = DEFAULT;
+        }
+        conf.port = conf.port || DEFAULT.port;
         if (args && args.port) {
             try {
                 conf.port = parseInt(args.port);
             } catch (err) {
-                console.error('[kil]: error port!');
+                logger.warn('ignore passed error port!');
             }
         }
         conf.mock = !!conf.mock;
@@ -77,7 +116,7 @@ class Config {
         }
         conf.webpack = pack;
 
-        console.info('[kil]: config initialized.');
+        logger.info("try to find pack.js for detail webpack config");
 
         return conf;
     }

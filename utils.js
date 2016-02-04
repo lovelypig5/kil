@@ -3,6 +3,8 @@
 var path = require('path');
 var config = require('./config');
 var babel = require('./babel');
+var logger = require('./logger');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 class Utils {
 
@@ -14,7 +16,7 @@ class Utils {
      */
     loadWebpack(target) {
         var webpack = require('webpack');
-        var conf = config.loadConfig();
+        var conf = config.getConfig();
 
         switch (target) {
             case 'dev':
@@ -34,29 +36,30 @@ class Utils {
                     pack_config.module.loaders.push({
                         test: new RegExp(entryPath.join('|')),
                         exclude: /(node_modules|bower_components)/,
-                        loaders: ['imports?Mock=./mock/mock.js', `babel?${babelQueryStr}`]
+                        loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel?${babelQueryStr}`]
                     });
                 }
 
                 // add plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
 
+                logger.debug('dev server start with webpack config: ');
+                logger.debug(pack_config);
+
                 return pack_config;
             case 'release':
-                var ExtractTextPlugin = require('extract-text-webpack-plugin');
                 var pack_config = this.mergeConfig();
                 // source map for production
-                pack_config.devtool = 'source-map';
-                pack_config.module.loaders.forEach((loader) => {
-                    if (loader.test.test('*.less')) {
-                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
+                pack_config.devtool = 'eval';
+
+                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                    compress: {
+                        warnings: false
                     }
-                    if (loader.test.test('*.css')) {
-                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
-                    }
-                })
-                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin());
-                pack_config.plugins.push(new ExtractTextPlugin('[name].[hash].css'));
+                }));
+
+                logger.debug('kil release with webpack config: ');
+                logger.debug(pack_config);
 
                 return pack_config;
             default:
@@ -74,17 +77,16 @@ class Utils {
      * @return {[type]}
      */
     parseEntry(entry, dev, depth) {
-        var conf = config.loadConfig();
         if (entry) {
             var type = Object.prototype.toString.call(entry);
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`, 'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${conf.port}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`, 'webpack/hot/dev-server');
                 }
             } else {
                 for (var key in entry) {
@@ -94,7 +96,7 @@ class Utils {
 
             return entry;
         } else {
-            console.error('[kil]: No entry is found!'.to.bold.red.color);
+            logger.error('No entry is found!');
         }
     }
 
@@ -105,7 +107,7 @@ class Utils {
      */
     mergeConfig(isDebug) {
         var pack_def = require('./pack');
-        var pack = this.mergeJsonConfig();
+        var pack = this.mergePackageJson();
 
         if (!pack) {
             return pack_def;
@@ -117,7 +119,9 @@ class Utils {
             pack_config.entry = this.parseEntry(pack_config.entry, isDebug);
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
+            // hash control, add hash when release
             let hash = '';
+            let sourceMap = 'source-map';
             if (!isDebug) {
                 hash = '.[hash]';
             }
@@ -129,12 +133,31 @@ class Utils {
             } else {
                 pack_config.module = {};
             }
-
             pack_config.module.loaders = pack_def.module.loaders;
             pack_config.module.loaders.push({
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components)/,
                 loaders: [`babel?${babel(isDebug)}`]
+            });
+            // config loader for vue
+            pack_config.module.loaders.push({
+                test: /\.vue$/,
+                exclude: /(node_modules|bower_components)/,
+                loaders: ['vue']
+            });
+            pack_config.vue = {
+                loaders: {
+                    js: `babel?${babel(isDebug)}`,
+                }
+            };
+            // config css and less loader
+            pack_config.module.loaders.push({
+                test: /\.css$/,
+                loaders: ['style', 'css?sourceMap!postcss']
+            });
+            pack_config.module.loaders.push({
+                test: /\.less$/,
+                loaders: ['style', 'css?sourceMap!postcss!less?sourceMap']
             });
 
             pack_config.resolve = pack.resolve || pack_def.resolve;
@@ -145,23 +168,23 @@ class Utils {
             }
             pack_config.plugins = pack_def.plugins;
 
+            // pack_config.module.loaders.forEach((loader) => {
+            //     if (loader.test.test('*.less')) {
+            //         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
+            //     }
+            //     if (loader.test.test('*.css')) {
+            //         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
+            //     }
+            // })
+            // pack_config.plugins.push(new ExtractTextPlugin(`[name]${hash}.css`));
+
+
             if (pack_config.externals) {
                 Array.prototype.push.apply(pack_def.externals, pack_config.externals);
             }
 
             pack_config.externals = pack_def.externals;
             pack_config.postcss = pack_def.postcss;
-
-            pack_config.module.loaders.push({
-                test: /\.vue$/,
-                exclude: /(node_modules|bower_components)/,
-                loaders: ['vue']
-            });
-            pack_config.vue = {
-                loaders: {
-                    js: `babel?${babel(isDebug)}`,
-                }
-            }
 
             return pack_config;
         }
@@ -171,17 +194,17 @@ class Utils {
      * if pack.js not exist, read config from package.json
      * @return {[Object]}  : config json
      */
-    mergeJsonConfig() {
+    mergePackageJson() {
         var pack;
         try {
             pack = require(`${process.cwd()}/pack`);
         } catch (e) {
-            console.info('Error: %s'.to.bold.blue.color, e.message);
-            console.info('Info: use default pack.js provided by kil.'.to.bold.blue.color);
+            logger.warn('error happen in pack.js, %s', e.message);
+            logger.warn("can't find pack.js, use webpack config from package.json or default.");
         }
 
         if (!pack) {
-            var conf = config.loadConfig().webpack;
+            var conf = config.getConfig().webpack;
             pack = {
                 entry: conf.entry || 'main',
                 plugins: conf.plugins

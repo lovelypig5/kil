@@ -3,7 +3,9 @@ module.exports = {
     "mock": false, // default false
     "react": false, // use react
     "webpack": {
-        "output": {},
+        "output": {
+            "*.html": {}
+        },
         "commonTrunk": {},
         "global": {}
     }

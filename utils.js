@@ -4,6 +4,7 @@ var path = require('path');
 var config = require('./config');
 var babel = require('./babel');
 var logger = require('./logger');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 class Utils {
 
@@ -47,24 +48,15 @@ class Utils {
 
                 return pack_config;
             case 'release':
-                var ExtractTextPlugin = require('extract-text-webpack-plugin');
                 var pack_config = this.mergeConfig();
                 // source map for production
-                pack_config.devtool = 'source-map';
-                pack_config.module.loaders.forEach((loader) => {
-                    if (loader.test.test('*.less')) {
-                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
-                    }
-                    if (loader.test.test('*.css')) {
-                        loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
-                    }
-                })
+                pack_config.devtool = 'eval';
+
                 pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
                     compress: {
                         warnings: false
                     }
                 }));
-                pack_config.plugins.push(new ExtractTextPlugin('[name].[hash].css'));
 
                 logger.debug('kil release with webpack config: ');
                 logger.debug(pack_config);
@@ -129,6 +121,7 @@ class Utils {
             pack_config.output = pack_def.output;
             // hash control, add hash when release
             let hash = '';
+            let sourceMap = 'source-map';
             if (!isDebug) {
                 hash = '.[hash]';
             }
@@ -146,22 +139,7 @@ class Utils {
                 exclude: /(node_modules|bower_components)/,
                 loaders: [`babel?${babel(isDebug)}`]
             });
-
-            pack_config.resolve = pack.resolve || pack_def.resolve;
-            pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
-
-            if (pack_config.plugins) {
-                Array.prototype.push.apply(pack_def.plugins, pack_config.plugins);
-            }
-            pack_config.plugins = pack_def.plugins;
-
-            if (pack_config.externals) {
-                Array.prototype.push.apply(pack_def.externals, pack_config.externals);
-            }
-
-            pack_config.externals = pack_def.externals;
-            pack_config.postcss = pack_def.postcss;
-
+            // config loader for vue
             pack_config.module.loaders.push({
                 test: /\.vue$/,
                 exclude: /(node_modules|bower_components)/,
@@ -171,7 +149,42 @@ class Utils {
                 loaders: {
                     js: `babel?${babel(isDebug)}`,
                 }
+            };
+            // config css and less loader
+            pack_config.module.loaders.push({
+                test: /\.css$/,
+                loaders: ['style', 'css?sourceMap!postcss']
+            });
+            pack_config.module.loaders.push({
+                test: /\.less$/,
+                loaders: ['style', 'css?sourceMap!postcss!less?sourceMap']
+            });
+
+            pack_config.resolve = pack.resolve || pack_def.resolve;
+            pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
+
+            if (pack_config.plugins) {
+                Array.prototype.push.apply(pack_def.plugins, pack_config.plugins);
             }
+            pack_config.plugins = pack_def.plugins;
+
+            // pack_config.module.loaders.forEach((loader) => {
+            //     if (loader.test.test('*.less')) {
+            //         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss!less');
+            //     }
+            //     if (loader.test.test('*.css')) {
+            //         loader.loader = ExtractTextPlugin.extract('style', 'css?source-map!postcss');
+            //     }
+            // })
+            // pack_config.plugins.push(new ExtractTextPlugin(`[name]${hash}.css`));
+
+
+            if (pack_config.externals) {
+                Array.prototype.push.apply(pack_def.externals, pack_config.externals);
+            }
+
+            pack_config.externals = pack_def.externals;
+            pack_config.postcss = pack_def.postcss;
 
             return pack_config;
         }

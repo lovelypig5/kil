@@ -1,16 +1,11 @@
 var path = require('path');
 var webpackPath = 'webpack';
 var plugins = ['karma-webpack', 'karma-chrome-launcher', 'karma-phantomjs-launcher', 'karma-mocha', 'karma-mocha-reporter', 'karma-coverage'];
-if (process.env.KIL_HOME) {
-    webpackPath = path.resolve(process.env.KIL_HOME, 'node_modules', webpackPath);
-    plugins = plugins.map(function(plugin) {
-        return require(path.resolve(process.env.KIL_HOME, 'node_modules', plugin));
-    })
-} else {
-    plugins = plugins.map(function(plugin) {
-        return require(plugin);
-    });
-}
+var PATH = '/usr/local/lib/node_modules/kil';
+webpackPath = path.resolve(PATH, 'node_modules', webpackPath);
+plugins = plugins.map(function(plugin) {
+    return require(path.resolve(PATH, 'node_modules', plugin));
+})
 
 var webpack = require(webpackPath);
 var pack_config = require('../pack.default');

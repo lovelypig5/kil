@@ -1,13 +1,14 @@
-(() => {
-    var path = require('path');
-    // var webpack = require(path.resolve(process.env.KIL_HOME, 'node_modules', 'webpack'));
-    // var HtmlWebpackPlugin = require(path.resolve(process.env.KIL_HOME, 'node_modules', 'html-webpack-plugin'));
+module.exports = (modulePath) => {
 
-    module.exports = {
+    var path = require('path');
+    // var webpack = require(`${modulePath}/webpack`);
+    // var HtmlWebpackPlugin = require(`${modulePath}/html-webpack-plugin`);
+
+    return {
         // if single entry is used, bundle name will be named as main.js
         entry: {
-            main: "./index"
-                // common: ['jquery']
+            main: "./index",
+            // common: ['jquery']
         },
         // plugins example, default no more
         plugins: [
@@ -29,5 +30,4 @@
         },
         externals: []
     }
-
-}())
+}

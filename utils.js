@@ -1,10 +1,12 @@
 'use strict';
 
-var path = require('path');
-var config = require('./config');
-var babel = require('./babel');
-var logger = require('./logger');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require('path'),
+    fs = require('fs'),
+    logger = require('./logger');
+var webpack = require('webpack'),
+    ExtractTextPlugin = require('extract-text-webpack-plugin');
+var config = require('./config'),
+    babel = require('./babel');
 
 class Utils {
 
@@ -14,21 +16,25 @@ class Utils {
      *     @task release: add uglifyjs
      * @return config
      */
-    loadWebpack(target) {
-        var webpack = require('webpack');
+    loadWebpackCfg(target) {
         var conf = config.getConfig();
 
         switch (target) {
             case 'dev':
-                var pack_config = this.mergeConfig(true);
-                pack_config.devtool = 'eval';
+                var isDebug = true;
+                var pack_config = this.mergeConfig(isDebug);
+                pack_config.devtool = '#eval';
 
                 if (conf.mock === true) {
-                    var babelQueryStr = babel(true);
+                    var babelQueryStr = babel(isDebug);
                     var entryPath = [];
-                    if (conf.webpack && conf.webpack.entry) {
-                        for (var entry in conf.webpack.entry) {
+                    for (var key in pack_config.entry) {
+                        var entry = pack_config.entry[key];
+                        var type = Object.prototype.toString.call(entry);
+                        if (type === 'object String]') {
                             entryPath.push(path.resolve(process.cwd(), entry + '.js'));
+                        } else if (type === '[object Array]') {
+                            entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
                         }
                     }
 
@@ -40,6 +46,17 @@ class Utils {
                     });
                 }
 
+                // config css and less loader
+                pack_config.module.loaders.push({
+                    test: /\.css$/,
+                    loaders: ['style', 'css?sourceMap']
+                });
+                pack_config.module.loaders.push({
+                    test: /\.less$/,
+                    exclude: /(node_modules|bower_components)/,
+                    loaders: ['style', 'css?sourceMap!less?sourceMap']
+                });
+
                 // add plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
 
@@ -49,9 +66,19 @@ class Utils {
                 return pack_config;
             case 'release':
                 var pack_config = this.mergeConfig();
-                // source map for production
                 pack_config.devtool = '#eval';
 
+                pack_config.module.loaders.push({
+                    test: /\.css$/,
+                    loader: ExtractTextPlugin.extract('style', 'css!postcss')
+                });
+                pack_config.module.loaders.push({
+                    test: /\.less$/,
+                    exclude: /(node_modules|bower_components)/,
+                    loader: ExtractTextPlugin.extract('style', 'css!postcss!less')
+                });
+
+                pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
                 pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
                     compress: {
                         warnings: false
@@ -102,12 +129,37 @@ class Utils {
 
     /**
      * merge webpack default config, user's config, and config from package.json
-     * @param  {Boolean} isDebug : is debug mode, add dev-sever or not
+     * @param  {Boolean} isDebug : is debug mode, add dev-sever entry or not
      * @return {[Object]}
      */
     mergeConfig(isDebug) {
         var pack_def = require('./pack');
-        var pack = this.mergePackageJson();
+        var packPath = path.join(process.cwd(), 'pack.js');
+        var pack;
+
+        try {
+            pack = fs.statSync(packPath);
+            pack = require(packPath);
+            try {
+                pack = pack(path.resolve(__dirname, 'node_modules'));
+            } catch (e) {
+                logger.error(' Error happens in pack.js ');
+                logger.error(e);
+
+                process.exit(1);
+            }
+        } catch (e) {}
+
+
+        if (!pack) {
+            logger.info(" Can't find pack.js, use webpack config from package.json or default.");
+
+            var conf = config.getConfig().webpack;
+            pack = {
+                entry: conf.entry || 'main',
+                plugins: conf.plugins
+            }
+        }
 
         if (!pack) {
             return pack_def;
@@ -151,31 +203,6 @@ class Utils {
                 }
             };
 
-            if (isDebug) {
-                // config css and less loader
-                pack_config.module.loaders.push({
-                    test: /\.css$/,
-                    loaders: ['style', 'css?sourceMap']
-                });
-                pack_config.module.loaders.push({
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loaders: ['style', 'css?sourceMap!less?sourceMap']
-                });
-            } else {
-                pack_config.module.loaders.push({
-                    test: /\.css$/,
-                    loader: ExtractTextPlugin.extract('style', 'css!postcss')
-                });
-                pack_config.module.loaders.push({
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loader: ExtractTextPlugin.extract('style', 'css!postcss!less')
-                });
-
-                pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
-            }
-
             pack_config.resolve = pack.resolve || pack_def.resolve;
             pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
 
@@ -193,30 +220,6 @@ class Utils {
 
             return pack_config;
         }
-    }
-
-    /**
-     * if pack.js not exist, read config from package.json
-     * @return {[Object]}  : config json
-     */
-    mergePackageJson() {
-        var pack;
-        try {
-            pack = require(`${process.cwd()}/pack`);
-        } catch (e) {
-            logger.warn('error happen in pack.js, %s', e.message);
-            logger.warn("can't find pack.js, use webpack config from package.json or default.");
-        }
-
-        if (!pack) {
-            var conf = config.getConfig().webpack;
-            pack = {
-                entry: conf.entry || 'main',
-                plugins: conf.plugins
-            }
-        }
-
-        return pack;
     }
 
 }

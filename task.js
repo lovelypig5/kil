@@ -1,46 +1,38 @@
 var config = require('./config'),
-    utils = require('./utils');
-var child_process = require('child_process'),
-    exec = child_process.exec,
-    spawn = child_process.spawn,
-    fs = require('fs');
+    utils = require('./utils'),
+    logger = require('./logger'),
+    spawn = require('child_process').spawn,
+    fs = require('fs'),
+    path = require('path');
 
 var webpack = require('webpack');
 
 module.exports = {
 
     /**
-     * init package.json and pack.js, karma.conf.js
-     * @return {[type]} [description]
+     * init a new project with mock and test module (default is not initilized)
+     * @param  {[Object]} args {test: false, mock: false}
      */
-    init: function() {
-        /**
-         * merge package.json and install default npm dependenies
-         * @param  {[type]} code [description]
-         * @return {[type]}      [description]
-         */
-        var initDepends = function(code) {
-            var pack = require(`${process.cwd()}/package.json`);
-            pack.kil = require('./default/package.default.js');
-            fs.writeFile('package.json', JSON.stringify(pack), function(err) {
-                if (err) {
-                    throw err
-                }
+    init: function(args) {
+        var mock = !!args.mock;
+        var test = !!args.test;
 
-                console.log('install denpendencies from npm repo, see https://www.npmjs.com/.');
+        var initMods = () => {
+            var folders = ['js'];
+            var cpfiles = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
+            if (mock) {
+                folders.push('mock');
+                cpfiles.push('mock/mock.js');
 
-                spawn('npm', ['i'], {
-                    stdio: 'inherit'
-                }).on('close', function() {
-                    console.log('init project successfully.');
-                });
-            });
+                logger.info(' Add mock module. ');
+            }
+            if (test) {
+                Array.prototype.push.apply(folders, ['test', 'test/mocha', 'test/phantom']);
+                Array.prototype.push.apply(cpfiles, ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js']);
 
-            initDefFiles();
-        }
+                logger.info(' Add test module. ');
+            }
 
-        var initDefFiles = function() {
-            const folders = ['js', 'test', 'test/mocha', 'test/phantom', 'mock'];
             folders.forEach((folder) => {
                 try {
                     fs.statSync(folder);
@@ -51,19 +43,43 @@ module.exports = {
                 }
             })
 
-            const cpfiles = ['pack.default.js', 'index.html', 'index.js', 'test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js', 'mock/mock.js', 'js/main.js'];
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
-                        fs.createReadStream(`${__dirname}/default/${file}`).pipe(fs.createWriteStream(`${process.cwd()}/${file}`));
+                        var origin = path.join(__dirname, 'default', file);
+                        var dest = path.join(process.cwd(), file);
+                        fs.createReadStream(origin).pipe(fs.createWriteStream(dest));
                     }
                 })
             })
+
+            logger.info(' init successfully. ');
+            process.exit();
         }
 
-        spawn('npm', ['init'], {
-            stdio: 'inherit'
-        }).on('close', initDepends);
+        var packageJson = path.join(process.cwd(), 'package.json');
+        fs.stat(packageJson, (err) => {
+            if (err) {
+                spawn('npm', ['init'], {
+                    stdio: 'inherit'
+                }).on('close', (code) => {
+                    logger.info(' Add key kil in package.json for system configuration. ');
+
+                    var pack = require(packageJson);
+                    pack.kil = require('./default/package.default.js');
+                    fs.writeFile('package.json', JSON.stringify(pack), function(err) {
+                        if (err) {
+                            logger.error(err);
+                            process.exit(1);
+                        }
+                    });
+
+                    initMods();
+                });
+            } else {
+                initMods();
+            }
+        })
     },
 
     /**
@@ -72,7 +88,7 @@ module.exports = {
      */
     dev: function(args) {
         var conf = config.loadPackageConfig(args),
-            pack_config = utils.loadWebpack('dev');
+            pack_config = utils.loadWebpackCfg('dev');
 
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -91,45 +107,69 @@ module.exports = {
 
         new WebpackDevServer(compiler, serverCfg).listen(conf.port, 'localhost', (err) => {
             if (err) {
-                throw err;
+                logger.error(err);
+                process.exit(1);
             }
 
-            console.log('----------------------------------');
-            console.log(`Server listening at localhost:${conf.port}`);
-            console.log('----------------------------------');
+            logger.info('----------------------------------');
+            logger.info(`Server listening at localhost:${conf.port}`);
+            logger.info('----------------------------------');
         });
     },
 
     /**
-     * load webpack config and start webpack dev server for testing
-     * @return {[type]} [description]
+     * do unit tests with mocha and endless tests with phantom
+     * @param  {[Object]} args: {phantom: false, mocha: false}
+     * @return {[type]}
      */
-    test: function() {
-        spawn(`${__dirname}/node_modules/karma/bin/karma`, ['start', `${process.cwd()}/test/karma.conf.js`], {
-            stdio: 'inherit'
-        }).on('close', (code) => {
-            console.log('karma process exited with code ' + code);
-        });
+    test: function(args) {
+        var mocha = !!args.mocha;
+        var phantom = !!args.phantom;
 
-        spawn('./node_modules/phantomjs/bin/phantomjs', [`${process.cwd()}/test/phantom/index.test.js`], {
-            stdio: 'inherit',
-            cwd: __dirname
-        }).on('close', (code) => {
-            console.log('phontom process exited with code ' + code);
-        });
+        var testPath = path.join(process.cwd(), 'test');
+        fs.stat(testPath, (err) => {
+            if (err) {
+                logger.error(` Can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color + ' ? ');
+                logger.error(' Try to use ' + 'kil init -t'.to.bold.red.color + ' to fix this issue. ');
+
+                process.exit(1);
+            }
+
+            if (mocha) {
+                var karmaBin = path.join(__dirname, 'node_modules/karma/bin/karma');
+                var karmaConfPath = path.join(process.cwd(), 'test/karma.conf.js');
+
+                spawn(karmaBin, ['start', karmaConfPath], {
+                    stdio: 'inherit'
+                }).on('close', (code) => {
+                    logger.info(`mocha test finished with code : ${code}`);
+                });
+            }
+
+            if (phantom) {
+                var phantomBin = path.join(__dirname, 'node_modules/phantomjs/bin/phantomjs');
+                var phantomEntry = path.join(process.cwd(), 'test/phantom/index.test.js');
+                spawn(phantomBin, [phantomEntry], {
+                    stdio: 'inherit',
+                    cwd: __dirname
+                }).on('close', (code) => {
+                    logger.info(`phontom test finished with code : ${code}`);
+                    process.exit(code);
+                });
+            }
+        })
+
     },
 
     /**
      * use webpack and build bundle
      * @return {[type]} [description]
      */
-    release: function() {
+    build: function() {
         var conf = config.loadPackageConfig(),
-            pack_config = utils.loadWebpack('release');
+            pack_config = utils.loadWebpackCfg('release');
 
-        this.clean();
-
-        console.log('building project...');
+        logger.info(' start build project... ');
 
         var compiler = webpack(pack_config);
         compiler.run((err, stats) => {
@@ -144,7 +184,7 @@ module.exports = {
                 console.error(jsonStats.warnings);
             }
 
-            console.log('bundle built, copy files to dist folder');
+            logger.info(' bundle built, copy files to dist folder. ');
 
             //TODO lib be cdn liked
             const copyList = ['img', 'images'];
@@ -158,29 +198,52 @@ module.exports = {
                 })
             });
 
-            console.log('build successfully.');
+            logger.info(' build successfully. ');
 
             //TODO zip
         });
     },
 
-    clean: function() {
-        spawn('rm', ['-rf', 'dist'], {
-            stdio: 'inherit'
-        }).on('close', function(code) {
-            console.log('build cleaned, remove dist folder.')
-        })
-    },
+    /**
+     * use webpack and build bundle
+     * @return {[type]} [description]
+     */
+    release: function() {
+        var conf = config.loadPackageConfig(),
+            pack_config = utils.loadWebpackCfg('release');
 
-    help: function() {
-        console.log('  Package Commands:'.to.bold.green.color);
-        console.log();
-        console.log('    init           initialize a package');
-        console.log('    dev            develop with a dev server');
-        console.log('    test           test a package');
-        console.log('    doc            documentation manager');
-        console.log('    build          build a package');
-        console.log('    release        build a package');
-        console.log();
+        logger.info('building project...');
+
+        var compiler = webpack(pack_config);
+        compiler.run((err, stats) => {
+            if (err) {
+                console.error(err);
+            }
+            var jsonStats = stats.toJson();
+            if (jsonStats.errors.length > 0) {
+                return console.error(jsonStats.errors);
+            }
+            if (jsonStats.warnings.length > 0) {
+                console.error(jsonStats.warnings);
+            }
+
+            logger.info('bundle built, copy files to dist folder');
+
+            //TODO lib be cdn liked
+            const copyList = ['img', 'images'];
+            copyList.forEach((file) => {
+                fs.stat(file, (err, stats) => {
+                    if (!err) {
+                        spawn('cp', ['-r', file, `dist/${file}`], {
+                            stdio: 'inherit'
+                        }).on('close', function(code) {})
+                    }
+                })
+            });
+
+            logger.info('build successfully.');
+
+            //TODO zip
+        });
     }
 }

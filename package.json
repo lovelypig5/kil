@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "description": "kil is a tool based on nodejs and webpack, it helps improve the develop, test and release",
     "main": "index.js",
-    "bin": "./cli.js",
+    "bin": "./bin/kil.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

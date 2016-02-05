@@ -10,8 +10,9 @@ var spawn = require('child_process').spawn;
 
 program
     .usage('[options]')
-    .option('-m, --no-mocha', 'do unit tests with mocha')
-    .option('-p, --phantom', 'do endless tests with phantomjs')
+    .option('-M, --no-mocha', 'do unit tests using mocha on karma.')
+    .option('-p, --phantom', 'do endless tests with phantomjs.')
+    .option('-s, --server', 'run karma as a server.')
     .on('-h', printHelp)
     .on('--help', printHelp)
     .parse(process.argv);
@@ -19,13 +20,14 @@ program
 function printHelp() {
     console.log('  Examples:'.to.bold.blue.color);
     console.log();
-    console.log('    kil test -m    ');
-    console.log('    kil test -p    ');
+    console.log('    kil test -M     disable mocha ');
+    console.log('    kil test -p     enable phantomjs ');
     console.log();
 }
 
 var args = {
     mocha: program.mocha,
-    phantom: program.phantom
+    phantom: program.phantom,
+    server: program.server
 }
 task.test(args);

@@ -10,7 +10,7 @@ var spawn = require('child_process').spawn;
 
 program
     .usage('[options]')
-    .option('-s, --source', 'generate source map')
+    .option('-s, --sourcemap', 'generate source map')
     .on('-h', printHelp)
     .on('--help', printHelp)
     .parse(process.argv);
@@ -18,12 +18,12 @@ program
 function printHelp() {
     console.log('  Examples:'.to.bold.blue.color);
     console.log();
-    console.log('    kil build -s    ');
+    console.log('    kil build -s     enable source ');
     console.log();
 }
 
 var args = {
-    source: program.source
+    sourcemap: program.sourcemap
 }
 
 logger.debug("kil build with options: ");

@@ -24,7 +24,7 @@ var args = {
     port: program.args[0]
 }
 
-logger.debug("kil dev with options: ");
+logger.debug(" kil dev with options: ");
 logger.debug(args);
 
 task.dev(args);

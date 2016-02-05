@@ -160,7 +160,6 @@ module.exports = {
                     cwd: __dirname
                 }).on('close', (code) => {
                     logger.info(`phontom test finished with code : ${code}`);
-                    process.exit(code);
                 });
             }
         })
@@ -183,10 +182,10 @@ module.exports = {
             }
             var jsonStats = stats.toJson();
             if (jsonStats.errors.length > 0) {
-                return console.error(jsonStats.errors);
+                logger.error(jsonStats.errors);
             }
             if (jsonStats.warnings.length > 0) {
-                logger.error(jsonStats.warnings);
+                logger.warn(jsonStats.warnings);
             }
 
             const copyList = ['img', 'images'];

@@ -6,6 +6,6 @@ var logger = require('../logger');
 spawn('rm', ['-rf', 'dist'], {
     stdio: 'inherit'
 }).on('close', function(code) {
-    logger.info(' Build cleaned, remove dist folder. ');
+    logger.info(' build cleaned, remove dist folder. ');
     process.exit();
 })

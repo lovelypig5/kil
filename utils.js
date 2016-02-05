@@ -20,7 +20,7 @@ class Utils {
         switch (target) {
             case 'dev':
                 var isDebug = true;
-                var pack_config = this.mergeConfig(isDebug);
+                var pack_config = this.mergeConfig(args, isDebug);
                 pack_config.devtool = '#eval';
 
                 var conf = config.getConfig();
@@ -66,7 +66,7 @@ class Utils {
             case 'release':
                 var sourcemap = !!args.sourcemap ? "?source-map" : "";
 
-                var pack_config = this.mergeConfig();
+                var pack_config = this.mergeConfig(args);
                 if (sourcemap) {
                     pack_config.devtool = '#source-map';
                 } else {
@@ -137,7 +137,7 @@ class Utils {
      * @param  {Boolean} isDebug : is debug mode, add dev-sever entry or not
      * @return {[Object]}
      */
-    mergeConfig(isDebug) {
+    mergeConfig(args, isDebug) {
         var pack_def = require('./pack');
         var packPath = path.join(process.cwd(), 'pack.js');
         var pack;
@@ -159,7 +159,7 @@ class Utils {
         if (!pack) {
             logger.info(" Can't find pack.js, use webpack config from package.json or default.");
 
-            var sysCfg = config.loadPackageConfig();
+            var sysCfg = config.loadPackageConfig(args);
             var conf = sysCfg.webpack;
             pack = {
                 entry: conf.entry || 'main',

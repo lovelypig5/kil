@@ -99,9 +99,13 @@ module.exports = {
                 colors: true
             }
         }
+
         if (pack_config.devServer && pack_config.devServer.proxy) {
             serverCfg.proxy = pack_config.devServer.proxy;
         }
+
+        logger.debug('webpack dev server start with config: ');
+        logger.debug(serverCfg);
 
         new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), 'localhost', (err) => {
             if (err) {

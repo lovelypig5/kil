@@ -28,6 +28,12 @@ module.exports = (modulePath) => {
         module: {
             loaders: []
         },
-        externals: []
+        externals: [],
+        devServer: {
+            // proxy: {
+            //     '*': 'http://localhost:3000'
+            // }
+
+        }
     }
 }

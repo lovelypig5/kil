@@ -42,7 +42,7 @@ class Config {
             var confPath = path.join(process.cwd(), 'package.json');
             json = require(confPath);
         } catch (ex) {
-            logger.warn(" Can't find package.json, init system config with default. ");
+            logger.warn("Can't find package.json, init system config with default. ");
 
             source = false;
         }
@@ -50,7 +50,7 @@ class Config {
         if (json.kil) {
             conf = json.kil;
         } else {
-            logger.warn(" Can't find a key named kil in package.json, init system config with default. ");
+            logger.warn("Can't find a key named kil in package.json, init system config with default. ");
             conf = DEFAULT;
         }
         conf.port = conf.port || DEFAULT.port;
@@ -58,7 +58,7 @@ class Config {
             try {
                 conf.port = parseInt(args.port);
             } catch (err) {
-                logger.warn(' Ignore passed error port! ');
+                logger.warn('Ignore passed error port! ');
             }
         }
         conf.mock = !!conf.mock;

@@ -16,15 +16,14 @@ class Utils {
      *     @task release: add uglifyjs
      * @return config
      */
-    loadWebpackCfg(target) {
-        var conf = config.getConfig();
-
+    loadWebpackCfg(target, args) {
         switch (target) {
             case 'dev':
                 var isDebug = true;
                 var pack_config = this.mergeConfig(isDebug);
                 pack_config.devtool = '#eval';
 
+                var conf = config.getConfig();
                 if (conf.mock === true) {
                     var babelQueryStr = babel(isDebug);
                     var entryPath = [];
@@ -65,17 +64,23 @@ class Utils {
 
                 return pack_config;
             case 'release':
+                var sourcemap = !!args.sourcemap ? "?source-map" : "";
+
                 var pack_config = this.mergeConfig();
-                pack_config.devtool = '#eval';
+                if (sourcemap) {
+                    pack_config.devtool = '#source-map';
+                } else {
+                    pack_config.devtool = '#eval';
+                }
 
                 pack_config.module.loaders.push({
                     test: /\.css$/,
-                    loader: ExtractTextPlugin.extract('style', 'css!postcss')
+                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss`)
                 });
                 pack_config.module.loaders.push({
                     test: /\.less$/,
                     exclude: /(node_modules|bower_components)/,
-                    loader: ExtractTextPlugin.extract('style', 'css!postcss!less')
+                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss!less${sourcemap}`)
                 });
 
                 pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
@@ -154,7 +159,8 @@ class Utils {
         if (!pack) {
             logger.info(" Can't find pack.js, use webpack config from package.json or default.");
 
-            var conf = config.getConfig().webpack;
+            var sysCfg = config.loadPackageConfig();
+            var conf = sysCfg.webpack;
             pack = {
                 entry: conf.entry || 'main',
                 plugins: conf.plugins

@@ -54,7 +54,6 @@ module.exports = {
             })
 
             logger.info(' init successfully. ');
-            process.exit();
         }
 
         var packageJson = path.join(process.cwd(), 'package.json');
@@ -87,8 +86,7 @@ module.exports = {
      * @return {[type]} [description]
      */
     dev: function(args) {
-        var conf = config.loadPackageConfig(args),
-            pack_config = utils.loadWebpackCfg('dev');
+        var pack_config = utils.loadWebpackCfg('dev', args);
 
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -105,14 +103,14 @@ module.exports = {
             serverCfg.proxy = pack_config.devServer.proxy;
         }
 
-        new WebpackDevServer(compiler, serverCfg).listen(conf.port, 'localhost', (err) => {
+        new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), 'localhost', (err) => {
             if (err) {
                 logger.error(err);
                 process.exit(1);
             }
 
             logger.info('----------------------------------');
-            logger.info(`Server listening at localhost:${conf.port}`);
+            logger.info(`Server listening at localhost:${config.getPort()}`);
             logger.info('----------------------------------');
         });
     },
@@ -125,6 +123,7 @@ module.exports = {
     test: function(args) {
         var mocha = !!args.mocha;
         var phantom = !!args.phantom;
+        var server = !!args.server;
 
         var testPath = path.join(process.cwd(), 'test');
         fs.stat(testPath, (err) => {
@@ -139,7 +138,14 @@ module.exports = {
                 var karmaBin = path.join(__dirname, 'node_modules/karma/bin/karma');
                 var karmaConfPath = path.join(process.cwd(), 'test/karma.conf.js');
 
-                spawn(karmaBin, ['start', karmaConfPath], {
+                var bins;
+                if (server) {
+                    bins = ['start', karmaConfPath, '--detached'];
+                } else {
+                    bins = ['start', karmaConfPath, '--detached', '--single-run'];
+                }
+
+                spawn(karmaBin, bins, {
                     stdio: 'inherit'
                 }).on('close', (code) => {
                     logger.info(`mocha test finished with code : ${code}`);
@@ -165,28 +171,24 @@ module.exports = {
      * use webpack and build bundle
      * @return {[type]} [description]
      */
-    build: function() {
-        var conf = config.loadPackageConfig(),
-            pack_config = utils.loadWebpackCfg('release');
+    build: function(args) {
+        var pack_config = utils.loadWebpackCfg('release', args);
 
         logger.info(' start build project... ');
 
         var compiler = webpack(pack_config);
         compiler.run((err, stats) => {
             if (err) {
-                console.error(err);
+                logger.error(err);
             }
             var jsonStats = stats.toJson();
             if (jsonStats.errors.length > 0) {
                 return console.error(jsonStats.errors);
             }
             if (jsonStats.warnings.length > 0) {
-                console.error(jsonStats.warnings);
+                logger.error(jsonStats.warnings);
             }
 
-            logger.info(' bundle built, copy files to dist folder. ');
-
-            //TODO lib be cdn liked
             const copyList = ['img', 'images'];
             copyList.forEach((file) => {
                 fs.stat(file, (err, stats) => {
@@ -199,8 +201,6 @@ module.exports = {
             });
 
             logger.info(' build successfully. ');
-
-            //TODO zip
         });
     },
 
@@ -209,41 +209,41 @@ module.exports = {
      * @return {[type]} [description]
      */
     release: function() {
-        var conf = config.loadPackageConfig(),
-            pack_config = utils.loadWebpackCfg('release');
+        // var conf = config.loadPackageConfig(),
+        //     pack_config = utils.loadWebpackCfg('release');
 
-        logger.info('building project...');
+        // logger.info('building project...');
 
-        var compiler = webpack(pack_config);
-        compiler.run((err, stats) => {
-            if (err) {
-                console.error(err);
-            }
-            var jsonStats = stats.toJson();
-            if (jsonStats.errors.length > 0) {
-                return console.error(jsonStats.errors);
-            }
-            if (jsonStats.warnings.length > 0) {
-                console.error(jsonStats.warnings);
-            }
+        // var compiler = webpack(pack_config);
+        // compiler.run((err, stats) => {
+        //     if (err) {
+        //         console.error(err);
+        //     }
+        //     var jsonStats = stats.toJson();
+        //     if (jsonStats.errors.length > 0) {
+        //         return console.error(jsonStats.errors);
+        //     }
+        //     if (jsonStats.warnings.length > 0) {
+        //         console.error(jsonStats.warnings);
+        //     }
 
-            logger.info('bundle built, copy files to dist folder');
+        //     logger.info('bundle built, copy files to dist folder');
 
-            //TODO lib be cdn liked
-            const copyList = ['img', 'images'];
-            copyList.forEach((file) => {
-                fs.stat(file, (err, stats) => {
-                    if (!err) {
-                        spawn('cp', ['-r', file, `dist/${file}`], {
-                            stdio: 'inherit'
-                        }).on('close', function(code) {})
-                    }
-                })
-            });
+        //     //TODO lib be cdn liked
+        //     const copyList = ['img', 'images'];
+        //     copyList.forEach((file) => {
+        //         fs.stat(file, (err, stats) => {
+        //             if (!err) {
+        //                 spawn('cp', ['-r', file, `dist/${file}`], {
+        //                     stdio: 'inherit'
+        //                 }).on('close', function(code) {})
+        //             }
+        //         })
+        //     });
 
-            logger.info('build successfully.');
+        //     logger.info('build successfully.');
 
-            //TODO zip
-        });
+        //     //TODO zip
+        // });
     }
 }

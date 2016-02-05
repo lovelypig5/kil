@@ -6,10 +6,6 @@ kil is a tool based on nodejs, it helps improve the develop, test and release on
 *  git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace
 *  run install.sh kil use "source / ." , otherwise you need source file manually
 
-@Deprecated
-```bash
-~~source ${workspace}/kil/install.sh~~
-```
 ```node
 sudo npm link
 ```
@@ -79,6 +75,11 @@ kil accept two kinds of configuration, a key kil in package.json or a separate p
                     "React": "react",
                     "ReactDOM": "react-dom",
                     "$": "jquery"
+                },
+                "devServer": {
+                    "proxy": {
+                        "*": "http://localhost:3001"
+                    }
                 }
             }
         }
@@ -119,13 +120,18 @@ kil accept two kinds of configuration, a key kil in package.json or a separate p
         module: {
             loaders: []
         },
-        externals: []
+        externals: [],
+        devServer: {
+            proxy: {
+                '*': 'http://localhost:3000'
+            }
+        }
     }
 
 ```
 
 # Author
-[out2man](http:/www.out2man.com)
+* [out2man](http:/www.out2man.com)
 
 # See also
 * [webpack](https://webpack.github.io/)

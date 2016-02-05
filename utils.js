@@ -140,6 +140,7 @@ class Utils {
     mergeConfig(args, isDebug) {
         var pack_def = require('./pack');
         var packPath = path.join(process.cwd(), 'pack.js');
+        var sysCfg = config.loadPackageConfig(args);
         var pack;
 
         try {
@@ -155,15 +156,13 @@ class Utils {
             }
         } catch (e) {}
 
-
         if (!pack) {
             logger.info(" Can't find pack.js, use webpack config from package.json or default.");
-
-            var sysCfg = config.loadPackageConfig(args);
             var conf = sysCfg.webpack;
             pack = {
                 entry: conf.entry || 'main',
-                plugins: conf.plugins
+                plugins: conf.plugins,
+                devServer: conf.devServer
             }
         }
 
@@ -223,6 +222,9 @@ class Utils {
 
             pack_config.externals = pack_def.externals;
             pack_config.postcss = pack_def.postcss;
+            if (pack.devServer) {
+                pack_config.devServer = pack.devServer;
+            }
 
             return pack_config;
         }

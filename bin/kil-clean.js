@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 
-var spawn = require('cross-spawn');
+var rimraf = require('rimraf');
 var logger = require('../logger');
 
-spawn('rm', ['-rf', 'dist'], {
-    stdio: 'inherit'
-}).on('close', function(code) {
+rimraf('dist', () => {
     logger.info('build cleaned, remove dist folder. ');
-    process.exit();
 })

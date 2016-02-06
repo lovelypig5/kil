@@ -1,7 +1,7 @@
 var config = require('./config'),
     utils = require('./utils'),
     logger = require('./logger'),
-    spawn = require('child_process').spawn,
+    spawn = require('cross-spawn'),
     fs = require('fs'),
     path = require('path');
 

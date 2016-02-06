@@ -6,7 +6,7 @@ var program = require('commander');
 var fs = require('fs');
 var logger = require('../logger');
 var path = require('path');
-var spawn = require('child_process').spawn;
+var spawn = require('cross-spawn');
 
 program
     .version(require('../package').version, '-v, --version')

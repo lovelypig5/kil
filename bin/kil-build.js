@@ -11,6 +11,7 @@ var spawn = require('cross-spawn');
 program
     .usage('[options]')
     .option('-s, --sourcemap', 'generate source map')
+    .option('-C, --no-clean', 'disable clean before a new build')
     .on('-h', printHelp)
     .on('--help', printHelp)
     .parse(process.argv);
@@ -23,15 +24,20 @@ function printHelp() {
 }
 
 var args = {
-    sourcemap: program.sourcemap
+    sourcemap: program.sourcemap,
+    clean: program.clean
 }
 
 logger.debug("kil build with options: ");
 logger.debug(args);
 
-var cleanScript = path.join(__dirname, '/kil-clean.js');
-spawn(cleanScript, {
-    stdio: 'inherit'
-}).on('close', (code) => {
+if (clean) {
+    var cleanScript = path.join(__dirname, '/kil-clean.js');
+    spawn(cleanScript, {
+        stdio: 'inherit'
+    }).on('close', (code) => {
+        task.build(args);
+    });
+} else {
     task.build(args);
-});
+}

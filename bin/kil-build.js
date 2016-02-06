@@ -31,7 +31,7 @@ var args = {
 logger.debug("kil build with options: ");
 logger.debug(args);
 
-if (clean) {
+if (program.clean) {
     var cleanScript = path.join(__dirname, '/kil-clean.js');
     spawn(cleanScript, {
         stdio: 'inherit'

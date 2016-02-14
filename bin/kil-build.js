@@ -17,7 +17,7 @@ program
     .parse(process.argv);
 
 function printHelp() {
-    console.log('  Examples:'.to.bold.blue.color);
+    console.log('  Examples:'.to.bold.green.color);
     console.log();
     console.log('    kil build -s     enable source ');
     console.log();

@@ -18,7 +18,7 @@ program
     .parse(process.argv);
 
 function printHelp() {
-    console.log('  Examples:'.to.bold.blue.color);
+    console.log('  Examples:'.to.bold.green.color);
     console.log();
     console.log('    kil test -M     disable mocha ');
     console.log('    kil test -p     enable phantomjs ');

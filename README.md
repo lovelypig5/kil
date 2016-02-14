@@ -11,15 +11,15 @@ sudo npm link
 ```
 will change to npm install in the future.
 
-
-Then kil is installed in your pc succeccfully.
-
 # Usage
   support init, develop, test, mock data and release cmds
 
 ###init
 ```javascript
-    kil init
+    kil init          // init a project with default
+    kil init -h       // get init help
+    kil init -m       // init mock module, this module will only work on development
+    kil init -t       // init test module, this module won't be built into bundle on release
 ```
 init the project with kil:
 kil will init package.json. install npm dependencies and create js, css, img, less, test folders with default index.js and index.html asynchronized
@@ -27,13 +27,17 @@ kil will init package.json. install npm dependencies and create js, css, img, le
 ###dev
 ```javascript
     kil dev
+    kil dev -p 9001    // specify the port of dev server
 ```
 after project init, kil dev helps open the [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html).
 support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), [hot-module-replace](https://webpack.github.io/docs/hot-module-replacement.html), es6 is default support by [babel](https://babeljs.io/).
 
 ###test
 ```javascript
-    kil test
+    kil test                   // default run karma once and test with mocha framework
+    kil test -M | --no-mocha   // disable mocha
+    kil test -p                // enable phantomjs
+    kil test -s                // run karma as a server, CI unit tests
 ```
 test is default support by phantomjs and mocha, [mocha](https://mochajs.org/) for unit tests and [phantomjs](http://phantomjs.org/) for page automation tests.
 reports will be export at reports folder at your workspace
@@ -41,6 +45,8 @@ reports will be export at reports folder at your workspace
 ###release
 ```javascript
     kil release
+    kil release -s      // generate source map
+    kil release -C      // release without clean
 ```
 minify your js, less to target js and css. package to a zip file for production.
 
@@ -89,41 +95,45 @@ kil accept two kinds of configuration, a key kil in package.json or a separate p
 * pack.js
 
 ```javascript
+    /**
+     * modulePath is the location of kil node_modules
+     */
+    module.exports = (modulePath) => {
 
-    var path = require('path');
-    // var webpack = require(path.resolve(process.env.KIL_HOME, 'node_modules', 'webpack'));
-    // var HtmlWebpackPlugin = require(path.resolve(process.env.KIL_HOME, 'node_modules', 'html-webpack-plugin'));
+        var path = require('path');
+        // var webpack = require(`${modulePath}/webpack`);
+        // var HtmlWebpackPlugin = require(`${modulePath}/html-webpack-plugin`);
 
-    module.exports = {
-        // if single entry is used, bundle name will be named as main.js
-        entry: {
-            index: "./index",
-            index2: "./page/index2",
-            common: ['jquery', 'react', 'react-dom']
-        },
-        // plugins example, default no more
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: './index.html',
-                filename: 'index.html',
-                chunks: ['index', 'common']
-            }),
-            new webpack.ProvidePlugin({
-                React: 'react',
-                ReactDOM: 'react-dom',
-                $: 'jquery'
-            }),
-            new webpack.optimize.CommonsChunkPlugin({
-                name: "common"
-            })
-        ],
-        module: {
-            loaders: []
-        },
-        externals: [],
-        devServer: {
-            proxy: {
-                '*': 'http://localhost:3000'
+        return {
+            // if single entry is used, bundle name will be named as main.js
+            entry: {
+                main: "./index",
+                // common: ['jquery']
+            },
+            // plugins example, default no more
+            plugins: [
+                // new webpack.ProvidePlugin({
+                //     $: "jquery",
+                //     jQuery: "jquery"
+                // }),
+                // new HtmlWebpackPlugin({
+                //     template: './index.html',
+                //     filename: './index.html',
+                //     chunks: ['main', 'common']
+                // }),
+                // new webpack.optimize.CommonsChunkPlugin({
+                //     name: "common"
+                // })
+            ],
+            module: {
+                loaders: []
+            },
+            externals: [],
+            devServer: {
+                // proxy: {
+                //     '*': 'http://localhost:3000'
+                // }
+
             }
         }
     }

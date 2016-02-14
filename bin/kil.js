@@ -21,9 +21,10 @@ var args = process.argv.slice(3);
 const aliases = {
     "b": "build",
     "d": "dev",
-    "release": "build",
     "i": "init",
-    "c": "clean"
+    "c": "clean",
+    "r": "build",
+    "release": "build"
 }
 
 if (aliases[subcmd]) {

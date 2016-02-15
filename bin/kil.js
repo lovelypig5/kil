@@ -45,7 +45,7 @@ function printHelp() {
     console.log('    test           test a project');
     console.log('    build          build a package');
     console.log('    release        build a package');
-    console.log('    doc            documentation manager');
+    console.log('    doc            document manager');
     console.log();
 }
 

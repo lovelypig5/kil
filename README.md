@@ -55,7 +55,7 @@ show usage and help information
 
 #Configuration
 kil accept two kinds of configuration, a key kil in package.json or a separate pack.js. pack.js is prior to package.json
-<font color=red>Important:</font> if you want enable react, mock or copy files, package.json should be configed.
+<h3><font color="red" size="">important:</font> if you want enable react, mock or copy files, package.json should be configured.</h3>
 
 * package.json
 

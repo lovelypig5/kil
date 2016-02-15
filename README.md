@@ -4,10 +4,10 @@ kil is a tool based on nodejs, it helps improve the develop, test and release on
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
 *  git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace
-*  run install.sh kil use "source / ." , otherwise you need source file manually
 
 ```node
-sudo npm link
+npm install           // install dependenies
+sudo npm link         // link to global
 ```
 will change to npm install in the future.
 
@@ -55,6 +55,7 @@ show usage and help information
 
 #Configuration
 kil accept two kinds of configuration, a key kil in package.json or a separate pack.js. pack.js is prior to package.json
+<font color=red>Important:</font> if you want enable react, mock or copy files, package.json should be configed.
 
 * package.json
 
@@ -64,6 +65,7 @@ kil accept two kinds of configuration, a key kil in package.json or a separate p
             "port": 9000,
             "mock": true,
             "react": true,
+            "copy": ["img/*"],
             "webpack": {
                 "output": {
                     "page/*.html": {

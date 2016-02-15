@@ -7,6 +7,12 @@ module.exports = {
             "*.html": {}
         },
         "commonTrunk": {},
-        "global": {}
-    }
+        "global": {},
+        "devServer": {
+            "proxy": {
+                "/test_/?*": "please change or remove this as you need"
+            }
+        }
+    },
+    "copy": []
 }

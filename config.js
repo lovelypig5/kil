@@ -1,11 +1,11 @@
 'use strict';
 
-var path = require('path');
-var glob = require('glob');
-var logger = require('./logger');
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var conf;
+var path = require('path'),
+    glob = require('glob'),
+    logger = require('./logger'),
+    webpack = require('webpack'),
+    HtmlWebpackPlugin = require('html-webpack-plugin'),
+    conf;
 
 const DEFAULT = require('./default/package.default.js');
 
@@ -41,7 +41,7 @@ class Config {
         try {
             var confPath = path.join(process.cwd(), 'package.json');
             json = require(confPath);
-        } catch (ex) {
+        } catch ( ex ) {
             logger.warn("Can't find package.json, init system config with default. ");
 
             source = false;
@@ -57,7 +57,7 @@ class Config {
         if (args && args.port) {
             try {
                 conf.port = parseInt(args.port);
-            } catch (err) {
+            } catch ( err ) {
                 logger.warn('Ignore passed error port! ');
             }
         }

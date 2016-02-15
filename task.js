@@ -90,6 +90,7 @@ module.exports = {
      */
     dev: function(args) {
         var pack_config = utils.loadWebpackCfg('dev', args);
+        pack_config.output.publicPath = `http://localhost:${config.getPort()}/`;
 
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');

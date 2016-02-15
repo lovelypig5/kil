@@ -29,7 +29,7 @@
                  */
                 {
                     test: /\.(png|jpe?g|gif|eot|svg|ttf|woff|woff2)$/i,
-                    loader: "url?limit=51200&name=[path][name].[ext]"
+                    loader: "url?limit=102400&name=[path][name].[ext]"
                 }, {
                     test: /\.json$/,
                     loaders: ['json']

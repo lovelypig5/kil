@@ -2,10 +2,10 @@
 
 var path = require('path'),
     fs = require('fs'),
-    logger = require('./logger');
-var webpack = require('webpack'),
-    ExtractTextPlugin = require('extract-text-webpack-plugin');
-var config = require('./config'),
+    logger = require('./logger'),
+    webpack = require('webpack'),
+    ExtractTextPlugin = require('extract-text-webpack-plugin'),
+    config = require('./config'),
     babel = require('./babel');
 
 class Utils {
@@ -18,84 +18,84 @@ class Utils {
      */
     loadWebpackCfg(target, args) {
         switch (target) {
-            case 'dev':
-                var isDebug = true;
-                var pack_config = this.mergeConfig(args, isDebug);
+        case 'dev':
+            var isDebug = true;
+            var pack_config = this.mergeConfig(args, isDebug);
+            pack_config.devtool = '#eval';
+
+            var conf = config.getConfig();
+            if (conf.mock === true) {
+                var babelQueryStr = babel(isDebug);
+                var entryPath = [];
+                for (var key in pack_config.entry) {
+                    var entry = pack_config.entry[key];
+                    var type = Object.prototype.toString.call(entry);
+                    if (type === 'object String]') {
+                        entryPath.push(path.resolve(process.cwd(), entry + '.js'));
+                    } else if (type === '[object Array]') {
+                        entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
+                    }
+                }
+
+                //load mock.js before all
+                pack_config.module.loaders.push({
+                    test: new RegExp(entryPath.join('|')),
+                    exclude: /(node_modules|bower_components)/,
+                    loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel?${babelQueryStr}`]
+                });
+            }
+
+            // config css and less loader
+            pack_config.module.loaders.push({
+                test: /\.css$/,
+                loaders: ['style', 'css?sourceMap']
+            });
+            pack_config.module.loaders.push({
+                test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
+                loaders: ['style', 'css?sourceMap!less?sourceMap']
+            });
+
+            // add plugin
+            pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
+
+            logger.debug('dev server start with webpack config: ');
+            logger.debug(pack_config);
+
+            return pack_config;
+        case 'release':
+            var sourcemap = !!args.sourcemap ? "?source-map" : "";
+
+            var pack_config = this.mergeConfig(args);
+            if (sourcemap) {
+                pack_config.devtool = '#source-map';
+            } else {
                 pack_config.devtool = '#eval';
+            }
 
-                var conf = config.getConfig();
-                if (conf.mock === true) {
-                    var babelQueryStr = babel(isDebug);
-                    var entryPath = [];
-                    for (var key in pack_config.entry) {
-                        var entry = pack_config.entry[key];
-                        var type = Object.prototype.toString.call(entry);
-                        if (type === 'object String]') {
-                            entryPath.push(path.resolve(process.cwd(), entry + '.js'));
-                        } else if (type === '[object Array]') {
-                            entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
-                        }
-                    }
+            pack_config.module.loaders.push({
+                test: /\.css$/,
+                loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss`)
+            });
+            pack_config.module.loaders.push({
+                test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
+                loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss!less${sourcemap}`)
+            });
 
-                    //load mock.js before all
-                    pack_config.module.loaders.push({
-                        test: new RegExp(entryPath.join('|')),
-                        exclude: /(node_modules|bower_components)/,
-                        loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel?${babelQueryStr}`]
-                    });
+            pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
+            pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                compress: {
+                    warnings: false
                 }
+            }));
 
-                // config css and less loader
-                pack_config.module.loaders.push({
-                    test: /\.css$/,
-                    loaders: ['style', 'css?sourceMap']
-                });
-                pack_config.module.loaders.push({
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loaders: ['style', 'css?sourceMap!less?sourceMap']
-                });
+            logger.debug('kil release with webpack config: ');
+            logger.debug(pack_config);
 
-                // add plugin
-                pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
-
-                logger.debug('dev server start with webpack config: ');
-                logger.debug(pack_config);
-
-                return pack_config;
-            case 'release':
-                var sourcemap = !!args.sourcemap ? "?source-map" : "";
-
-                var pack_config = this.mergeConfig(args);
-                if (sourcemap) {
-                    pack_config.devtool = '#source-map';
-                } else {
-                    pack_config.devtool = '#eval';
-                }
-
-                pack_config.module.loaders.push({
-                    test: /\.css$/,
-                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss`)
-                });
-                pack_config.module.loaders.push({
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss!less${sourcemap}`)
-                });
-
-                pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
-                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-                    compress: {
-                        warnings: false
-                    }
-                }));
-
-                logger.debug('kil release with webpack config: ');
-                logger.debug(pack_config);
-
-                return pack_config;
-            default:
-                break;
+            return pack_config;
+        default:
+            break;
         }
 
         return null;
@@ -148,16 +148,16 @@ class Utils {
             pack = require(packPath);
             try {
                 pack = pack(path.resolve(__dirname, 'node_modules'));
-            } catch (e) {
+            } catch ( e ) {
                 logger.error(' Error happens in pack.js ');
                 logger.error(e);
 
                 process.exit(1);
             }
-        } catch (e) {}
+        } catch ( e ) {}
 
         if (!pack) {
-            logger.info(" Can't find pack.js, use webpack config from package.json or default.");
+            logger.info("can't find pack.js, use webpack config from package.json or default.");
             var conf = sysCfg.webpack;
             pack = {
                 entry: conf.entry || 'main',

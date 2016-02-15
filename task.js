@@ -1,9 +1,12 @@
-var config = require('./config'),
+'use strict';
+
+var spawn = require('cross-spawn'),
+    fs = require('fs-extra'),
+    path = require('path'),
+    glob = require('glob'),
+    config = require('./config'),
     utils = require('./utils'),
-    logger = require('./logger'),
-    spawn = require('cross-spawn'),
-    fs = require('fs'),
-    path = require('path');
+    logger = require('./logger');
 
 var webpack = require('webpack');
 
@@ -36,7 +39,7 @@ module.exports = {
             folders.forEach((folder) => {
                 try {
                     fs.statSync(folder);
-                } catch (err) {
+                } catch ( err ) {
                     if (err) {
                         fs.mkdirSync(folder);
                     }
@@ -62,7 +65,7 @@ module.exports = {
                 spawn('npm', ['init'], {
                     stdio: 'inherit'
                 }).on('close', (code) => {
-                    logger.info(' Add key kil in package.json for system configuration. ');
+                    logger.info('Add key kil in package.json for system configuration. ');
 
                     var pack = require(packageJson);
                     pack.kil = require('./default/package.default.js');
@@ -132,8 +135,8 @@ module.exports = {
         var testPath = path.join(process.cwd(), 'test');
         fs.stat(testPath, (err) => {
             if (err) {
-                logger.error(` Can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color + ' ? ');
-                logger.error(' Try to use ' + 'kil init -t'.to.bold.red.color + ' to fix this issue. ');
+                logger.error(`can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color + ' ? ');
+                logger.error('try to use ' + 'kil init -t'.to.bold.red.color + ' to fix this issue. ');
 
                 process.exit(1);
             }
@@ -176,7 +179,7 @@ module.exports = {
     build: function(args) {
         var pack_config = utils.loadWebpackCfg('release', args);
 
-        logger.info(' start build project... ');
+        logger.info('start build project... ');
 
         var compiler = webpack(pack_config);
         compiler.run((err, stats) => {
@@ -191,18 +194,17 @@ module.exports = {
                 logger.warn(jsonStats.warnings);
             }
 
-            const copyList = ['img', 'images'];
-            copyList.forEach((file) => {
-                fs.stat(file, (err, stats) => {
-                    if (!err) {
-                        spawn('cp', ['-r', file, `dist/${file}`], {
-                            stdio: 'inherit'
-                        }).on('close', function(code) {})
-                    }
+            var conf = config.getConfig();
+            if (conf.copy && conf.copy.length > 0) {
+                conf.copy.forEach((key) => {
+                    let files = glob.sync(key);
+                    files.forEach((file) => {
+                        fs.copySync(file, `dist/${file}`);
+                    })
                 })
-            });
+            }
 
-            logger.info(' build successfully. ');
+            logger.info('build successfully. ');
         });
     },
 

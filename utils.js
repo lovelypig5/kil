@@ -58,6 +58,9 @@ class Utils {
 
             // add plugin
             pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
+            pack_config.plugins.push(new webpack.DefinePlugin({
+                WEBPACK_DEBUG: true
+            }));
 
             logger.debug('dev server start with webpack config: ');
             logger.debug(pack_config);
@@ -88,6 +91,10 @@ class Utils {
                 compress: {
                     warnings: false
                 }
+            }));
+
+            pack_config.plugins.push(new webpack.DefinePlugin({
+                WEBPACK_DEBUG: false
             }));
 
             logger.debug('kil release with webpack config: ');

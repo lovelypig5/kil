@@ -53,10 +53,7 @@
          * @type {Array}
          */
         plugins: [],
-        externals: [
-            'style-loader', 'css-loader', 'postcss-loader', 'less-loader', 'imports-loader', 'exports-loader',
-            'json-loader', 'babel-loader', 'file-loader', 'url-loader', 'vue-loader'
-        ],
+        externals: [],
         postcss: function() {
             return [require('autoprefixer')];
         }

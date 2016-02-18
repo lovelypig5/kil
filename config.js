@@ -64,7 +64,7 @@ class Config {
         conf.mock = !!conf.mock;
         conf.react = !!conf.react;
 
-        var pack = conf.webpack;
+        var pack = conf.webpack || {};
         pack.entry = {};
         pack.plugins = [];
         // add output

@@ -214,8 +214,11 @@ class Utils {
                     js: `babel?${babel(isDebug)}`,
                 }
             };
-
-            pack_config.resolve = pack.resolve || pack_def.resolve;
+            if (pack_config.resolve) {
+                pack_config.resolve.root = pack_def.resolve.root;
+            } else {
+                pack_config.resolve = pack_def.resolve;
+            }
             pack_config.resolveLoader = pack.resolveLoader || pack_def.resolveLoader;
 
             if (pack_config.plugins) {

@@ -41,7 +41,7 @@ module.exports = {
             // project node modules
             path.join(process.cwd(), 'node_modules'),
             // kil node modules
-            path.join(paths.join(path.sep), 'node_modules', 'kil', 'node_modules'),
+            path.join(__dirname, 'node_modules'),
             // all global node modules
             path.join(paths.join(path.sep), 'node_modules')
         ]
@@ -49,7 +49,7 @@ module.exports = {
     resolveLoader: {
         root: [
             path.join(process.cwd(), 'node_modules'),
-            path.join(paths.join(path.sep), 'node_modules', 'kil', 'node_modules'),
+            path.join(__dirname, 'node_modules'),
             path.join(paths.join(path.sep), 'node_modules')
         ]
     },

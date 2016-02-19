@@ -10,7 +10,7 @@
     "author": "wei.ding",
     "email": "lovelypig5@163.com",
     "bugs": "https://github.com/lovelypig5/kil/issues",
-    "license": "AGPL",
+    "license": "AGPL-3.0",
     "dependencies": {
         "babel-core": "^6.3.26",
         "babel-loader": "^6.2.0",

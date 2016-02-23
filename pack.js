@@ -26,7 +26,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.(png|jpe?g|gif|eot|svg|ttf|woff|woff2)$/i,
-                loader: "url?limit=102400&name=[path][name].[ext]"
+                loader: "url?limit=2048&name=[path][name].[ext]"
             }, {
                 test: /\.json$/,
                 loaders: ['json']
@@ -41,7 +41,7 @@ module.exports = {
             // project node modules
             path.join(process.cwd(), 'node_modules'),
             // kil node modules
-            path.join(paths.join(path.sep), 'node_modules', 'kil', 'node_modules'),
+            path.join(__dirname, 'node_modules'),
             // all global node modules
             path.join(paths.join(path.sep), 'node_modules')
         ]
@@ -49,7 +49,7 @@ module.exports = {
     resolveLoader: {
         root: [
             path.join(process.cwd(), 'node_modules'),
-            path.join(paths.join(path.sep), 'node_modules', 'kil', 'node_modules'),
+            path.join(__dirname, 'node_modules'),
             path.join(paths.join(path.sep), 'node_modules')
         ]
     },

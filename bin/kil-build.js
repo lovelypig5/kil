@@ -10,8 +10,8 @@ var spawn = require('cross-spawn');
 
 program
     .usage('[options]')
-    .option('-S, --no-sourcemap', 'generate source map')
-    .option('-U, --no-uglify', 'generate source map')
+    .option('-S, --no-sourcemap', 'disable source map')
+    .option('-U, --no-uglify', 'disable uglifyjs.')
     .option('-C, --no-clean', 'disable clean before a new build')
     .on('-h', printHelp)
     .on('--help', printHelp)

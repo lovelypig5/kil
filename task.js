@@ -177,7 +177,7 @@ module.exports = {
      * use webpack and build bundle
      * @return {[type]} [description]
      */
-    build: function(args) {
+    build: function(args, after) {
         var pack_config = utils.loadWebpackCfg('release', args);
 
         logger.info('start build project... ');
@@ -206,6 +206,10 @@ module.exports = {
             }
 
             logger.info('build successfully. ');
+
+            if (after && typeof after === "function") {
+                after();
+            }
         });
     },
 
@@ -213,42 +217,15 @@ module.exports = {
      * use webpack and build bundle
      * @return {[type]} [description]
      */
-    release: function() {
-        // var conf = config.loadPackageConfig(),
-        //     pack_config = utils.loadWebpackCfg('release');
-
-        // logger.info('building project...');
-
-        // var compiler = webpack(pack_config);
-        // compiler.run((err, stats) => {
-        //     if (err) {
-        //         console.error(err);
-        //     }
-        //     var jsonStats = stats.toJson();
-        //     if (jsonStats.errors.length > 0) {
-        //         return console.error(jsonStats.errors);
-        //     }
-        //     if (jsonStats.warnings.length > 0) {
-        //         console.error(jsonStats.warnings);
-        //     }
-
-        //     logger.info('bundle built, copy files to dist folder');
-
-        //     //TODO lib be cdn liked
-        //     const copyList = ['img', 'images'];
-        //     copyList.forEach((file) => {
-        //         fs.stat(file, (err, stats) => {
-        //             if (!err) {
-        //                 spawn('cp', ['-r', file, `dist/${file}`], {
-        //                     stdio: 'inherit'
-        //                 }).on('close', function(code) {})
-        //             }
-        //         })
-        //     });
-
-        //     logger.info('build successfully.');
-
-        //     //TODO zip
+    release: function(args) {
+        var after = () => {
+            logger.info('TODO package files.');
+        // spawn('rm', ['dist/*.map'], {
+        //     stdio: 'inherit'
+        // }).on('close', (code) => {
+        //     logger.info('finish package files');
         // });
+        };
+        this.build(args, after);
     }
 }

@@ -32,6 +32,7 @@
     "glob": "^6.0.4",
     "html-loader": "^0.4.3",
     "html-webpack-plugin": "^2.7.2",
+    "img-loader": "^1.2.2",
     "imports-loader": "^0.6.5",
     "json-loader": "^0.5.4",
     "karma": "^0.13.19",

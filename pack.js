@@ -25,8 +25,11 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /\.(png|jpe?g|gif|eot|svg|ttf|woff|woff2)$/i,
+                test: /\.(eot|svg|ttf|woff|woff2)$/i,
                 loader: "url?limit=2048&name=[path][name].[ext]"
+            }, {
+                test: /\.(png|jpe?g|gif)$/i,
+                loader: "url?limit=8192&name=[path][name].[ext]!img?minimize&progressive=true"
             }, {
                 test: /\.json$/,
                 loaders: ['json']

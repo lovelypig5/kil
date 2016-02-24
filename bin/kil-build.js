@@ -20,7 +20,7 @@ program
 function printHelp() {
     console.log('  Examples:'.to.bold.green.color);
     console.log();
-    console.log('    kil build -s     enable source ');
+    console.log('    kil build -S     disable source ');
     console.log();
 }
 

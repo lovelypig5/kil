@@ -10,7 +10,8 @@ var spawn = require('cross-spawn');
 
 program
     .usage('[options]')
-    .option('-s, --sourcemap', 'generate source map')
+    .option('-S, --no-sourcemap', 'generate source map')
+    .option('-U, --no-uglify', 'generate source map')
     .option('-C, --no-clean', 'disable clean before a new build')
     .on('-h', printHelp)
     .on('--help', printHelp)
@@ -25,7 +26,8 @@ function printHelp() {
 
 var args = {
     sourcemap: program.sourcemap,
-    clean: program.clean
+    clean: program.clean,
+    uglify: program.uglify
 }
 
 logger.debug("kil build with options: ");

@@ -87,11 +87,14 @@ class Utils {
             });
 
             pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
-            pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-                compress: {
-                    warnings: false
-                }
-            }));
+            if (args.uglify) {
+                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                    compress: {
+                        warnings: false
+                    },
+                    sourceMap: !!args.sourcemap
+                }));
+            }
 
             pack_config.plugins.push(new webpack.DefinePlugin({
                 WEBPACK_DEBUG: false

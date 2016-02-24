@@ -23,8 +23,7 @@ const aliases = {
     "d": "dev",
     "i": "init",
     "c": "clean",
-    "r": "build",
-    "release": "build"
+    "r": "release"
 }
 
 if (aliases[subcmd]) {

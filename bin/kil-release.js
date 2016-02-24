@@ -20,7 +20,7 @@ program
 function printHelp() {
     console.log('  Examples:'.to.bold.green.color);
     console.log();
-    console.log('    kil build -S     disable source ');
+    console.log('    kil release -S     disable source ');
     console.log();
 }
 
@@ -30,7 +30,7 @@ var args = {
     uglify: program.uglify
 }
 
-logger.debug("kil build with options: ");
+logger.debug("kil release with options: ");
 logger.debug(args);
 
 if (program.clean) {
@@ -38,8 +38,8 @@ if (program.clean) {
     spawn(cleanScript, {
         stdio: 'inherit'
     }).on('close', (code) => {
-        task.build(args);
+        task.release(args);
     });
 } else {
-    task.build(args);
+    task.release(args);
 }

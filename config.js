@@ -67,6 +67,15 @@ class Config {
         var pack = conf.webpack || {};
         pack.entry = {};
         pack.plugins = [];
+
+        let comObj = {}
+        // check reletionship between chunk and common
+        if (pack.commonTrunk) {
+            for (let key in pack.commonTrunk) {
+                comObj[key] = [];
+            }
+        }
+
         // add output
         if (pack.output) {
             for (let key in pack.output) {
@@ -82,11 +91,17 @@ class Config {
                     let name = './' + file;
                     let depends = [];
                     if (resObj && resObj.commons) {
+                        resObj.commons.map((common) => {
+                            depends.push(common);
+                            comObj[common].push(entry);
+                        })
                         Array.prototype.push.apply(depends, resObj.commons);
                     } else {
                         if (pack.commonTrunk) {
                             for (let key in pack.commonTrunk) {
                                 depends.push(key);
+
+                                comObj[key].push(entry);
                             }
                         }
                     }
@@ -104,14 +119,13 @@ class Config {
 
         // add common trunk
         if (pack.commonTrunk) {
-            var commons = [];
             for (let key in pack.commonTrunk) {
                 pack.entry[key] = pack.commonTrunk[key];
-                commons.push(key);
+                pack.plugins.push(new webpack.optimize.CommonsChunkPlugin({
+                    name: key,
+                    chunks: comObj[key]
+                }))
             }
-            pack.plugins.push(new webpack.optimize.CommonsChunkPlugin({
-                names: commons
-            }))
         }
 
         if (pack.global) {

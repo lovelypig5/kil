@@ -172,7 +172,8 @@ class Utils {
             pack = {
                 entry: conf.entry || 'main',
                 plugins: conf.plugins,
-                devServer: conf.devServer
+                devServer: conf.devServer,
+                resolve: conf.resolve
             }
         }
 

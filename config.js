@@ -104,12 +104,14 @@ class Config {
 
         // add common trunk
         if (pack.commonTrunk) {
+            var commons = [];
             for (let key in pack.commonTrunk) {
                 pack.entry[key] = pack.commonTrunk[key];
-                pack.plugins.push(new webpack.optimize.CommonsChunkPlugin({
-                    name: key
-                }))
+                commons.push(key);
             }
+            pack.plugins.push(new webpack.optimize.CommonsChunkPlugin({
+                names: commons
+            }))
         }
 
         if (pack.global) {

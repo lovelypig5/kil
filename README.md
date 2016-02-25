@@ -84,6 +84,11 @@ kil accept two kinds of configuration, a key kil in package.json or a separate p
                     "ReactDOM": "react-dom",
                     "$": "jquery"
                 },
+                "resolve": {
+                    "alias": {
+                        "spm-hammer": "hammerjs"
+                    }
+                },
                 "devServer": {
                     "proxy": {
                         "*": "http://localhost:3001"

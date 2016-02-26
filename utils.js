@@ -62,6 +62,8 @@ class Utils {
                 WEBPACK_DEBUG: true
             }));
 
+            pack_config.output.publicPath = `http://localhost:${config.getPort()}/`;
+
             logger.debug('dev server start with webpack config: ');
             logger.debug(pack_config);
 
@@ -173,7 +175,8 @@ class Utils {
                 entry: conf.entry || 'main',
                 plugins: conf.plugins,
                 devServer: conf.devServer,
-                resolve: conf.resolve
+                resolve: conf.resolve,
+                publicPath: conf.publicPath
             }
         }
 
@@ -187,6 +190,10 @@ class Utils {
             pack_config.entry = this.parseEntry(pack_config.entry, isDebug);
             // use kil default webpack config, for build use
             pack_config.output = pack_def.output;
+            if (pack_config.publicPath) {
+                pack_config.output.publicPath = pack_config.publicPath;
+            }
+
             // hash control, add hash when release
             let hash = '';
             if (!isDebug) {

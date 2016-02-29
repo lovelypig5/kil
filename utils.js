@@ -218,7 +218,7 @@ class Utils {
             pack_config.module.loaders.push({
                 test: /\.vue$/,
                 exclude: /(node_modules|bower_components)/,
-                loaders: ['vue']
+                loaders: ['vue-loader']
             });
             pack_config.vue = {
                 loaders: {

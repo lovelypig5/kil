@@ -69,7 +69,7 @@ class Config {
         pack.plugins = [];
 
         let comObj = {}
-        // check reletionship between chunk and common
+        // check relationship between chunk and common
         if (pack.commonTrunk) {
             for (let key in pack.commonTrunk) {
                 comObj[key] = [];
@@ -94,7 +94,7 @@ class Config {
                         resObj.commons.map((common) => {
                             depends.push(common);
                             comObj[common].push(entry);
-                        })
+                        });
                         Array.prototype.push.apply(depends, resObj.commons);
                     } else {
                         if (pack.commonTrunk) {

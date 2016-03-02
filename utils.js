@@ -176,7 +176,9 @@ class Utils {
                 plugins: conf.plugins,
                 devServer: conf.devServer,
                 resolve: conf.resolve,
-                publicPath: conf.publicPath
+                output: {
+                    publicPath: conf.publicPath
+                }
             }
         }
 
@@ -189,9 +191,10 @@ class Utils {
             }
             pack_config.entry = this.parseEntry(pack_config.entry, isDebug);
             // use kil default webpack config, for build use
+            var publicPath = pack_config.output && pack_config.output.publicPath;
             pack_config.output = pack_def.output;
-            if (pack_config.publicPath) {
-                pack_config.output.publicPath = pack_config.publicPath;
+            if (publicPath) {
+                pack_config.output.publicPath = publicPath;
             }
 
             // hash control, add hash when release

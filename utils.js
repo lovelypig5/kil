@@ -61,7 +61,7 @@ class Utils {
             pack_config.plugins.push(new webpack.DefinePlugin({
                 WEBPACK_DEBUG: true,
                 'process.env': {
-                    NODE_ENV: 'development'
+                    NODE_ENV: '"development"'
                 }
             }));
 
@@ -104,7 +104,7 @@ class Utils {
             pack_config.plugins.push(new webpack.DefinePlugin({
                 WEBPACK_DEBUG: false,
                 'process.env': {
-                    NODE_ENV: 'production'
+                    NODE_ENV: '"production"'
                 }
             }));
 

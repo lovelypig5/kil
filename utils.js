@@ -59,7 +59,10 @@ class Utils {
             // add plugin
             pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
             pack_config.plugins.push(new webpack.DefinePlugin({
-                WEBPACK_DEBUG: true
+                WEBPACK_DEBUG: true,
+                'process.env': {
+                    NODE_ENV: 'development'
+                }
             }));
 
             pack_config.output.publicPath = `http://localhost:${config.getPort()}/`;
@@ -99,7 +102,10 @@ class Utils {
             }
 
             pack_config.plugins.push(new webpack.DefinePlugin({
-                WEBPACK_DEBUG: false
+                WEBPACK_DEBUG: false,
+                'process.env': {
+                    NODE_ENV: 'production'
+                }
             }));
 
             logger.debug('kil release with webpack config: ');

@@ -25,7 +25,7 @@ module.exports = {
     },
     module: {
         loaders: [{
-            test: /\.(eot|svg|ttf|woff|woff2)$/i,
+            test: /\.(eot|svg|ttf|woff|woff2)/i,
             loader: "url?limit=2048&name=[path][name].[ext]"
         }, {
             test: /\.(png|jpe?g|gif)$/i,

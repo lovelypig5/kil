@@ -12,7 +12,7 @@
   "bugs": "https://github.com/lovelypig5/kil/issues",
   "license": "AGPL-3.0",
   "dependencies": {
-    "autoprefixer":"6.3.3",
+    "autoprefixer": "6.3.3",
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
     "babel-plugin-react-transform": "^2.0.0",
@@ -25,6 +25,7 @@
     "commander": "^2.9.0",
     "cross-spawn": "^2.1.5",
     "css-loader": "^0.23.1",
+    "ejs": "^2.4.1",
     "exports-loader": "^0.6.2",
     "expose-loader": "^0.7.1",
     "extract-text-webpack-plugin": "^1.0.1",

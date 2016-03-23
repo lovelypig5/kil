@@ -35,10 +35,10 @@ module.exports = {
             loaders: ['json']
         }, {
             test: /\.html?$/,
-            loaders: ['html']
+            loaders: ['html-loader']
         }, {
             test: /\.tpl?$/,
-            loaders: ['ejs']
+            loaders: ['ejs-loader']
         }]
     },
     resolve: {

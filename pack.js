@@ -36,6 +36,9 @@ module.exports = {
         }, {
             test: /\.html?$/,
             loaders: ['html']
+        }, {
+            test: /\.tpl?$/,
+            loaders: ['ejs']
         }]
     },
     resolve: {

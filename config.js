@@ -137,7 +137,14 @@ class Config {
         }
 
         if (pack.global) {
-            pack.plugins.push(new webpack.ProvidePlugin(pack.global))
+            for (var key in pack.global) {
+                pack.global[key] = path.resolve(pack.global[key]);
+            }
+
+            logger.debug('ProvidePlugin config from package.json:');
+            logger.debug(pack.global);
+
+            pack.plugins.push(new webpack.ProvidePlugin(pack.global));
         }
 
         pack.publicPath = conf.webpack.publicPath;

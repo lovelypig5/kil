@@ -57,14 +57,27 @@ show usage and help information
 kil accept two kinds of configuration, a key kil in package.json or a separate pack.js. pack.js is prior to package.json
 <h4><font color="red" size="">important:</font> if you want enable react, mock or copy files, package.json should be configured.</h4>
 
+#GLOBAL_VALUE
+when server start with kil dev
+```javascript
+    var WEBPACK_DEBUG = true;
+    var process.env = 'development';
+```
+otherwise
+```javascript
+    var WEBPACK_DEBUG = false;
+    var process.env = 'production';
+```
+
 * package.json
 
 ```json
     {
         "kil": {
-            "port": 9000,
-            "mock": true,
-            "react": true,
+            "port": 9000,          // port of dev server
+            "mock": true,          // enable local mock module
+            "react": true,         // enable react support
+            "html5Mode": false,    // enable html5 history api
             "copy": ["img/*"],
             "webpack": {
                 "output": {

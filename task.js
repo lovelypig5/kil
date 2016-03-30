@@ -106,6 +106,12 @@ module.exports = {
             serverCfg.proxy = pack_config.devServer.proxy;
         }
 
+        if (config.getHtml5Mode()) {
+            serverCfg.historyApiFallback = {
+                index: pack_config.output.publicPath
+            }
+        }
+
         logger.debug('webpack dev server start with config: ');
         logger.debug(serverCfg);
 

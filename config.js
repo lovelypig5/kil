@@ -18,6 +18,13 @@ class Config {
         return conf.port;
     }
 
+    getHtml5Mode() {
+        if (!conf) {
+            throw new Error('configuration is not initialized!');
+        }
+        return conf.html5Mode;
+    }
+
     getConfig() {
         if (!conf) {
             throw new Error('configuration is not initialized!');
@@ -63,6 +70,7 @@ class Config {
         }
         conf.mock = !!conf.mock;
         conf.react = !!conf.react;
+        conf.html5Mode = !!conf.html5Mode;
 
         var pack = conf.webpack || {};
         pack.entry = {};

@@ -2,6 +2,7 @@ module.exports = {
     "port": 9000,
     "mock": false, // default false
     "react": false, // use react
+    "html5Mode": false,
     "webpack": {
         "output": {
             "*.html": {}

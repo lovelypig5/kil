@@ -107,9 +107,7 @@ module.exports = {
         }
 
         if (config.getHtml5Mode()) {
-            serverCfg.historyApiFallback = {
-                index: pack_config.output.publicPath
-            }
+            serverCfg.historyApiFallback = true;
         }
 
         logger.debug('webpack dev server start with config: ');

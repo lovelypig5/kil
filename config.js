@@ -138,7 +138,9 @@ class Config {
 
         if (pack.global) {
             for (var key in pack.global) {
-                pack.global[key] = path.resolve(pack.global[key]);
+                if (pack.global[key].startsWith('./') || pack.global[key].startsWith('../')) {
+                    pack.global[key] = path.resolve(pack.global[key]);
+                }
             }
 
             logger.debug('ProvidePlugin config from package.json:');

@@ -80,6 +80,7 @@ otherwise
             "html5Mode": false,    // enable html5 history api
             "copy": ["img/*"],
             "webpack": {
+                "publicPath": "/", // location of files serve at your server: localhost:8080/
                 "output": {
                     "page/*.html": {
                         "jsname": "page/index2",

@@ -1,5 +1,5 @@
 # kil
-kil is a tool based on nodejs, it helps improve the develop, test and release on web apps.
+kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps.
 
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
@@ -71,7 +71,7 @@ otherwise
 
 * package.json
 
-```json
+```javascript
     {
         "kil": {
             "port": 9000,          // port of dev server

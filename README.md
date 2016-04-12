@@ -3,13 +3,11 @@ kil is a tool based on nodejs and webpack, it helps improve the develop, test an
 
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
-*  git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace
+*  ~~git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace~~
 
 ```node
-npm install           // install dependenies
-sudo npm link         // link to global
+npm install -g kil
 ```
-will change to npm install in the future.
 
 # Usage
   support init, develop, test, mock data and release cmds

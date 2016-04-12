@@ -9,7 +9,7 @@ kil is a tool based on nodejs and webpack, it helps improve the develop, test an
 npm install           // install dependenies
 sudo npm link         // link to global
 ```
-will change to npm install in the future.
+~~will change to npm install in the future.~~
 
 # Usage
   support init, develop, test, mock data and release cmds

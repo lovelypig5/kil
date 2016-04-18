@@ -152,11 +152,25 @@ otherwise
                 // proxy: {
                 //     '*': 'http://localhost:3000'
                 // }
-
             }
         }
     }
+```
 
+* proxy
+
+  see [node-proxy](https://github.com/nodejitsu/node-http-proxy#options) for more options
+
+```javascript
+  devServer: {
+     proxy: {
+         '*': {
+            "target":"http://localhost:3000",
+            "toProxy":true,
+            // more see option
+        }
+     }
+  }
 ```
 
 # Author

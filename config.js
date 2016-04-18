@@ -149,8 +149,6 @@ class Config {
             pack.plugins.push(new webpack.ProvidePlugin(pack.global));
         }
 
-        pack.publicPath = conf.webpack.publicPath;
-
         conf.webpack = pack;
 
         return conf;

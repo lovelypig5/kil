@@ -76,6 +76,7 @@ otherwise
             "mock": true,          // enable local mock module
             "react": true,         // enable react support
             "html5Mode": false,    // enable html5 history api
+            "es7": false,          // support es7 async, object-rest-spread, flow-strip-types
             "copy": ["img/*"],
             "webpack": {
                 "publicPath": "/", // location of files serve at your server: localhost:8080/

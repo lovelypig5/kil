@@ -219,7 +219,7 @@ class Utils {
             pack_config.module.loaders = pack_def.module.loaders;
             pack_config.module.loaders.push({
                 test: /\.jsx?$/,
-                exclude: /(node_modules|bower_components)/,
+                // exclude: /(node_modules|bower_components)/,
                 loaders: [`babel-loader?${babel(isDebug)}`]
             });
 

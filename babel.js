@@ -12,6 +12,13 @@ module.exports = (isDebug) => {
     babelQueryStr.plugins = [
         [require.resolve('babel-plugin-transform-runtime')]
     ];
+
+    if (conf.es7 === true) {
+        babelQueryStr.plugins.push([require.resolve('babel-plugin-transform-async-to-generator')]);
+        babelQueryStr.plugins.push([require.resolve('babel-plugin-transform-flow-strip-types')]);
+        babelQueryStr.plugins.push([require.resolve('babel-plugin-transform-object-rest-spread')]);
+    }
+
     if (conf.react === true) {
         babelQueryStr.presets.push(require.resolve('babel-preset-react'));
         if (isDebug) {

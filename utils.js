@@ -41,7 +41,7 @@ class Utils {
                 pack_config.module.loaders.push({
                     test: new RegExp(entryPath.join('|')),
                     exclude: /(node_modules|bower_components)/,
-                    loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel?${babelQueryStr}`]
+                    loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel-loader?${babelQueryStr}`]
                 });
             }
 
@@ -220,7 +220,7 @@ class Utils {
             pack_config.module.loaders.push({
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components)/,
-                loaders: [`babel?${babel(isDebug)}`]
+                loaders: [`babel-loader?${babel(isDebug)}`]
             });
 
             // config loader for vue
@@ -231,7 +231,7 @@ class Utils {
             });
             pack_config.vue = {
                 loaders: {
-                    js: `babel?${babel(isDebug)}`,
+                    js: `babel-loader?${babel(isDebug)}`,
                 }
             };
             if (pack_config.resolve) {

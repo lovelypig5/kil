@@ -1,6 +1,6 @@
 {
   "name": "kil",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps",
   "keywords": "module bundler, js develop tools, frontend, web, test",
   "main": "index.js",
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "https://github.com/lovelypig5/kil.git"
   },
-  "license": "AGPL-3.0",
+  "license": "MIT",
   "dependencies": {
     "autoprefixer": "6.3.3",
     "babel-core": "^6.3.26",

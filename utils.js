@@ -37,11 +37,13 @@ class Utils {
                     }
                 }
 
+                var mockPath = path.resolve(process.cwd(), 'mock/mock.js');
+
                 //load mock.js before all
                 pack_config.module.loaders.push({
-                    test: new RegExp(entryPath.join('|')),
+                    test: entryPath,
                     exclude: /(node_modules|bower_components)/,
-                    loaders: [`imports?Mock=${process.cwd()}/mock/mock.js`, `babel-loader?${babelQueryStr}`]
+                    loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
                 });
             }
 

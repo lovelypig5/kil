@@ -60,6 +60,8 @@
     "mocha": "^2.3.4",
     "mocha-loader": "^0.7.1",
     "mockjs": "^1.0.0",
+    "mustache": "^2.2.1",
+    "mustache-loader": "^0.3.1",
     "phantomjs": "^1.9.19",
     "postcss-loader": "^0.8.0",
     "react-transform-hmr": "^1.0.1",

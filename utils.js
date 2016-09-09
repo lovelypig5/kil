@@ -74,6 +74,9 @@ class Utils {
 
             return pack_config;
         case 'release':
+            if (args.mock) {
+                args.sourcemap = "";
+            }
             var sourcemap = !!args.sourcemap ? "?source-map" : "";
 
             var pack_config = this.mergeConfig(args);
@@ -81,6 +84,30 @@ class Utils {
                 pack_config.devtool = '#source-map';
             } else {
                 pack_config.devtool = '#eval';
+            }
+
+            var conf = config.getConfig();
+            if (conf.mock === true && args.mock == true) {
+                var babelQueryStr = babel(false);
+                var entryPath = [];
+                for (var key in pack_config.entry) {
+                    var entry = pack_config.entry[key];
+                    var type = Object.prototype.toString.call(entry);
+                    if (type === 'object String]') {
+                        entryPath.push(path.resolve(process.cwd(), entry + '.js'));
+                    } else if (type === '[object Array]') {
+                        entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
+                    }
+                }
+
+                var mockPath = path.resolve(process.cwd(), 'mock/mock.js');
+
+                //load mock.js before all
+                pack_config.module.loaders.push({
+                    test: entryPath,
+                    exclude: /(node_modules|bower_components)/,
+                    loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
+                });
             }
 
             pack_config.module.loaders.push({

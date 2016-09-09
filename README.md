@@ -45,6 +45,7 @@ reports will be export at reports folder at your workspace
     kil release
     kil release -s      // generate source map
     kil release -C      // release without clean
+    kil release -m      // release with mock data, this option will disable sourcemap
 ```
 minify your js, less to target js and css. package to a zip file for production.
 

@@ -13,6 +13,7 @@ program
     .option('-S, --no-sourcemap', 'disable source map')
     .option('-U, --no-uglify', 'disable uglifyjs.')
     .option('-C, --no-clean', 'disable clean before a new build')
+    .option('-m, --mock', 'enable mock')
     .on('-h', printHelp)
     .on('--help', printHelp)
     .parse(process.argv);
@@ -27,7 +28,8 @@ function printHelp() {
 var args = {
     sourcemap: program.sourcemap,
     clean: program.clean,
-    uglify: program.uglify
+    uglify: program.uglify,
+    mock: program.mock
 }
 
 logger.debug("kil build with options: ");

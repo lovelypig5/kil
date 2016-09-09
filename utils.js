@@ -86,8 +86,7 @@ class Utils {
                 pack_config.devtool = '#eval';
             }
 
-            var conf = config.getConfig();
-            if (conf.mock === true && args.mock == true) {
+            if (args.mock == true) {
                 var babelQueryStr = babel(false);
                 var entryPath = [];
                 for (var key in pack_config.entry) {

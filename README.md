@@ -7,7 +7,7 @@ kil is a tool based on nodejs and webpack, it helps improve the develop, test an
 
 ```node
 npm install -g kil (默认有国外代理情况下)
-npm install -g kil --phantomjs_cdnurl=http://cnpmjs.org/downloads --registry=https://registry.npm.taobao.org (推荐从淘宝源安装)
+npm install -g kil  --phantomjs_cdnurl=http://cnpmjs.org/downloads --registry=https://registry.npm.taobao.org (推荐从淘宝源安装)
 ```
 
 # Usage

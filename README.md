@@ -27,6 +27,7 @@ kil will init package.json. install npm dependencies and create js, css, img, le
 ```javascript
     kil dev
     kil dev -p 9001    // specify the port of dev server
+    kil dev -m         // init mock data
 ```
 after project init, kil dev helps open the [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html).
 support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), [hot-module-replace](https://webpack.github.io/docs/hot-module-replacement.html), es6 is default support by [babel](https://babeljs.io/).
@@ -70,12 +71,12 @@ otherwise
 ```
 
 * package.json
-
+* <font color="red" size="">deprecated:</font> mock is removed from package.jsom after version 1.0.5, please use ``` kil dev -m``` instead
 ```javascript
     {
         "kil": {
             "port": 9000,          // port of dev server
-            "mock": true,          // enable local mock module
+            "mock": true,          // will not take effect
             "react": true,         // enable react support
             "html5Mode": false,    // enable html5 history api
             "es7": false,          // support es7 async, object-rest-spread, flow-strip-types

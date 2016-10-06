@@ -17,35 +17,12 @@ class Utils {
      * @return config
      */
     loadWebpackCfg(target, args) {
+        var pack_config, babelQueryStr, entryPath, isDebug;
         switch (target) {
             case 'dev':
-                var isDebug = true;
-                var pack_config = this.mergeConfig(args, isDebug);
+                isDebug = true;
+                pack_config = this.mergeConfig(args, isDebug);
                 pack_config.devtool = '#eval';
-
-                var conf = config.getConfig();
-                if (conf.mock === true) {
-                    var babelQueryStr = babel(isDebug);
-                    var entryPath = [];
-                    for (var key in pack_config.entry) {
-                        var entry = pack_config.entry[key];
-                        var type = Object.prototype.toString.call(entry);
-                        if (type === 'object String]') {
-                            entryPath.push(path.resolve(process.cwd(), entry + '.js'));
-                        } else if (type === '[object Array]') {
-                            entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
-                        }
-                    }
-
-                    var mockPath = path.resolve(process.cwd(), 'mock/mock.js');
-
-                    //load mock.js before all
-                    pack_config.module.loaders.push({
-                        test: entryPath,
-                        exclude: /(node_modules|bower_components)/,
-                        loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
-                    });
-                }
 
                 // config css and less loader
                 pack_config.module.loaders.push({
@@ -72,41 +49,19 @@ class Utils {
                 logger.debug('dev server start with webpack config: ');
                 logger.debug(pack_config);
 
-                return pack_config;
+                break;
             case 'release':
+                isDebug = false;
                 if (args.mock) {
                     args.sourcemap = "";
                 }
                 var sourcemap = !!args.sourcemap ? "?source-map" : "";
 
-                var pack_config = this.mergeConfig(args);
+                pack_config = this.mergeConfig(args);
                 if (sourcemap) {
                     pack_config.devtool = '#source-map';
                 } else {
                     pack_config.devtool = '#eval';
-                }
-
-                if (args.mock == true) {
-                    var babelQueryStr = babel(false);
-                    var entryPath = [];
-                    for (var key in pack_config.entry) {
-                        var entry = pack_config.entry[key];
-                        var type = Object.prototype.toString.call(entry);
-                        if (type === 'object String]') {
-                            entryPath.push(path.resolve(process.cwd(), entry + '.js'));
-                        } else if (type === '[object Array]') {
-                            entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
-                        }
-                    }
-
-                    var mockPath = path.resolve(process.cwd(), 'mock/mock.js');
-
-                    //load mock.js before all
-                    pack_config.module.loaders.push({
-                        test: entryPath,
-                        exclude: /(node_modules|bower_components)/,
-                        loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
-                    });
                 }
 
                 pack_config.module.loaders.push({
@@ -139,12 +94,34 @@ class Utils {
                 logger.debug('kil release with webpack config: ');
                 logger.debug(pack_config);
 
-                return pack_config;
+                break;
             default:
                 break;
         }
 
-        return null;
+        if (args.mock === true) {
+            babelQueryStr = babel(isDebug);
+            entryPath = [];
+            for (let key in pack_config.entry) {
+                let entry = pack_config.entry[key];
+                let type = Object.prototype.toString.call(entry);
+                if (type === '[object String]') {
+                    entryPath.push(path.resolve(process.cwd(), entry + '.js'));
+                } else if (type === '[object Array]') {
+                    entryPath.push(path.resolve(process.cwd(), entry[entry.length - 1] + '.js'));
+                }
+            }
+
+            let mockPath = path.resolve(process.cwd(), 'mock/mock.js');
+            //load mock.js before all
+            pack_config.module.loaders.push({
+                test: entryPath,
+                exclude: /(node_modules|bower_components)/,
+                loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
+            });
+        }
+
+        return pack_config;
     }
 
     /**
@@ -160,11 +137,13 @@ class Utils {
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`,
+                        'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`, 'webpack/hot/dev-server');
+                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`,
+                        'webpack/hot/dev-server');
                 }
             } else {
                 for (var key in entry) {
@@ -213,7 +192,7 @@ class Utils {
                 output: {
                     publicPath: conf.publicPath
                 }
-            }
+            };
         }
 
         if (!pack) {

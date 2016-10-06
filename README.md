@@ -27,7 +27,7 @@ kil will init package.json. install npm dependencies and create js, css, img, le
 ```javascript
     kil dev
     kil dev -p 9001    // specify the port of dev server
-    kil dev -m         // init mock data
+    kil dev -m         // dev with mock module
 ```
 after project init, kil dev helps open the [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html).
 support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), [hot-module-replace](https://webpack.github.io/docs/hot-module-replacement.html), es6 is default support by [babel](https://babeljs.io/).

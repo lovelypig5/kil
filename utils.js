@@ -17,7 +17,11 @@ class Utils {
      * @return config
      */
     loadWebpackCfg(target, args) {
-        var pack_config, babelQueryStr, entryPath, isDebug;
+        var pack_config,
+            babelQueryStr,
+            entryPath,
+            isDebug,
+            node_env = '"development"';
         switch (target) {
             case 'dev':
                 isDebug = true;
@@ -35,29 +39,21 @@ class Utils {
                     loaders: ['style', 'css?sourceMap!less?sourceMap']
                 });
 
-                // add plugin
+                // add hot module replace plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
-                pack_config.plugins.push(new webpack.DefinePlugin({
-                    WEBPACK_DEBUG: true,
-                    'process.env': {
-                        NODE_ENV: '"development"'
-                    }
-                }));
 
-                pack_config.output.publicPath = `http://localhost:${config.getPort()}/`;
-
-                logger.debug('dev server start with webpack config: ');
-                logger.debug(pack_config);
+                pack_config.output.publicPath = `http://127.0.0.1:${config.getPort()}/`;
 
                 break;
             case 'release':
                 isDebug = false;
+                node_env = '"production"';
                 if (args.mock) {
                     args.sourcemap = "";
                 }
-                var sourcemap = !!args.sourcemap ? "?source-map" : "";
-
                 pack_config = this.mergeConfig(args);
+
+                var sourcemap = !!args.sourcemap ? "?source-map" : "";
                 if (sourcemap) {
                     pack_config.devtool = '#source-map';
                 } else {
@@ -83,16 +79,6 @@ class Utils {
                         sourceMap: !!args.sourcemap
                     }));
                 }
-
-                pack_config.plugins.push(new webpack.DefinePlugin({
-                    WEBPACK_DEBUG: false,
-                    'process.env': {
-                        NODE_ENV: '"production"'
-                    }
-                }));
-
-                logger.debug('kil release with webpack config: ');
-                logger.debug(pack_config);
 
                 break;
             default:
@@ -121,6 +107,17 @@ class Utils {
             });
         }
 
+        // add variables define
+        pack_config.plugins.push(new webpack.DefinePlugin({
+            WEBPACK_DEBUG: isDebug,
+            'process.env': {
+                NODE_ENV: node_env
+            }
+        }));
+
+        logger.debug(`kil ${target} with webpack config: `);
+        logger.debug(pack_config);
+
         return pack_config;
     }
 
@@ -137,12 +134,12 @@ class Utils {
             if (type === '[object String]') {
                 entry = [entry];
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`,
+                    entry.unshift(`webpack-dev-server/client?http://127.0.0.1:${config.getPort()}`,
                         'webpack/hot/dev-server');
                 }
             } else if (type === '[object Array]') {
                 if (dev) {
-                    entry.unshift(`webpack-dev-server/client?http://localhost:${config.getPort()}`,
+                    entry.unshift(`webpack-dev-server/client?http://127.0.0.1:${config.getPort()}`,
                         'webpack/hot/dev-server');
                 }
             } else {
@@ -159,8 +156,9 @@ class Utils {
 
     /**
      * merge webpack default config, user's config, and config from package.json
-     * @param  {Boolean} isDebug : is debug mode, add dev-sever entry or not
-     * @return {[Object]}
+     * @param {Boolean} isDebug : is debug mode, add dev-sever entry or not
+     * @param {Object} args
+     * @return
      */
     mergeConfig(args, isDebug) {
         var pack_def = require('./pack');

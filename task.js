@@ -260,7 +260,7 @@ class Task {
     /**
      * private method: load webpack config and start webpack dev server
      * @method _dev
-     * @param  {Object} args [description]
+     * @param  {Object} args : {mock: true, port: 9000}
      * @return {[type]}      [description]
      */
     _dev(args) {

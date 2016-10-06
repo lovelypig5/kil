@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+"use strict";
+
 require('colorful').colorful();
 
 var program = require('commander');
@@ -16,7 +18,7 @@ program
     .parse(process.argv);
 
 var subcmd = program.args[0];
-var args = process.argv.slice(3);
+var args = (process.argv).slice(3);
 
 const aliases = {
     "b": "build",
@@ -24,7 +26,7 @@ const aliases = {
     "i": "init",
     "c": "clean",
     "r": "release"
-}
+};
 
 if (aliases[subcmd]) {
     subcmd = aliases[subcmd];
@@ -62,5 +64,5 @@ function execTask(cmd) {
             logger.debug(`kil exit with code ${code}`);
             process.exit(code);
         });
-    })
+    });
 }

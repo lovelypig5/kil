@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+"use strict";
+
 require('colorful').colorful();
 
 var program = require('commander');
@@ -30,7 +32,7 @@ var args = {
     clean: program.clean,
     uglify: program.uglify,
     mock: program.mock
-}
+};
 
 logger.debug("kil build with options: ");
 logger.debug(args);

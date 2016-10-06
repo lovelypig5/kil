@@ -4,19 +4,49 @@ var spawn = require('cross-spawn'),
     fs = require('fs-extra'),
     path = require('path'),
     glob = require('glob'),
+    Promise = require('promise'),
     config = require('./config'),
     utils = require('./utils'),
     logger = require('./logger');
 
 var webpack = require('webpack');
 
-module.exports = {
+class Task {
+
+    /**
+     * check module and try install missing modules or dependencies
+     * @method check
+     * @param  {Object} args : process arguments
+     * @return {Promise}
+     */
+    check(args) {
+        if (args.mock) {
+            var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
+            return new Promise((resolve, reject) => {
+                fs.stat(mockPath, (err) => {
+                    if (err) {
+                        logger.error(`can't find ${mockPath}, have you ever ` + 'init mock module'.to
+                            .bold.red.color + ' ? ');
+                        logger.error('try to use ' + 'kil init -m'.to.bold.red.color +
+                            ' to fix this issue. ');
+                        reject(err);
+                    }
+
+                    resolve();
+                });
+            });
+        }
+
+        return Promise.resolve();
+    }
 
     /**
      * init a new project with mock and test module (default is not initilized)
-     * @param  {[Object]} args {test: false, mock: false}
+     * @method init
+     * @param  {[type]} args {test: false, mock: false}
+     * @return {[type]}      [description]
      */
-    init: function(args) {
+    init(args) {
         var mock = !!args.mock;
         var test = !!args.test;
 
@@ -31,7 +61,9 @@ module.exports = {
             }
             if (test) {
                 Array.prototype.push.apply(folders, ['test', 'test/mocha', 'test/phantom']);
-                Array.prototype.push.apply(cpfiles, ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js']);
+                Array.prototype.push.apply(cpfiles, ['test/karma.conf.js', 'test/mocha/index.test.js',
+                    'test/phantom/index.test.js'
+                ]);
 
                 logger.info(' Add test module. ');
             }
@@ -39,12 +71,12 @@ module.exports = {
             folders.forEach((folder) => {
                 try {
                     fs.statSync(folder);
-                } catch ( err ) {
+                } catch (err) {
                     if (err) {
                         fs.mkdirSync(folder);
                     }
                 }
-            })
+            });
 
             cpfiles.forEach((file) => {
                 fs.stat(file, (err, stats) => {
@@ -53,11 +85,11 @@ module.exports = {
                         var dest = path.join(process.cwd(), file);
                         fs.createReadStream(origin).pipe(fs.createWriteStream(dest));
                     }
-                })
-            })
+                });
+            });
 
             logger.info(' init successfully. ');
-        }
+        };
 
         var packageJson = path.join(process.cwd(), 'package.json');
         fs.stat(packageJson, (err) => {
@@ -81,14 +113,23 @@ module.exports = {
             } else {
                 initMods();
             }
-        })
-    },
+        });
+    }
+
+    dev(args) {
+        var promise = this.check(args);
+        promise.done(this._dev.bind(args, this), () => {
+            process.exit(1);
+        });
+    }
 
     /**
-     * load webpack config and start webpack dev server
-     * @return {[type]} [description]
+     * private method: load webpack config and start webpack dev server
+     * @method _dev
+     * @param  {Object} args [description]
+     * @return {[type]}      [description]
      */
-    dev: function(args) {
+    _dev(args) {
         var pack_config = utils.loadWebpackCfg('dev', args);
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -100,12 +141,11 @@ module.exports = {
             stats: {
                 colors: true
             }
-        }
+        };
 
         if (pack_config.devServer && pack_config.devServer.proxy) {
             serverCfg.proxy = pack_config.devServer.proxy;
         }
-
         if (config.getHtml5Mode()) {
             serverCfg.historyApiFallback = true;
         }
@@ -113,7 +153,7 @@ module.exports = {
         logger.debug('webpack dev server start with config: ');
         logger.debug(serverCfg);
 
-        new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), 'localhost', (err) => {
+        new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), '127.0.0.1', (err) => {
             if (err) {
                 logger.error(err);
                 process.exit(1);
@@ -123,14 +163,15 @@ module.exports = {
             logger.info(`Server listening at localhost:${config.getPort()}`);
             logger.info('----------------------------------');
         });
-    },
+    }
 
     /**
      * do unit tests with mocha and endless tests with phantom
-     * @param  {[Object]} args: {phantom: false, mocha: false}
-     * @return {[type]}
+     * @method test
+     * @param  {Object} args: {phantom: false, mocha: false}
+     * @return {[type]}      [description]
      */
-    test: function(args) {
+    test(args) {
         var mocha = !!args.mocha;
         var phantom = !!args.phantom;
         var server = !!args.server;
@@ -138,7 +179,8 @@ module.exports = {
         var testPath = path.join(process.cwd(), 'test');
         fs.stat(testPath, (err) => {
             if (err) {
-                logger.error(`can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color + ' ? ');
+                logger.error(`can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color +
+                    ' ? ');
                 logger.error('try to use ' + 'kil init -t'.to.bold.red.color + ' to fix this issue. ');
 
                 process.exit(1);
@@ -172,14 +214,23 @@ module.exports = {
                     logger.info(`phontom test finished with code : ${code}`);
                 });
             }
-        })
-    },
+        });
+    }
+
+    build(args, after) {
+        var promise = this.check(args);
+        promise.done(this._build.bind(args, this), () => {
+            process.exit(1);
+        });
+    }
 
     /**
      * use webpack and build bundle
-     * @return {[type]} [description]
+     * @method build
+     * @param  {Object} args  [description]
+     * @param  {Function} after : callback after build
      */
-    build: function(args, after) {
+    _build(args, after) {
         var pack_config = utils.loadWebpackCfg('release', args);
 
         logger.info('start build project... ');
@@ -188,7 +239,10 @@ module.exports = {
         compiler.run((err, stats) => {
             if (err) {
                 logger.error(err);
+
+                process.exit(1);
             }
+
             var jsonStats = stats.toJson();
             if (jsonStats.errors.length > 0) {
                 logger.error(jsonStats.errors);
@@ -203,8 +257,8 @@ module.exports = {
                     let files = glob.sync(key);
                     files.forEach((file) => {
                         fs.copySync(file, `dist/${file}`);
-                    })
-                })
+                    });
+                });
             }
 
             logger.info('build successfully. ');
@@ -213,21 +267,23 @@ module.exports = {
                 after();
             }
         });
-    },
+    }
 
     /**
      * use webpack and build bundle
      * @return {[type]} [description]
      */
-    release: function(args) {
+    release(args) {
         var after = () => {
             logger.info('TODO package files.');
-        // spawn('rm', ['dist/*.map'], {
-        //     stdio: 'inherit'
-        // }).on('close', (code) => {
-        //     logger.info('finish package files');
-        // });
+            // spawn('rm', ['dist/*.map'], {
+            //     stdio: 'inherit'
+            // }).on('close', (code) => {
+            //     logger.info('finish package files');
+            // });
         };
         this.build(args, after);
     }
 }
+
+module.exports = new Task();

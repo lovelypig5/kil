@@ -265,6 +265,10 @@ class Utils {
         }
     }
 
+    checkModule(args, cb) {
+
+    }
+
 }
 
 module.exports = new Utils();

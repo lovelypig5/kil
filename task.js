@@ -7,7 +7,8 @@ var spawn = require('cross-spawn'),
     Promise = require('promise'),
     config = require('./config'),
     utils = require('./utils'),
-    logger = require('./logger');
+    logger = require('./logger'),
+    deps = require('./deps');
 
 var webpack = require('webpack');
 
@@ -15,14 +16,14 @@ class Task {
 
     /**
      * check module and try install missing modules or dependencies
-     * @method check
+     * @method _check
      * @param  {Object} args : process arguments
      * @return {Promise}
      */
-    check(args) {
+    _check(args) {
         if (args.mock) {
-            var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
             return new Promise((resolve, reject) => {
+                var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
                 fs.stat(mockPath, (err) => {
                     if (err) {
                         logger.error(`can't find ${mockPath}, have you ever ` + 'init mock module'.to
@@ -41,6 +42,134 @@ class Task {
     }
 
     /**
+     * init folders
+     * @method _initFolder
+     * @param  {Function}    resolve_outer
+     * @param  {Function}    reject_outer
+     * @param  {List}    folders
+     * @param  {List}    files         [description]
+     * @param  {Function}  callback      [description]
+     * @return {[type]}                  [description]
+     */
+    _initFolder(resolve_outer, reject_outer, folders, files, callback) {
+        var folder_counter = 0;
+        folders.forEach((folder) => {
+            new Promise((resolve, reject) => {
+                try {
+                    fs.statSync(folder);
+                    logger.info(` folder ${folder} already exists! `);
+                    resolve();
+                } catch (err) {
+                    if (err) {
+                        try {
+                            logger.info(` create folder ${folder} `);
+                            fs.mkdirSync(folder);
+                            resolve();
+                        } catch (err) {
+                            logger.error(` create folder ${folder} failed! `);
+                            reject(err);
+                        }
+                    }
+                }
+            }).done(() => {
+                folder_counter++;
+                if (folder_counter == folders.length) {
+                    callback(resolve_outer, reject_outer, files);
+                }
+            }, (err) => {
+                logger.error(err);
+                logger.error(' init folders failed! ');
+                process.exit(1);
+            });
+        });
+    }
+
+    /**
+     * init files
+     * @method _initFile
+     * @param  {Function}  resolve_outer [description]
+     * @param  {Function}  reject_outer  [description]
+     * @param  {List}  files         [description]
+     * @return {[type]}                [description]
+     */
+    _initFile(resolve_outer, reject_outer, files) {
+        var flie_counter = 0;
+        var file_size = 1;
+
+        files.forEach((file) => {
+            new Promise((resolve, reject) => {
+                fs.stat(file, (err, stats) => {
+                    if (err) {
+                        var origin = path.join(__dirname, 'default', file);
+                        var dest = path.join(process.cwd(), file);
+                        try {
+                            fs.createReadStream(origin).pipe(fs.createWriteStream(dest));
+                            logger.info(` create file ${dest} `);
+                            resolve();
+                        } catch (err) {
+                            logger.info(` create file ${dest} failed! `);
+                            reject();
+                        }
+                    } else {
+                        logger.info(` file ${file} already exists! `);
+                        resolve();
+                    }
+                });
+            }).done(() => {
+                flie_counter++;
+                if (flie_counter == file_size) {
+                    resolve_outer();
+                }
+            });
+        });
+    }
+
+    initMock() {
+        var folders = ['mock'];
+        var files = ['mock/mock.js'];
+
+        return this._initModule(folders, files);
+    }
+
+    initTest() {
+        var folders = ['test', 'test/mocha', 'test/phantom'];
+        var files = ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js'];
+
+        return this._initModule(folders, files);
+    }
+
+    initProj() {
+        var folders = ['js'];
+        var files = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
+
+        return this._initModule(folders, files);
+    }
+
+    _initModule(folders, files) {
+        return new Promise((resolve, reject) => {
+            this._initFolder(resolve, reject, folders, files, this._initFile);
+        });
+    }
+
+    installDependencies(pack) {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(path.resolve(__dirname, './package.json'), JSON.stringify(pack), (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    logger.info(' check and install module dependencies. ');
+                    spawn('npm', ['install'], {
+                        stdio: 'inherit',
+                        cwd: __dirname
+                    }).on('close', (code) => {
+                        resolve();
+                    });
+                }
+            });
+        });
+    }
+
+    /**
      * init a new project with mock and test module (default is not initilized)
      * @method init
      * @param  {[type]} args {test: false, mock: false}
@@ -49,75 +178,80 @@ class Task {
     init(args) {
         var mock = !!args.mock;
         var test = !!args.test;
+        var self = this;
 
-        var initMods = () => {
-            var folders = ['js'];
-            var cpfiles = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
-            if (mock) {
-                folders.push('mock');
-                cpfiles.push('mock/mock.js');
+        var init = () => {
+            let promise = this.initProj();
+            promise.done(() => {
+                logger.info(' init project successfully. ');
+                if (mock) {
+                    let promise = this.initMock();
+                    promise.done(() => {
+                        logger.info(' init mock module successfully! ');
+                    });
+                }
+                if (test) {
+                    let promise = this.initTest();
+                    promise.done(() => {
+                        logger.info(' init test module successfully! ');
+                    });
+                }
 
-                logger.info(' Add mock module. ');
-            }
-            if (test) {
-                Array.prototype.push.apply(folders, ['test', 'test/mocha', 'test/phantom']);
-                Array.prototype.push.apply(cpfiles, ['test/karma.conf.js', 'test/mocha/index.test.js',
-                    'test/phantom/index.test.js'
-                ]);
-
-                logger.info(' Add test module. ');
-            }
-
-            folders.forEach((folder) => {
-                try {
-                    fs.statSync(folder);
-                } catch (err) {
-                    if (err) {
-                        fs.mkdirSync(folder);
+                if (mock || test) {
+                    var pack = require('./package.json');
+                    if (mock) {
+                        for (let key in deps.mock) {
+                            pack.dependencies[key] = deps.mock[key];
+                        }
                     }
+                    if (test) {
+                        for (let key in deps.test) {
+                            pack.dependencies[key] = deps.test[key];
+                        }
+                    }
+
+                    let promise = this.installDependencies(pack);
+                    promise.done(() => {
+                        logger.info(' install dependencies successfully! ');
+                    });
                 }
             });
-
-            cpfiles.forEach((file) => {
-                fs.stat(file, (err, stats) => {
-                    if (err) {
-                        var origin = path.join(__dirname, 'default', file);
-                        var dest = path.join(process.cwd(), file);
-                        fs.createReadStream(origin).pipe(fs.createWriteStream(dest));
-                    }
-                });
-            });
-
-            logger.info(' init successfully. ');
         };
 
         var packageJson = path.join(process.cwd(), 'package.json');
-        fs.stat(packageJson, (err) => {
-            if (err) {
-                spawn('npm', ['init'], {
-                    stdio: 'inherit'
-                }).on('close', (code) => {
-                    logger.info('Add key kil in package.json for system configuration. ');
+        new Promise((resolve, reject) => {
+            fs.stat(packageJson, (err) => {
+                if (err) {
+                    logger.info(' package.json is not found, npm init');
+                    spawn('npm', ['init'], {
+                        stdio: 'inherit'
+                    }).on('close', (code) => {
+                        logger.info(
+                            ' add key kil in package.json for system configuration. ');
 
-                    var pack = require(packageJson);
-                    pack.kil = require('./default/package.default.js');
-                    fs.writeFile('package.json', JSON.stringify(pack), function(err) {
-                        if (err) {
-                            logger.error(err);
-                            process.exit(1);
-                        }
+                        var pack = require(packageJson);
+                        pack.kil = require('./default/package.default.js');
+                        fs.writeFile('package.json', JSON.stringify(pack), (err) => {
+                            if (err) {
+                                reject(err);
+                            }
+                        });
+
+                        resolve();
                     });
+                } else {
 
-                    initMods();
-                });
-            } else {
-                initMods();
-            }
+                    resolve();
+                }
+            });
+        }).done(init, (err) => {
+            logger.error(err);
+            process.exit(1);
         });
     }
 
     dev(args) {
-        var promise = this.check(args);
+        var promise = this._check(args);
         promise.done(this._dev.bind(args, this), () => {
             process.exit(1);
         });
@@ -218,7 +352,7 @@ class Task {
     }
 
     build(args, after) {
-        var promise = this.check(args);
+        var promise = this._check(args);
         promise.done(this._build.bind(args, this), () => {
             process.exit(1);
         });

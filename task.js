@@ -20,21 +20,29 @@ class Task {
      * @return {[type]}      [description]
      */
     before(args) {
-        return new Promise((resolve, reject) => {
-            config.init(args);
-            resolve();
+        var conf = config.init(args);
+        return this.checkArgs(args).then(() => {
+            if (conf.vue) {
+                return this.checkDeps('vue');
+            }
         }).then(() => {
-            return this.check(args);
+            if (conf.es7) {
+                return this.checkDeps('es7');
+            }
+        }).then(() => {
+            if (conf.react) {
+                return this.checkDeps('react');
+            }
         });
     }
 
     /**
-     * check module and try install missing modules or dependencies
-     * @method check
+     * check args and install missing modules or dependencies
+     * @method checkArgs
      * @param  {Object} args : process arguments
      * @return {Promise}
      */
-    check(args) {
+    checkArgs(args) {
         if (args.mock) {
             return new Promise((resolve, reject) => {
                 var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
@@ -85,7 +93,7 @@ class Task {
      * init files
      * @method initFile
      * @param  {List}  files         [description]
-     * @return {[type]}                [description]
+     * @return {Promise}                [description]
      */
     initFile(files) {
         var list = [];
@@ -115,7 +123,11 @@ class Task {
         var folders = ['mock'];
         var files = ['mock/mock.js'];
 
-        return this.initModule(folders, files);
+        return this.initModule(folders, files).then(() => {
+            return this.checkDeps('mock');
+        }).then(() => {
+            logger.info(' init mock module successfully! ');
+        });
     }
 
     initTest() {
@@ -123,7 +135,11 @@ class Task {
         var folders = ['test/mocha', 'test/phantom'];
         var files = ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js'];
 
-        return this.initModule(folders, files);
+        return this.initModule(folders, files).then(() => {
+            return this.checkDeps('test');
+        }).then(() => {
+            logger.info(' init test module successfully! ');
+        });
     }
 
     initProj() {
@@ -131,7 +147,9 @@ class Task {
         var folders = ['js'];
         var files = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
 
-        return this.initModule(folders, files);
+        return this.initModule(folders, files).then(() => {
+            logger.info(' init project successfully. ');
+        });
     }
 
     /**
@@ -144,6 +162,42 @@ class Task {
     initModule(folders, files) {
         return this.initFolder(folders).then(() => {
             return this.initFile(files);
+        });
+    }
+
+    /**
+     * check modules and install missing dependencies
+     * @method checkDeps
+     * @param  {String}  conf : keys in deps
+     * @return {[type]}         [description]
+     */
+    checkDeps(conf) {
+        var pack = require('./package.json');
+        var checklist = [];
+        switch (conf) {
+            case 'mock':
+            case 'test':
+            case 'vue':
+            case 'es7':
+            case 'react':
+                for (let key in deps[conf]) {
+                    pack.dependencies[key] = deps[conf][key];
+                    checklist.push(new Promise((resolve, reject) => {
+                        try {
+                            require(key);
+                            resolve();
+                        } catch (err) {
+                            reject();
+                        }
+                    }));
+                }
+                break;
+            default:
+                break;
+        }
+
+        return Promise.all(checklist).then(null, () => {
+            return this.installDependencies(pack);
         });
     }
 
@@ -175,10 +229,6 @@ class Task {
         let promise = this.before(args);
         promise.then(() => {
             this[task](args);
-        }).catch((err) => {
-            if (err) {
-                logger.error(' init module failed! ');
-            }
         });
     }
 
@@ -217,38 +267,14 @@ class Task {
                 }
             });
         }).then(() => {
-            return this.initProj().then(() => {
-                logger.info(' init project successfully. ');
-            });
+            return this.initProj();
         }).then(() => {
             if (mock) {
-                return this.initMock().then(() => {
-                    logger.info(' init mock module successfully! ');
-                });
+                return this.initMock();
             }
         }).then(() => {
             if (test) {
-                return this.initTest().then(() => {
-                    logger.info(' init test module successfully! ');
-                });
-            }
-        }).then(() => {
-            if (mock || test) {
-                var pack = require('./package.json');
-                if (mock) {
-                    for (let key in deps.mock) {
-                        pack.dependencies[key] = deps.mock[key];
-                    }
-                }
-                if (test) {
-                    for (let key in deps.test) {
-                        pack.dependencies[key] = deps.test[key];
-                    }
-                }
-
-                return this.installDependencies(pack).then(() => {
-                    logger.info(' install dependencies successfully! ');
-                });
+                return this.initTest();
             }
         }).catch((err) => {
             if (err) {
@@ -258,10 +284,9 @@ class Task {
     }
 
     /**
-     * private method: load webpack config and start webpack dev server
+     * load webpack config and start webpack dev server
      * @method dev
      * @param  {Object} args : {mock: true, port: 9000}
-     * @return {[type]}      [description]
      */
     dev(args) {
         var pack_config = utils.loadWebpackCfg('dev', args);
@@ -303,7 +328,6 @@ class Task {
      * do unit tests with mocha and endless tests with phantom
      * @method test
      * @param  {Object} args: {phantom: false, mocha: false}
-     * @return {[type]}      [description]
      */
     test(args) {
         var mocha = !!args.mocha;

@@ -46,7 +46,6 @@
         "mustache": "^2.2.1",
         "mustache-loader": "^0.3.3",
         "postcss-loader": "^0.8.0",
-        "promise": "^7.1.1",
         "requirejs": "^2.3.1",
         "rimraf": "^2.5.4",
         "style-loader": "^0.13.0",

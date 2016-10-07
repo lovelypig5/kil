@@ -42,8 +42,8 @@ if (program.clean) {
     spawn(cleanScript, {
         stdio: 'inherit'
     }).on('close', (code) => {
-        task.build(args);
+        task.exec(args, 'build');
     });
 } else {
-    task.build(args);
+    task.exec(args, 'build');
 }

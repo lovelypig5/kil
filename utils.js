@@ -163,7 +163,7 @@ class Utils {
     mergeConfig(args, isDebug) {
         var pack_def = require('./pack');
         var packPath = path.join(process.cwd(), 'pack.js');
-        var sysCfg = config.loadPackageConfig(args);
+        var sysCfg = config.init(args);
         var pack;
 
         try {

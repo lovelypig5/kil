@@ -29,5 +29,5 @@ function printHelp() {
 var args = {
     mock: program.mock,
     test: program.test
-}
+};
 task.init(args);

@@ -34,11 +34,11 @@ class Config {
 
     /**
      * load config from package.json if exists, otherwise use default config
-     * @param  {[Object]} args : runtime arguments
+     * @param  {Object} args : runtime arguments
      * @return {[Object]}
      *         System Config
      */
-    loadPackageConfig(args) {
+    init(args) {
         if (conf) {
             return conf;
         }
@@ -48,9 +48,8 @@ class Config {
         try {
             var confPath = path.join(process.cwd(), 'package.json');
             json = require(confPath);
-        } catch ( ex ) {
+        } catch (ex) {
             logger.warn("Can't find package.json, init system config with default. ");
-
             source = false;
         }
 
@@ -64,7 +63,7 @@ class Config {
         if (args && args.port) {
             try {
                 conf.port = parseInt(args.port);
-            } catch ( err ) {
+            } catch (err) {
                 logger.warn('Ignore passed error port! ');
             }
         }
@@ -76,7 +75,7 @@ class Config {
         pack.entry = {};
         pack.plugins = [];
 
-        let comObj = {}
+        let comObj = {};
         // check relationship between chunk and common
         if (pack.commonTrunk) {
             for (let key in pack.commonTrunk) {
@@ -121,7 +120,7 @@ class Config {
                     };
 
                     pack.plugins.push(new HtmlWebpackPlugin(plugin_obj));
-                })
+                });
             }
         }
 
@@ -132,7 +131,7 @@ class Config {
                 pack.plugins.push(new webpack.optimize.CommonsChunkPlugin({
                     name: key,
                     chunks: comObj[key]
-                }))
+                }));
             }
         }
 

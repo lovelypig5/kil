@@ -32,4 +32,4 @@ var args = {
     phantom: program.phantom,
     server: program.server
 };
-task.test(args);
+task.exec(args, 'test');

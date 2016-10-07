@@ -4,7 +4,6 @@ var spawn = require('cross-spawn'),
     fs = require('fs-extra'),
     path = require('path'),
     glob = require('glob'),
-    Promise = require('promise'),
     config = require('./config'),
     utils = require('./utils'),
     logger = require('./logger'),
@@ -15,12 +14,27 @@ var webpack = require('webpack');
 class Task {
 
     /**
+     * init config
+     * @method before
+     * @param  {Object} args [description]
+     * @return {[type]}      [description]
+     */
+    before(args) {
+        return new Promise((resolve, reject) => {
+            config.init(args);
+            resolve();
+        }).then(() => {
+            return this.check(args);
+        });
+    }
+
+    /**
      * check module and try install missing modules or dependencies
-     * @method _check
+     * @method check
      * @param  {Object} args : process arguments
      * @return {Promise}
      */
-    _check(args) {
+    check(args) {
         if (args.mock) {
             return new Promise((resolve, reject) => {
                 var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
@@ -32,7 +46,6 @@ class Task {
                             ' to fix this issue. ');
                         reject(err);
                     }
-
                     resolve();
                 });
             });
@@ -43,117 +56,100 @@ class Task {
 
     /**
      * init folders
-     * @method _initFolder
-     * @param  {Function}    resolve_outer
-     * @param  {Function}    reject_outer
+     * @method initFolder
      * @param  {List}    folders
-     * @param  {List}    files         [description]
-     * @param  {Function}  callback      [description]
      * @return {[type]}                  [description]
      */
-    _initFolder(resolve_outer, reject_outer, folders, files, callback) {
-        var folder_counter = 0;
+    initFolder(folders) {
+        var list = [];
         folders.forEach((folder) => {
-            new Promise((resolve, reject) => {
-                try {
-                    fs.statSync(folder);
-                    logger.info(` folder ${folder} already exists! `);
-                    resolve();
-                } catch (err) {
+            list.push(new Promise((resolve, reject) => {
+                fs.stat(folder, (err, status) => {
                     if (err) {
-                        try {
-                            logger.info(` create folder ${folder} `);
-                            fs.mkdirSync(folder);
+                        logger.info(` create folder ${folder} `);
+                        fs.mkdirs(folder, () => {
                             resolve();
-                        } catch (err) {
-                            logger.error(` create folder ${folder} failed! `);
-                            reject(err);
-                        }
+                        });
+                    } else {
+                        logger.info(` folder ${folder} already exists! `);
+                        resolve();
                     }
-                }
-            }).done(() => {
-                folder_counter++;
-                if (folder_counter == folders.length) {
-                    callback(resolve_outer, reject_outer, files);
-                }
-            }, (err) => {
-                logger.error(err);
-                logger.error(' init folders failed! ');
-                process.exit(1);
-            });
+                });
+            }));
         });
+
+        return Promise.all(list);
     }
 
     /**
      * init files
-     * @method _initFile
-     * @param  {Function}  resolve_outer [description]
-     * @param  {Function}  reject_outer  [description]
+     * @method initFile
      * @param  {List}  files         [description]
      * @return {[type]}                [description]
      */
-    _initFile(resolve_outer, reject_outer, files) {
-        var flie_counter = 0;
-        var file_size = 1;
-
+    initFile(files) {
+        var list = [];
         files.forEach((file) => {
-            new Promise((resolve, reject) => {
+            list.push(new Promise((resolve, reject) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
                         var origin = path.join(__dirname, 'default', file);
                         var dest = path.join(process.cwd(), file);
-                        try {
-                            fs.createReadStream(origin).pipe(fs.createWriteStream(dest));
+                        fs.copy(origin, dest, () => {
                             logger.info(` create file ${dest} `);
                             resolve();
-                        } catch (err) {
-                            logger.info(` create file ${dest} failed! `);
-                            reject();
-                        }
+                        });
                     } else {
                         logger.info(` file ${file} already exists! `);
                         resolve();
                     }
                 });
-            }).done(() => {
-                flie_counter++;
-                if (flie_counter == file_size) {
-                    resolve_outer();
-                }
-            });
+            }));
         });
+
+        return Promise.all(list);
     }
 
     initMock() {
+        logger.info(' start init mock module ');
         var folders = ['mock'];
         var files = ['mock/mock.js'];
 
-        return this._initModule(folders, files);
+        return this.initModule(folders, files);
     }
 
     initTest() {
-        var folders = ['test', 'test/mocha', 'test/phantom'];
+        logger.info(' start init test module ');
+        var folders = ['test/mocha', 'test/phantom'];
         var files = ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js'];
 
-        return this._initModule(folders, files);
+        return this.initModule(folders, files);
     }
 
     initProj() {
+        logger.info(' start init project ');
         var folders = ['js'];
         var files = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
 
-        return this._initModule(folders, files);
+        return this.initModule(folders, files);
     }
 
-    _initModule(folders, files) {
-        return new Promise((resolve, reject) => {
-            this._initFolder(resolve, reject, folders, files, this._initFile);
+    /**
+     * init module: create folders and files
+     * @method initModule
+     * @param  {List}   folders [description]
+     * @param  {List}   files   [description]
+     * @return {[type]}           [description]
+     */
+    initModule(folders, files) {
+        return this.initFolder(folders).then(() => {
+            return this.initFile(files);
         });
     }
 
     installDependencies(pack) {
         return new Promise((resolve, reject) => {
-            fs.writeFile(path.resolve(__dirname, './package.json'), JSON.stringify(pack), (err) => {
+            fs.writeJson(path.resolve(__dirname, './package.json'), pack, (err) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -170,56 +166,34 @@ class Task {
     }
 
     /**
+     * init config, check dependencies and exec task
+     * @method {EXEC} exec
+     * @param  {Object} args :
+     * @param  {String} task : task name
+     */
+    exec(args, task) {
+        let promise = this.before(args);
+        promise.then(() => {
+            this[task](args);
+        }).catch((err) => {
+            if (err) {
+                logger.error(' init module failed! ');
+            }
+        });
+    }
+
+    /**
      * init a new project with mock and test module (default is not initilized)
-     * @method init
-     * @param  {[type]} args {test: false, mock: false}
+     * @method {TASK} init
+     * @param  {Object} args {test: false, mock: false}
      * @return {[type]}      [description]
      */
     init(args) {
         var mock = !!args.mock;
         var test = !!args.test;
-        var self = this;
 
-        var init = () => {
-            let promise = this.initProj();
-            promise.done(() => {
-                logger.info(' init project successfully. ');
-                if (mock) {
-                    let promise = this.initMock();
-                    promise.done(() => {
-                        logger.info(' init mock module successfully! ');
-                    });
-                }
-                if (test) {
-                    let promise = this.initTest();
-                    promise.done(() => {
-                        logger.info(' init test module successfully! ');
-                    });
-                }
-
-                if (mock || test) {
-                    var pack = require('./package.json');
-                    if (mock) {
-                        for (let key in deps.mock) {
-                            pack.dependencies[key] = deps.mock[key];
-                        }
-                    }
-                    if (test) {
-                        for (let key in deps.test) {
-                            pack.dependencies[key] = deps.test[key];
-                        }
-                    }
-
-                    let promise = this.installDependencies(pack);
-                    promise.done(() => {
-                        logger.info(' install dependencies successfully! ');
-                    });
-                }
-            });
-        };
-
-        var packageJson = path.join(process.cwd(), 'package.json');
         new Promise((resolve, reject) => {
+            var packageJson = path.join(process.cwd(), 'package.json');
             fs.stat(packageJson, (err) => {
                 if (err) {
                     logger.info(' package.json is not found, npm init');
@@ -228,42 +202,68 @@ class Task {
                     }).on('close', (code) => {
                         logger.info(
                             ' add key kil in package.json for system configuration. ');
-
                         var pack = require(packageJson);
                         pack.kil = require('./default/package.default.js');
-                        fs.writeFile('package.json', JSON.stringify(pack), (err) => {
+                        fs.writeJson('package.json', pack, (err) => {
                             if (err) {
                                 reject(err);
+                            } else {
+                                resolve();
                             }
                         });
-
-                        resolve();
                     });
                 } else {
-
                     resolve();
                 }
             });
-        }).done(init, (err) => {
-            logger.error(err);
-            process.exit(1);
-        });
-    }
+        }).then(() => {
+            return this.initProj().then(() => {
+                logger.info(' init project successfully. ');
+            });
+        }).then(() => {
+            if (mock) {
+                return this.initMock().then(() => {
+                    logger.info(' init mock module successfully! ');
+                });
+            }
+        }).then(() => {
+            if (test) {
+                return this.initTest().then(() => {
+                    logger.info(' init test module successfully! ');
+                });
+            }
+        }).then(() => {
+            if (mock || test) {
+                var pack = require('./package.json');
+                if (mock) {
+                    for (let key in deps.mock) {
+                        pack.dependencies[key] = deps.mock[key];
+                    }
+                }
+                if (test) {
+                    for (let key in deps.test) {
+                        pack.dependencies[key] = deps.test[key];
+                    }
+                }
 
-    dev(args) {
-        var promise = this._check(args);
-        promise.done(this._dev.bind(args, this), () => {
-            process.exit(1);
+                return this.installDependencies(pack).then(() => {
+                    logger.info(' install dependencies successfully! ');
+                });
+            }
+        }).catch((err) => {
+            if (err) {
+                console.log(err);
+            }
         });
     }
 
     /**
      * private method: load webpack config and start webpack dev server
-     * @method _dev
+     * @method dev
      * @param  {Object} args : {mock: true, port: 9000}
      * @return {[type]}      [description]
      */
-    _dev(args) {
+    dev(args) {
         var pack_config = utils.loadWebpackCfg('dev', args);
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -351,20 +351,13 @@ class Task {
         });
     }
 
-    build(args, after) {
-        var promise = this._check(args);
-        promise.done(this._build.bind(args, this), () => {
-            process.exit(1);
-        });
-    }
-
     /**
      * use webpack and build bundle
      * @method build
      * @param  {Object} args  [description]
      * @param  {Function} after : callback after build
      */
-    _build(args, after) {
+    build(args, after) {
         var pack_config = utils.loadWebpackCfg('release', args);
 
         logger.info('start build project... ');

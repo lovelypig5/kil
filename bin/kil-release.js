@@ -40,8 +40,8 @@ if (program.clean) {
     spawn(cleanScript, {
         stdio: 'inherit'
     }).on('close', (code) => {
-        task.release(args);
+        task.exec(args, 'release');
     });
 } else {
-    task.release(args);
+    task.exec(args, 'release');
 }

@@ -31,4 +31,4 @@ var args = {
 logger.debug("kil dev with options: ");
 logger.debug(args);
 
-task.dev(args);
+task.exec(args, 'dev');

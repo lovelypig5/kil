@@ -201,6 +201,12 @@ class Task {
         });
     }
 
+    /**
+     * install dependencies accoring to package.json
+     * @method installDependencies
+     * @param  {JSON}            pack :
+     * @return {Promise}                 [description]
+     */
     installDependencies(pack) {
         return new Promise((resolve, reject) => {
             fs.writeJson(path.resolve(__dirname, './package.json'), pack, (err) => {

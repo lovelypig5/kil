@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+"use strict";
+
 require('colorful').colorful();
 
 var program = require('commander');
@@ -29,5 +31,5 @@ var args = {
     mocha: program.mocha,
     phantom: program.phantom,
     server: program.server
-}
-task.test(args);
+};
+task.exec(args, 'test');

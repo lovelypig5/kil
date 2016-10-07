@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+"use strict";
+
 require('colorful').colorful();
 
 var program = require('commander');
@@ -9,7 +11,7 @@ var path = require('path');
 var spawn = require('cross-spawn');
 
 program
-       .usage('[options]')
+    .usage('[options]')
     .option('-m, --mock', 'enable locale data mock')
     .option('-t, --test', 'init test module')
     .on('-h', printHelp)
@@ -27,5 +29,5 @@ function printHelp() {
 var args = {
     mock: program.mock,
     test: program.test
-}
+};
 task.init(args);

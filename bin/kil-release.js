@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+"use strict";
+
 require('colorful').colorful();
 
 var program = require('commander');
@@ -28,7 +30,7 @@ var args = {
     sourcemap: program.sourcemap,
     clean: program.clean,
     uglify: program.uglify
-}
+};
 
 logger.debug("kil release with options: ");
 logger.debug(args);
@@ -38,8 +40,8 @@ if (program.clean) {
     spawn(cleanScript, {
         stdio: 'inherit'
     }).on('close', (code) => {
-        task.release(args);
+        task.exec(args, 'release');
     });
 } else {
-    task.release(args);
+    task.exec(args, 'release');
 }

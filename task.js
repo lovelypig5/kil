@@ -6,89 +6,295 @@ var spawn = require('cross-spawn'),
     glob = require('glob'),
     config = require('./config'),
     utils = require('./utils'),
-    logger = require('./logger');
+    logger = require('./logger'),
+    deps = require('./deps');
 
 var webpack = require('webpack');
 
-module.exports = {
+class Task {
 
     /**
-     * init a new project with mock and test module (default is not initilized)
-     * @param  {[Object]} args {test: false, mock: false}
+     * init config
+     * @method before
+     * @param  {Object} args [description]
+     * @return {[type]}      [description]
      */
-    init: function(args) {
-        var mock = !!args.mock;
-        var test = !!args.test;
-
-        var initMods = () => {
-            var folders = ['js'];
-            var cpfiles = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
-            if (mock) {
-                folders.push('mock');
-                cpfiles.push('mock/mock.js');
-
-                logger.info(' Add mock module. ');
+    before(args) {
+        var conf = config.init(args);
+        return this.checkArgs(args).then(() => {
+            if (conf.vue) {
+                return this.checkDeps('vue');
             }
-            if (test) {
-                Array.prototype.push.apply(folders, ['test', 'test/mocha', 'test/phantom']);
-                Array.prototype.push.apply(cpfiles, ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js']);
-
-                logger.info(' Add test module. ');
+        }).then(() => {
+            if (conf.es7) {
+                return this.checkDeps('es7');
             }
+        }).then(() => {
+            if (conf.react) {
+                return this.checkDeps('react');
+            }
+        });
+    }
 
-            folders.forEach((folder) => {
-                try {
-                    fs.statSync(folder);
-                } catch ( err ) {
+    /**
+     * check args and install missing modules or dependencies
+     * @method checkArgs
+     * @param  {Object} args : process arguments
+     * @return {Promise}
+     */
+    checkArgs(args) {
+        if (args.mock) {
+            return new Promise((resolve, reject) => {
+                var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
+                fs.stat(mockPath, (err) => {
                     if (err) {
-                        fs.mkdirSync(folder);
+                        logger.error(`can't find ${mockPath}, have you ever ` + 'init mock module'.to
+                            .bold.red.color + ' ? ');
+                        logger.error('try to use ' + 'kil init -m'.to.bold.red.color +
+                            ' to fix this issue. ');
+                        reject(err);
                     }
-                }
-            })
+                    resolve();
+                });
+            });
+        }
 
-            cpfiles.forEach((file) => {
+        return Promise.resolve();
+    }
+
+    /**
+     * init folders
+     * @method initFolder
+     * @param  {List}    folders
+     * @return {[type]}                  [description]
+     */
+    initFolder(folders) {
+        var list = [];
+        folders.forEach((folder) => {
+            list.push(new Promise((resolve, reject) => {
+                fs.stat(folder, (err, status) => {
+                    if (err) {
+                        logger.info(` create folder ${folder} `);
+                        fs.mkdirs(folder, () => {
+                            resolve();
+                        });
+                    } else {
+                        logger.info(` folder ${folder} already exists! `);
+                        resolve();
+                    }
+                });
+            }));
+        });
+
+        return Promise.all(list);
+    }
+
+    /**
+     * init files
+     * @method initFile
+     * @param  {List}  files         [description]
+     * @return {Promise}                [description]
+     */
+    initFile(files) {
+        var list = [];
+        files.forEach((file) => {
+            list.push(new Promise((resolve, reject) => {
                 fs.stat(file, (err, stats) => {
                     if (err) {
                         var origin = path.join(__dirname, 'default', file);
                         var dest = path.join(process.cwd(), file);
-                        fs.createReadStream(origin).pipe(fs.createWriteStream(dest));
+                        fs.copy(origin, dest, () => {
+                            logger.info(` create file ${dest} `);
+                            resolve();
+                        });
+                    } else {
+                        logger.info(` file ${file} already exists! `);
+                        resolve();
                     }
-                })
-            })
+                });
+            }));
+        });
 
-            logger.info(' init successfully. ');
+        return Promise.all(list);
+    }
+
+    initMock() {
+        logger.info(' start init mock module ');
+        var folders = ['mock'];
+        var files = ['mock/mock.js'];
+
+        return this.initModule(folders, files).then(() => {
+            return this.checkDeps('mock');
+        }).then(() => {
+            logger.info(' init mock module successfully! ');
+        });
+    }
+
+    initTest() {
+        logger.info(' start init test module ');
+        var folders = ['test/mocha', 'test/phantom'];
+        var files = ['test/karma.conf.js', 'test/mocha/index.test.js', 'test/phantom/index.test.js'];
+
+        return this.initModule(folders, files).then(() => {
+            return this.checkDeps('test');
+        }).then(() => {
+            logger.info(' init test module successfully! ');
+        });
+    }
+
+    initProj() {
+        logger.info(' start init project ');
+        var folders = ['js'];
+        var files = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
+
+        return this.initModule(folders, files).then(() => {
+            logger.info(' init project successfully. ');
+        });
+    }
+
+    /**
+     * init module: create folders and files
+     * @method initModule
+     * @param  {List}   folders [description]
+     * @param  {List}   files   [description]
+     * @return {[type]}           [description]
+     */
+    initModule(folders, files) {
+        return this.initFolder(folders).then(() => {
+            return this.initFile(files);
+        });
+    }
+
+    /**
+     * check modules and install missing dependencies
+     * @method checkDeps
+     * @param  {String}  conf : keys in deps
+     * @return {[type]}         [description]
+     */
+    checkDeps(conf) {
+        var pack = require('./package.json');
+        var checklist = [];
+        switch (conf) {
+            case 'mock':
+            case 'test':
+            case 'vue':
+            case 'es7':
+            case 'react':
+                for (let key in deps[conf]) {
+                    pack.dependencies[key] = deps[conf][key];
+                    checklist.push(new Promise((resolve, reject) => {
+                        try {
+                            require(key);
+                            resolve();
+                        } catch (err) {
+                            reject();
+                        }
+                    }));
+                }
+                break;
+            default:
+                break;
         }
 
-        var packageJson = path.join(process.cwd(), 'package.json');
-        fs.stat(packageJson, (err) => {
-            if (err) {
-                spawn('npm', ['init'], {
-                    stdio: 'inherit'
-                }).on('close', (code) => {
-                    logger.info('Add key kil in package.json for system configuration. ');
+        return Promise.all(checklist).then(null, () => {
+            return this.installDependencies(pack);
+        });
+    }
 
-                    var pack = require(packageJson);
-                    pack.kil = require('./default/package.default.js');
-                    fs.writeFile('package.json', JSON.stringify(pack), function(err) {
-                        if (err) {
-                            logger.error(err);
-                            process.exit(1);
-                        }
+    /**
+     * install dependencies accoring to package.json
+     * @method installDependencies
+     * @param  {JSON}            pack :
+     * @return {Promise}                 [description]
+     */
+    installDependencies(pack) {
+        return new Promise((resolve, reject) => {
+            fs.writeJson(path.resolve(__dirname, './package.json'), pack, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    logger.info(' check and install module dependencies. ');
+                    spawn('npm', ['install'], {
+                        stdio: 'inherit',
+                        cwd: __dirname
+                    }).on('close', (code) => {
+                        resolve();
                     });
+                }
+            });
+        });
+    }
 
-                    initMods();
-                });
-            } else {
-                initMods();
+    /**
+     * init config, check dependencies and exec task
+     * @method {EXEC} exec
+     * @param  {Object} args :
+     * @param  {String} task : task name
+     */
+    exec(args, task) {
+        let promise = this.before(args);
+        promise.then(() => {
+            this[task](args);
+        });
+    }
+
+    /**
+     * init a new project with mock and test module (default is not initilized)
+     * @method {TASK} init
+     * @param  {Object} args {test: false, mock: false}
+     * @return {[type]}      [description]
+     */
+    init(args) {
+        var mock = !!args.mock;
+        var test = !!args.test;
+
+        new Promise((resolve, reject) => {
+            var packageJson = path.join(process.cwd(), 'package.json');
+            fs.stat(packageJson, (err) => {
+                if (err) {
+                    logger.info(' package.json is not found, npm init');
+                    spawn('npm', ['init'], {
+                        stdio: 'inherit'
+                    }).on('close', (code) => {
+                        logger.info(
+                            ' add key kil in package.json for system configuration. ');
+                        var pack = require(packageJson);
+                        pack.kil = require('./default/package.default.js');
+                        fs.writeJson('package.json', pack, (err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                } else {
+                    resolve();
+                }
+            });
+        }).then(() => {
+            return this.initProj();
+        }).then(() => {
+            if (mock) {
+                return this.initMock();
             }
-        })
-    },
+        }).then(() => {
+            if (test) {
+                return this.initTest();
+            }
+        }).catch((err) => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
 
     /**
      * load webpack config and start webpack dev server
-     * @return {[type]} [description]
+     * @method dev
+     * @param  {Object} args : {mock: true, port: 9000}
      */
-    dev: function(args) {
+    dev(args) {
         var pack_config = utils.loadWebpackCfg('dev', args);
         var compiler = webpack(pack_config);
         var WebpackDevServer = require('webpack-dev-server');
@@ -100,12 +306,11 @@ module.exports = {
             stats: {
                 colors: true
             }
-        }
+        };
 
         if (pack_config.devServer && pack_config.devServer.proxy) {
             serverCfg.proxy = pack_config.devServer.proxy;
         }
-
         if (config.getHtml5Mode()) {
             serverCfg.historyApiFallback = true;
         }
@@ -113,7 +318,7 @@ module.exports = {
         logger.debug('webpack dev server start with config: ');
         logger.debug(serverCfg);
 
-        new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), 'localhost', (err) => {
+        new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), '127.0.0.1', (err) => {
             if (err) {
                 logger.error(err);
                 process.exit(1);
@@ -123,14 +328,14 @@ module.exports = {
             logger.info(`Server listening at localhost:${config.getPort()}`);
             logger.info('----------------------------------');
         });
-    },
+    }
 
     /**
      * do unit tests with mocha and endless tests with phantom
-     * @param  {[Object]} args: {phantom: false, mocha: false}
-     * @return {[type]}
+     * @method test
+     * @param  {Object} args: {phantom: false, mocha: false}
      */
-    test: function(args) {
+    test(args) {
         var mocha = !!args.mocha;
         var phantom = !!args.phantom;
         var server = !!args.server;
@@ -138,7 +343,8 @@ module.exports = {
         var testPath = path.join(process.cwd(), 'test');
         fs.stat(testPath, (err) => {
             if (err) {
-                logger.error(`can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color + ' ? ');
+                logger.error(`can't find ${testPath}, have you ever ` + 'init test module'.to.bold.red.color +
+                    ' ? ');
                 logger.error('try to use ' + 'kil init -t'.to.bold.red.color + ' to fix this issue. ');
 
                 process.exit(1);
@@ -172,14 +378,16 @@ module.exports = {
                     logger.info(`phontom test finished with code : ${code}`);
                 });
             }
-        })
-    },
+        });
+    }
 
     /**
      * use webpack and build bundle
-     * @return {[type]} [description]
+     * @method build
+     * @param  {Object} args  [description]
+     * @param  {Function} after : callback after build
      */
-    build: function(args, after) {
+    build(args, after) {
         var pack_config = utils.loadWebpackCfg('release', args);
 
         logger.info('start build project... ');
@@ -188,7 +396,10 @@ module.exports = {
         compiler.run((err, stats) => {
             if (err) {
                 logger.error(err);
+
+                process.exit(1);
             }
+
             var jsonStats = stats.toJson();
             if (jsonStats.errors.length > 0) {
                 logger.error(jsonStats.errors);
@@ -203,8 +414,8 @@ module.exports = {
                     let files = glob.sync(key);
                     files.forEach((file) => {
                         fs.copySync(file, `dist/${file}`);
-                    })
-                })
+                    });
+                });
             }
 
             logger.info('build successfully. ');
@@ -213,21 +424,23 @@ module.exports = {
                 after();
             }
         });
-    },
+    }
 
     /**
      * use webpack and build bundle
      * @return {[type]} [description]
      */
-    release: function(args) {
+    release(args) {
         var after = () => {
             logger.info('TODO package files.');
-        // spawn('rm', ['dist/*.map'], {
-        //     stdio: 'inherit'
-        // }).on('close', (code) => {
-        //     logger.info('finish package files');
-        // });
+            // spawn('rm', ['dist/*.map'], {
+            //     stdio: 'inherit'
+            // }).on('close', (code) => {
+            //     logger.info('finish package files');
+            // });
         };
         this.build(args, after);
     }
 }
+
+module.exports = new Task();

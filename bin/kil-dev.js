@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+"use strict";
+
 require('colorful').colorful();
 
 var program = require('commander');
@@ -9,6 +11,7 @@ var logger = require('../logger');
 program
     .usage('[options]')
     .option('-p, --port', 'specify the port when dev server run')
+    .option('-m, --mock', 'enable mock')
     .on('-h', printHelp)
     .on('--help', printHelp)
     .parse(process.argv);
@@ -21,10 +24,11 @@ function printHelp() {
 }
 
 var args = {
-    port: program.args[0]
-}
+    port: program.port,
+    mock: program.mock
+};
 
 logger.debug("kil dev with options: ");
 logger.debug(args);
 
-task.dev(args);
+task.exec(args, 'dev');

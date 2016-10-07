@@ -27,6 +27,7 @@ kil will init package.json. install npm dependencies and create js, css, img, le
 ```javascript
     kil dev
     kil dev -p 9001    // specify the port of dev server
+    kil dev -m         // dev with mock module
 ```
 after project init, kil dev helps open the [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html).
 support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), [hot-module-replace](https://webpack.github.io/docs/hot-module-replacement.html), es6 is default support by [babel](https://babeljs.io/).
@@ -41,12 +42,20 @@ support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), 
 test is default support by phantomjs and mocha, [mocha](https://mochajs.org/) for unit tests and [phantomjs](http://phantomjs.org/) for page automation tests.
 reports will be export at reports folder at your workspace
 
+###build
+```javascript
+    kil build
+    kil build -s      // generate source map
+    kil build -C      // build without clean
+    kil build -m      // build with mock data, this option will disable sourcemap
+```
+minify your js, less to target js and css to dist folder.
+
 ###release
 ```javascript
     kil release
     kil release -s      // generate source map
     kil release -C      // release without clean
-    kil release -m      // release with mock data, this option will disable sourcemap
 ```
 minify your js, less to target js and css. package to a zip file for production.
 
@@ -70,13 +79,14 @@ otherwise
 ```
 
 * package.json
-
+* <font color="red" size="">deprecated:</font> ~~"mock": true,~~ is removed from package.jsom after version 1.0.5, please use ``` kil dev -m``` instead
+* add ``` vue: false ``` for default
 ```javascript
     {
         "kil": {
             "port": 9000,          // port of dev server
-            "mock": true,          // enable local mock module
             "react": true,         // enable react support
+            "vue": false,
             "html5Mode": false,    // enable html5 history api
             "es7": false,          // support es7 async, object-rest-spread, flow-strip-types
             "copy": ["img/*"],

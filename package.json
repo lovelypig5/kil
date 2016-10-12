@@ -8,7 +8,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "author": "wei.ding",
+    "author": "out2man",
     "email": "lovelypig5@163.com",
     "bugs": "https://github.com/lovelypig5/kil/issues",
     "repository": {

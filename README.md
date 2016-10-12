@@ -10,32 +10,6 @@ npm install -g kil (默认有国外代理情况下)
 npm install -g kil  --phantomjs_cdnurl=http://cnpmjs.org/downloads --registry=https://registry.npm.taobao.org (推荐从淘宝源安装)
 ```
 
-# Features
-* [webpack](https://webpack.github.io/)
-* [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html)
-* [babel](https://babeljs.io/)
-* [less](http://lesscss.org/)
-* [mustache](https://mustache.github.io/)
-* [autoprefixer](https://github.com/postcss/autoprefixer)
-* [postcss-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [url-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [less-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [css-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [style-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [exports-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [ejs-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [expose-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [file-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [html-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [img-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [imports-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [json-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [css-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [mustache-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [template-html-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [extract-text-webpack-plugin](https://webpack.github.io/docs/list-of-plugins.html)
-* [html-webpack-plugin](https://webpack.github.io/docs/list-of-plugins.html)
-
 # Usage
   support init, develop, test, mock data and release cmds
 
@@ -217,6 +191,32 @@ otherwise
 
 # Author
 * [out2man](http:/www.out2man.com)
+
+# Dependencies
+* [webpack](https://webpack.github.io/)
+* [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html)
+* [babel](https://babeljs.io/)
+* [less](http://lesscss.org/)
+* [mustache](https://mustache.github.io/)
+* [autoprefixer](https://github.com/postcss/autoprefixer)
+* [postcss-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [url-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [less-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [css-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [style-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [exports-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [ejs-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [expose-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [file-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [html-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [img-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [imports-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [json-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [css-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [mustache-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [template-html-loader](https://webpack.github.io/docs/list-of-loaders.html)
+* [extract-text-webpack-plugin](https://webpack.github.io/docs/list-of-plugins.html)
+* [html-webpack-plugin](https://webpack.github.io/docs/list-of-plugins.html)
 
 # See also
 * [webpack](https://webpack.github.io/)

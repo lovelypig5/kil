@@ -7,7 +7,9 @@ var spawn = require('cross-spawn'),
     config = require('./config'),
     utils = require('./utils'),
     logger = require('./logger'),
-    deps = require('./deps');
+    deps = require('./deps'),
+    archiver = require('archiver'),
+    moment = require('moment');
 
 var webpack = require('webpack');
 
@@ -421,7 +423,7 @@ class Task {
             logger.info('build successfully. ');
 
             if (after && typeof after === "function") {
-                after();
+                after(pack_config);
             }
         });
     }
@@ -431,15 +433,26 @@ class Task {
      * @return {[type]} [description]
      */
     release(args) {
-        var after = () => {
-            logger.info('TODO package files.');
-            // spawn('rm', ['dist/*.map'], {
-            //     stdio: 'inherit'
-            // }).on('close', (code) => {
-            //     logger.info('finish package files');
-            // });
-        };
-        this.build(args, after);
+        this.build(args, (config) => {
+            var releaseFile = './' + moment().format('YYYYMMDD-HHmmss') + '-release.zip';
+            var output = fs.createWriteStream(releaseFile);
+            output.on('close', function() {
+                logger.info(`kil release successfully! see ${releaseFile}`);
+            });
+
+            var zipArchive = archiver('zip');
+            zipArchive.pipe(output);
+            zipArchive.bulk([{
+                src: [path.relative(config.output.path, process.cwd()) + '/*'],
+                cwd: process.cwd(),
+                expand: true
+            }]);
+            zipArchive.finalize((err, bytes) => {
+                if (err) {
+                    throw err;
+                }
+            });
+        });
     }
 }
 

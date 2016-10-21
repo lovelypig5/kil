@@ -174,32 +174,45 @@ class Task {
      * @return {[type]}         [description]
      */
     checkDeps(conf) {
-        var pack = require('./package.json');
-        var checklist = [];
-        switch (conf) {
-            case 'mock':
-            case 'test':
-            case 'vue':
-            case 'es7':
-            case 'react':
-                for (let key in deps[conf]) {
-                    pack.dependencies[key] = deps[conf][key];
-                    checklist.push(new Promise((resolve, reject) => {
-                        try {
-                            require(key);
-                            resolve();
-                        } catch (err) {
-                            reject();
-                        }
-                    }));
+        var projectJson = path.join(process.cwd(), 'package.json');
+        return new Promise((resolve_outer, reject_outer) => {
+            fs.readJson(projectJson, (err, pack) => {
+                if (err) {
+                    logger.error(`can't read project json file ${projectJson}`);
+                    reject_outer(err);
                 }
-                break;
-            default:
-                break;
-        }
 
-        return Promise.all(checklist).then(null, () => {
-            return this.installDependencies(pack);
+                var checklist = [];
+                switch (conf) {
+                    case 'mock':
+                    case 'test':
+                    case 'vue':
+                    case 'es7':
+                    case 'react':
+                        for (let key in deps[conf]) {
+                            pack.dependencies[key] = deps[conf][key];
+                            checklist.push(new Promise((resolve, reject) => {
+                                try {
+                                    require(path.join(process.cwd(), 'node_modules',
+                                        key));
+                                    resolve();
+                                } catch (err) {
+                                    logger.info(` module ${key} not found! `);
+                                    reject();
+                                }
+                            }));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                return Promise.all(checklist).then(() => {
+                    resolve_outer();
+                }, () => {
+                    return this.installDependencies(pack);
+                });
+            });
         });
     }
 
@@ -211,14 +224,14 @@ class Task {
      */
     installDependencies(pack) {
         return new Promise((resolve, reject) => {
-            fs.writeJson(path.resolve(__dirname, './package.json'), pack, (err) => {
+            fs.writeJson(path.join(process.cwd(), 'package.json'), pack, (err) => {
                 if (err) {
+                    logger.error(err);
                     reject(err);
                 } else {
                     logger.info(' check and install module dependencies. ');
                     spawn('npm', ['install'], {
-                        stdio: 'inherit',
-                        cwd: __dirname
+                        stdio: 'inherit'
                     }).on('close', (code) => {
                         resolve();
                     });
@@ -236,6 +249,8 @@ class Task {
     exec(args, task) {
         let promise = this.before(args);
         promise.then(() => {
+            logger.debug(`exec task ${task} with args:`);
+            logger.debug(args);
             this[task](args);
         });
     }

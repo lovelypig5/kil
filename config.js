@@ -69,6 +69,7 @@ class Config {
         }
         conf.mock = !!conf.mock;
         conf.react = !!conf.react;
+        conf.vue = !!conf.vue;
         conf.html5Mode = !!conf.html5Mode;
 
         var pack = conf.webpack || {};

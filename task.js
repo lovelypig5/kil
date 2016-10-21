@@ -248,12 +248,11 @@ class Task {
     exec(args, task) {
         let promise = this.before(args);
         promise.then(() => {
-            console.log(456);
             logger.debug(`exec task ${task} with args:`);
             logger.debug(args);
             this[task](args);
         }, () => {
-            console.log(123);
+            logger.error(`exec task ${task} failed`);
         });
     }
 

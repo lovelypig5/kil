@@ -175,43 +175,42 @@ class Task {
      */
     checkDeps(conf) {
         var projectJson = path.join(process.cwd(), 'package.json');
-        return new Promise((resolve_outer, reject_outer) => {
+        return new Promise((resolve, reject) => {
             fs.readJson(projectJson, (err, pack) => {
                 if (err) {
                     logger.error(`can't read project json file ${projectJson}`);
-                    reject_outer(err);
+                    reject(err);
                 }
+                resolve(pack);
+            });
+        }).then((pack) => {
+            var checklist = [];
+            switch (conf) {
+                case 'mock':
+                case 'test':
+                case 'vue':
+                case 'es7':
+                case 'react':
+                    for (let key in deps[conf]) {
+                        pack.dependencies[key] = deps[conf][key];
+                        checklist.push(new Promise((resolve, reject) => {
+                            try {
+                                require(path.join(process.cwd(), 'node_modules',
+                                    key));
+                                resolve();
+                            } catch (err) {
+                                logger.info(` module ${key} not found! `);
+                                reject();
+                            }
+                        }));
+                    }
+                    break;
+                default:
+                    break;
+            }
 
-                var checklist = [];
-                switch (conf) {
-                    case 'mock':
-                    case 'test':
-                    case 'vue':
-                    case 'es7':
-                    case 'react':
-                        for (let key in deps[conf]) {
-                            pack.dependencies[key] = deps[conf][key];
-                            checklist.push(new Promise((resolve, reject) => {
-                                try {
-                                    require(path.join(process.cwd(), 'node_modules',
-                                        key));
-                                    resolve();
-                                } catch (err) {
-                                    logger.info(` module ${key} not found! `);
-                                    reject();
-                                }
-                            }));
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                return Promise.all(checklist).then(() => {
-                    resolve_outer();
-                }, () => {
-                    return this.installDependencies(pack);
-                });
+            return Promise.all(checklist).then(null, () => {
+                return this.installDependencies(pack);
             });
         });
     }
@@ -249,9 +248,12 @@ class Task {
     exec(args, task) {
         let promise = this.before(args);
         promise.then(() => {
+            console.log(456);
             logger.debug(`exec task ${task} with args:`);
             logger.debug(args);
             this[task](args);
+        }, () => {
+            console.log(123);
         });
     }
 

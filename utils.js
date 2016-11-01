@@ -62,12 +62,13 @@ class Utils {
 
                 pack_config.module.loaders.push({
                     test: /\.css$/,
-                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss`)
+                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss-loader`)
                 });
                 pack_config.module.loaders.push({
                     test: /\.less$/,
                     exclude: /(node_modules|bower_components)/,
-                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss!less${sourcemap}`)
+                    loader: ExtractTextPlugin.extract('style',
+                        `css${sourcemap}!postcss-loader!less${sourcemap}`)
                 });
 
                 pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));

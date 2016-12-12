@@ -191,13 +191,14 @@ class Task {
                 case 'vue':
                 case 'es7':
                 case 'react':
+                    pack.dependencies = pack.dependencies || {};
                     for (let key in deps[conf]) {
                         pack.dependencies[key] = deps[conf][key];
-                        checklist.push(new Promise((resolve, reject) => {
+                        checklist.push(new Promise((res, reject) => {
                             try {
                                 require(path.join(process.cwd(), 'node_modules',
                                     key));
-                                resolve();
+                                res();
                             } catch (err) {
                                 logger.info(` module ${key} not found! `);
                                 reject();

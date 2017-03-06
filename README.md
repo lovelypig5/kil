@@ -1,5 +1,5 @@
 # kil
-kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps.
+kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps. (support webpack 1.x)
 
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)

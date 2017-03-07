@@ -32,9 +32,6 @@ var args = {
     uglify: program.uglify
 };
 
-logger.debug("kil release with options: ");
-logger.debug(args);
-
 if (program.clean) {
     var cleanScript = path.join(__dirname, '/kil-clean.js');
     spawn(cleanScript, {

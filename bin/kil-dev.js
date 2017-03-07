@@ -28,7 +28,4 @@ var args = {
     mock: program.mock
 };
 
-logger.debug("kil dev with options: ");
-logger.debug(args);
-
 task.exec(args, 'dev');

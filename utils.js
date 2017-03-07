@@ -22,6 +22,7 @@ class Utils {
             entryPath,
             isDebug,
             node_env = '"development"';
+
         switch (target) {
             case 'dev':
                 isDebug = true;
@@ -29,14 +30,33 @@ class Utils {
                 pack_config.devtool = '#eval';
 
                 // config css and less loader
-                pack_config.module.loaders.push({
+                pack_config.module.rules.push({
                     test: /\.css$/,
-                    loaders: ['style', 'css?sourceMap']
+                    use: [{
+                        loader: "style-loader"
+                    }, {
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: true
+                        }
+                    }]
                 });
-                pack_config.module.loaders.push({
+                pack_config.module.rules.push({
                     test: /\.less$/,
                     exclude: /(node_modules|bower_components)/,
-                    loaders: ['style', 'css?sourceMap!less?sourceMap']
+                    loaders: [{
+                        loader: "style-loader"
+                    }, {
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: true
+                        }
+                    }, {
+                        loader: "less-loader",
+                        options: {
+                            sourceMap: true
+                        }
+                    }]
                 });
 
                 // add hot module replace plugin
@@ -60,18 +80,58 @@ class Utils {
                     pack_config.devtool = '#eval';
                 }
 
-                pack_config.module.loaders.push({
+                pack_config.module.rules.push({
                     test: /\.css$/,
-                    loader: ExtractTextPlugin.extract('style', `css${sourcemap}!postcss-loader`)
+                    use: ExtractTextPlugin.extract({
+                        fallback: "style-loader",
+                        use: [{
+                            loader: "css-loader",
+                            options: {
+                                sourcemap: sourcemap
+                            }
+                        }, {
+                            loader: "postcss-loader",
+                            options: {
+                                plugins: function() {
+                                    return [
+                                        require('autoprefixer')
+                                    ];
+                                }
+                            }
+                        }]
+                    })
                 });
-                pack_config.module.loaders.push({
+                pack_config.module.rules.push({
                     test: /\.less$/,
                     exclude: /(node_modules|bower_components)/,
-                    loader: ExtractTextPlugin.extract('style',
-                        `css${sourcemap}!postcss-loader!less${sourcemap}`)
+                    use: ExtractTextPlugin.extract({
+                        fallback: "style-loader",
+                        use: [{
+                            loader: "css-loader",
+                            options: {
+                                sourcemap: sourcemap
+                            }
+                        }, {
+                            loader: "postcss-loader",
+                            options: {
+                                plugins: function() {
+                                    return [
+                                        require('autoprefixer')
+                                    ];
+                                }
+                            }
+                        }, {
+                            loader: "less-loader",
+                            options: {
+                                sourcemap: sourcemap
+                            }
+                        }]
+                    })
                 });
 
-                pack_config.plugins.push(new ExtractTextPlugin(`[name].[hash].css`));
+                pack_config.plugins.push(new ExtractTextPlugin({
+                    filename: "[name].[hash].css"
+                }));
                 if (args.uglify) {
                     pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
                         compress: {
@@ -101,7 +161,7 @@ class Utils {
 
             let mockPath = path.resolve(process.cwd(), 'mock/mock.js');
             //load mock.js before all
-            pack_config.module.loaders.push({
+            pack_config.module.rules.push({
                 test: entryPath,
                 exclude: /(node_modules|bower_components)/,
                 loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
@@ -212,36 +272,43 @@ class Utils {
             // hash control, add hash when release
             let hash = '';
             if (!isDebug) {
-                hash = '.[hash]';
+                hash = '.[chunkhash]';
             }
             pack_config.output.filename = `[name]${hash}.js`;
             pack_config.output.chunkFilename = `[id]${hash}.js`;
 
-            if (pack_config.module && pack_config.module.loaders) {
-                Array.prototype.push.apply(pack_def.module.loaders, pack_config.module.loaders);
+            if (pack_config.module && pack_config.module.rules) {
+                Array.prototype.push.apply(pack_def.module.rules, pack_config.module.rules);
             } else {
                 pack_config.module = {};
             }
-            pack_config.module.loaders = pack_def.module.loaders;
-            pack_config.module.loaders.push({
+            pack_config.module.rules = pack_def.module.rules;
+            pack_config.module.rules.push({
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components)/,
                 loaders: [`babel-loader?${babel(isDebug)}`]
             });
 
-            // config loader for vue
-            pack_config.module.loaders.push({
-                test: /\.vue$/,
-                exclude: /(node_modules|bower_components)/,
-                loaders: ['vue-loader']
-            });
-            pack_config.vue = {
-                loaders: {
-                    js: `babel-loader?${babel(isDebug)}`,
-                }
-            };
+            if (sysCfg.vue) {
+                // config loader for vue
+                pack_config.module.rules.push({
+                    test: /\.vue$/,
+                    exclude: /(node_modules|bower_components)/,
+                    use: [{
+                        loader: 'vue-loader',
+                        options: {
+
+                        }
+                    }]
+                });
+                // pack_config.vue = {
+                //     loaders: {
+                //         js: `babel-loader?${babel(isDebug)}`,
+                //     }
+                // };
+            }
             if (pack_config.resolve) {
-                pack_config.resolve.root = pack_def.resolve.root;
+                pack_config.resolve.modules = pack_def.resolve.modules;
             } else {
                 pack_config.resolve = pack_def.resolve;
             }
@@ -257,7 +324,6 @@ class Utils {
             }
 
             pack_config.externals = pack_def.externals;
-            pack_config.postcss = pack_def.postcss;
             if (pack.devServer) {
                 pack_config.devServer = pack.devServer;
             }

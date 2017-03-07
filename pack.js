@@ -15,47 +15,61 @@ paths.length -= 1;
  *     resolveLoader
  *     plugins: will be merged with project plugins
  *     externals
- *     postcss
  */
 module.exports = {
     entry: ['./index'],
     output: {
-        path: `${process.cwd()}/dist`,
+        path: path.resolve(process.cwd(), 'dist'),
         publicPath: '/dist/'
     },
     module: {
-        loaders: [{
+        rules: [{
             test: /\.(eot|svg|ttf|woff|woff2)/i,
-            loader: "url?limit=2048&name=[path][name].[ext]"
+            use: [{
+                loader: "url-loader",
+                options: {
+                    limit: 2048,
+                    name: "[path][name].[ext]"
+                }
+            }]
         }, {
             test: /\.(png|jpe?g|gif)$/i,
-            loader: "url?limit=8192&name=[path][name].[ext]!img?minimize&progressive=true"
-        }, {
-            test: /\.json$/,
-            loaders: ['json']
+            use: [{
+                loader: "url-loader",
+                options: {
+                    limit: 8192,
+                    name: "[path][name].[ext]"
+                }
+            }, {
+                loader: "img-loader",
+                options: {
+                    minimize: true,
+                    progressive: true
+                }
+            }]
         }, {
             test: /\.html?$/,
-            loaders: ['html-loader']
+            use: ['html-loader']
         }, {
             test: /\.tpl?$/,
-            loaders: ['ejs-loader']
+            use: ['ejs-loader']
         }]
     },
     resolve: {
-        root: [
+        modules: [
             // project node modules
-            path.join(process.cwd(), 'node_modules'),
+            path.resolve(process.cwd(), 'node_modules'),
             // kil node modules
-            path.join(__dirname, 'node_modules'),
+            path.resolve(__dirname, 'node_modules'),
             // all global node modules
-            path.join(paths.join(path.sep), 'node_modules')
+            path.resolve(paths.join(path.sep), 'node_modules')
         ]
     },
     resolveLoader: {
-        root: [
-            path.join(process.cwd(), 'node_modules'),
-            path.join(__dirname, 'node_modules'),
-            path.join(paths.join(path.sep), 'node_modules')
+        modules: [
+            path.resolve(process.cwd(), 'node_modules'),
+            path.resolve(__dirname, 'node_modules'),
+            path.resolve(paths.join(path.sep), 'node_modules')
         ]
     },
     /**
@@ -63,8 +77,5 @@ module.exports = {
      * @type {Array}
      */
     plugins: [],
-    externals: [],
-    postcss: function() {
-        return [require('autoprefixer')];
-    }
+    externals: []
 };

@@ -11,7 +11,7 @@ var spawn = require('cross-spawn'),
     archiver = require('archiver'),
     moment = require('moment');
 
-var webpack = require('webpack');
+const webpack = require('webpack');
 
 class Task {
 
@@ -251,7 +251,11 @@ class Task {
         promise.then(() => {
             logger.debug(`exec task ${task} with args:`);
             logger.debug(args);
-            this[task](args);
+            try {
+                this[task](args);
+            } catch (err) {
+                logger.error(err);
+            }
         }, () => {
             logger.error(`exec task ${task} failed`);
         });
@@ -319,9 +323,6 @@ class Task {
         var WebpackDevServer = require('webpack-dev-server');
         var serverCfg = {
             hot: true,
-            watchOptions: {
-                poll: 1000
-            },
             stats: {
                 colors: true
             }
@@ -336,7 +337,6 @@ class Task {
 
         logger.debug('webpack dev server start with config: ');
         logger.debug(serverCfg);
-
         new WebpackDevServer(compiler, serverCfg).listen(config.getPort(), '127.0.0.1', (err) => {
             if (err) {
                 logger.error(err);

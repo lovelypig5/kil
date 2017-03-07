@@ -48,14 +48,10 @@ class Utils {
                         loader: "style-loader"
                     }, {
                         loader: "css-loader",
-                        options: {
-                            sourceMap: true
-                        }
+                        options: "sourceMap"
                     }, {
                         loader: "less-loader",
-                        options: {
-                            sourceMap: true
-                        }
+                        options: "sourceMap"
                     }]
                 });
 
@@ -286,27 +282,10 @@ class Utils {
             pack_config.module.rules.push({
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components)/,
-                loaders: [`babel-loader?${babel(isDebug)}`]
+                loader: `babel-loader?${babel(isDebug)}`
             });
 
-            if (sysCfg.vue) {
-                // config loader for vue
-                pack_config.module.rules.push({
-                    test: /\.vue$/,
-                    exclude: /(node_modules|bower_components)/,
-                    use: [{
-                        loader: 'vue-loader',
-                        options: {
 
-                        }
-                    }]
-                });
-                // pack_config.vue = {
-                //     loaders: {
-                //         js: `babel-loader?${babel(isDebug)}`,
-                //     }
-                // };
-            }
             if (pack_config.resolve) {
                 pack_config.resolve.modules = pack_def.resolve.modules;
             } else {
@@ -318,6 +297,28 @@ class Utils {
                 Array.prototype.push.apply(pack_def.plugins, pack_config.plugins);
             }
             pack_config.plugins = pack_def.plugins;
+
+            let loaderOptions = {
+                debug: true,
+                options: {
+                    context: __dirname
+                }
+            };
+            if (sysCfg.vue) {
+                // config loader for vue
+                pack_config.module.rules.push({
+                    test: /\.vue$/,
+                    exclude: /(node_modules|bower_components)/,
+                    loader: 'vue-loader'
+                });
+
+                loaderOptions.options.vue = {
+                    loaders: {
+                        js: `babel-loader?${babel(isDebug)}`
+                    }
+                }
+            }
+            pack_config.plugins.push(new webpack.LoaderOptionsPlugin(loaderOptions));
 
             if (pack_config.externals) {
                 Array.prototype.push.apply(pack_def.externals, pack_config.externals);

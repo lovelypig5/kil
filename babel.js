@@ -2,6 +2,7 @@
  * load babel loader query string, presets and plugins
  * @type {[type]}
  */
+const logger = require('./logger');
 
 module.exports = (isDebug) => {
     var config = require('./config'),
@@ -10,9 +11,8 @@ module.exports = (isDebug) => {
     var babelQueryStr = {};
     babelQueryStr.presets = [require.resolve('babel-preset-es2015')];
     babelQueryStr.plugins = [
-        [require.resolve('babel-plugin-transform-runtime')]
+        require.resolve('babel-plugin-transform-runtime')
     ];
-
     if (conf.es7 === true) {
         babelQueryStr.plugins.push([require.resolve('babel-plugin-transform-async-to-generator')]);
         babelQueryStr.plugins.push([require.resolve('babel-plugin-transform-flow-strip-types')]);
@@ -32,6 +32,9 @@ module.exports = (isDebug) => {
         }
     }
     babelQueryStr.cacheDirectory = true;
+
+    logger.debug('babel query string:');
+    logger.debug(babelQueryStr);
 
     return JSON.stringify(babelQueryStr);
 };

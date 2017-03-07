@@ -8,7 +8,7 @@ module.exports = (modulePath) => {
         // if single entry is used, bundle name will be named as main.js
         entry: {
             main: "./index",
-        // common: ['jquery']
+            // common: ['jquery']
         },
         // plugins example, default no more
         plugins: [
@@ -26,7 +26,7 @@ module.exports = (modulePath) => {
             // })
         ],
         module: {
-            loaders: []
+            rules: []
         },
         externals: [],
         devServer: {

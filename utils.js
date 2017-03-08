@@ -48,10 +48,14 @@ class Utils {
                         loader: "style-loader"
                     }, {
                         loader: "css-loader",
-                        options: "sourceMap"
+                        options: {
+                            sourceMap: true
+                        }
                     }, {
                         loader: "less-loader",
-                        options: "sourceMap"
+                        options: {
+                            sourceMap: true
+                        }
                     }]
                 });
 
@@ -126,7 +130,7 @@ class Utils {
                 });
 
                 pack_config.plugins.push(new ExtractTextPlugin({
-                    filename: "[name].[hash].css"
+                    filename: "[name].[chunkhash].css"
                 }));
                 if (args.uglify) {
                     pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
@@ -299,10 +303,11 @@ class Utils {
             pack_config.plugins = pack_def.plugins;
 
             let loaderOptions = {
-                debug: true,
+                debug: false,
                 options: {
                     context: __dirname
-                }
+                },
+                minimize: true
             };
             if (sysCfg.vue) {
                 // config loader for vue
@@ -316,7 +321,7 @@ class Utils {
                     loaders: {
                         js: `babel-loader?${babel(isDebug)}`
                     }
-                }
+                };
             }
             pack_config.plugins.push(new webpack.LoaderOptionsPlugin(loaderOptions));
 

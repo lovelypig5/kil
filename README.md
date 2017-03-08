@@ -161,7 +161,7 @@ otherwise
                 // })
             ],
             module: {
-                loaders: []
+                rules: []
             },
             externals: [],
             devServer: {
@@ -191,6 +191,7 @@ otherwise
 
 # TODO
 * test case
+* Long term caching see [Caching](https://webpack.js.org/guides/caching/)
 
 # Author
 * [out2man](http:/www.out2man.com)

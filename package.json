@@ -25,6 +25,7 @@
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.2.1",
     "babel-runtime": "^6.23.0",
+    "chunk-manifest-webpack-plugin": "^1.0.0",
     "colorful": "^2.1.0",
     "commander": "^2.9.0",
     "cross-spawn": "^2.2.3",
@@ -54,6 +55,7 @@
     "template-html-loader": "0.0.3",
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
+    "webpack-chunk-hash": "^0.4.0",
     "webpack-dev-server": "^2.4.1"
   },
   "os": [

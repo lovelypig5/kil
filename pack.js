@@ -1,6 +1,5 @@
 var path = require('path'),
     spawn = require('cross-spawn');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var npmRoot = spawn.sync('npm', ['root', '-g']);
 var paths = npmRoot.stdout.toString().split(path.sep);

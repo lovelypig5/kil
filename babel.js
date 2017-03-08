@@ -9,7 +9,7 @@ module.exports = (isDebug) => {
         conf = config.getConfig();
 
     var babelQueryStr = {};
-    babelQueryStr.presets = [require.resolve('babel-preset-es2015')];
+    babelQueryStr.presets = [require.resolve('babel-preset-env')];
     babelQueryStr.plugins = [
         require.resolve('babel-plugin-transform-runtime')
     ];

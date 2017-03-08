@@ -1,6 +1,9 @@
 # kil
 kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps.
 
+# kil 2.0
+kil 2.0 is now ready for webpack 2.x. for old versions, please see [branch 1.x](https://github.com/lovelypig5/kil/tree/1.x).
+
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
 *  ~~git clone [kil](https://github.com/lovelypig5/kil.git) to your local workspace~~

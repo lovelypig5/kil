@@ -3,6 +3,8 @@ module.exports = (modulePath) => {
     var path = require('path');
     // var webpack = require(`${modulePath}/webpack`);
     // var HtmlWebpackPlugin = require(`${modulePath}/html-webpack-plugin`);
+    // var ChunkManifestPlugin = require(`${modulePath}/chunk-manifest-webpack-plugin`);
+    // var WebpackChunkHash = require(`${modulePath}/webpack-chunk-hash`);
 
     return {
         // if single entry is used, bundle name will be named as main.js
@@ -22,7 +24,13 @@ module.exports = (modulePath) => {
             //     chunks: ['main', 'common']
             // }),
             // new webpack.optimize.CommonsChunkPlugin({
-            //     name: "common"
+            //     name: ["common", "manifest"]
+            // }),
+            // new webpack.HashedModuleIdsPlugin(),
+            // new WebpackChunkHash(),
+            // new ChunkManifestPlugin({
+            //     filename: "chunk-manifest.json",
+            //     manifestVariable: "webpackManifest"
             // })
         ],
         module: {
@@ -34,5 +42,5 @@ module.exports = (modulePath) => {
             //     '*': 'http://localhost:3000'
             // }
         }
-    }
-}
+    };
+};

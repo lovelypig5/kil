@@ -223,7 +223,7 @@ class Utils {
      */
     mergeConfig(args, isDebug) {
         var pack_def = require('./pack');
-        var packPath = path.join(process.cwd(), 'pack.js');
+        var packPath = path.join(process.cwd(), 'webpack.config.js');
         var sysCfg = config.init(args);
         var pack;
 
@@ -233,15 +233,32 @@ class Utils {
             try {
                 pack = pack(path.resolve(__dirname, 'node_modules'));
             } catch (e) {
-                logger.error(' Error happens in pack.js ');
+                logger.error(' Error happens in webpack.config.js ');
                 logger.error(e);
 
                 process.exit(1);
             }
-        } catch (e) {}
+        } catch (e) {
+            try {
+                packPath = path.join(process.cwd(), 'pack.js');
+                pack = fs.statSync(packPath);
+                pack = require(packPath);
+                logger.warn("find pack.js, please change pack.js to webpack.config.js");
+
+                try {
+                    pack = pack(path.resolve(__dirname, 'node_modules'));
+                } catch (e) {
+                    logger.error(' Error happens in pack.js ');
+                    logger.error(e);
+
+                    process.exit(1);
+                }
+            } catch (err) {
+                logger.info("can't find webpack.config.js, use webpack config from package.json or default.");
+            }
+        }
 
         if (!pack) {
-            logger.info("can't find pack.js, use webpack config from package.json or default.");
             var conf = sysCfg.webpack;
             pack = {
                 entry: conf.entry || 'main',

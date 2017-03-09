@@ -147,7 +147,7 @@ class Task {
     initProj() {
         logger.info(' start init project ');
         var folders = ['js'];
-        var files = ['pack.default.js', 'index.html', 'index.js', 'js/main.js'];
+        var files = ['webpack.config.default.js', 'index.html', 'index.js', 'js/main.js'];
 
         return this.initModule(folders, files).then(() => {
             logger.info(' init project successfully. ');

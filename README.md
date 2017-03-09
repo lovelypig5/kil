@@ -3,6 +3,7 @@ kil is a tool based on nodejs and webpack, it helps improve the develop, test an
 
 # kil 2.0
 kil 2.0 is now ready for webpack 2.x. for old versions, please see [branch 1.x](https://github.com/lovelypig5/kil/tree/1.x).
+support long-term caching see [Caching](https://webpack.js.org/guides/caching/)
 
 # Install
 *  install nodejs. see more [nodejs](https://nodejs.org)
@@ -191,36 +192,35 @@ otherwise
 
 # TODO
 * test case
-* Long term caching see [Caching](https://webpack.js.org/guides/caching/)
 
 # Author
 * [out2man](http:/www.out2man.com)
 
 # Dependencies
-* [webpack](https://webpack.github.io/)
-* [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html)
+* [webpack](https://webpack.js.org/)
+* [webpack-dev-server](https://webpack.js.org/configuration/dev-server/)
 * [babel](https://babeljs.io/)
 * [less](http://lesscss.org/)
 * [mustache](https://mustache.github.io/)
 * [autoprefixer](https://github.com/postcss/autoprefixer)
-* [postcss-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [url-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [less-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [css-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [style-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [exports-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [ejs-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [expose-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [file-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [html-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [img-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [imports-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [json-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [css-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [mustache-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [template-html-loader](https://webpack.github.io/docs/list-of-loaders.html)
-* [extract-text-webpack-plugin](https://webpack.github.io/docs/list-of-plugins.html)
-* [html-webpack-plugin](https://webpack.github.io/docs/list-of-plugins.html)
+* [postcss-loader](https://github.com/postcss/postcss-loader)
+* [url-loader](https://webpack.js.org/loaders/url-loader/)
+* [less-loader](https://webpack.js.org/loaders/less-loader/)
+* [css-loader](https://webpack.js.org/loaders/css-loader/)
+* [style-loader](https://webpack.js.org/loaders/style-loader/)
+* [exports-loader](https://webpack.js.org/loaders/exports-loader/)
+* [ejs-loader](https://github.com/okonet/ejs-loader)
+* [expose-loader](https://webpack.js.org/loaders/expose-loader/)
+* [file-loader](https://webpack.js.org/loaders/file-loader/)
+* [html-loader](https://webpack.js.org/loaders/html-loader/)
+* [img-loader](https://github.com/thetalecrafter/img-loader)
+* [imports-loader](https://webpack.js.org/loaders/imports-loader/)
+* [mustache-loader](https://github.com/deepsweet/mustache-loader)
+* [template-html-loader](https://github.com/jtangelder/template-html-loader)
+* [extract-text-webpack-plugin](https://webpack.js.org/plugins/extract-text-webpack-plugin/)
+* [html-webpack-plugin](https://webpack.js.org/plugins/html-webpack-plugin/)
+* [chunk-manifest-webpack-plugin](https://github.com/soundcloud/chunk-manifest-webpack-plugin)
+* [inline-chunk-manifest-html-webpack-plugin](https://github.com/jouni-kantola/inline-chunk-manifest-html-webpack-plugin)
 
 # See also
 * [webpack](https://webpack.github.io/)

@@ -91,7 +91,7 @@ otherwise
             "port": 9000,          // port of dev server
             "react": true,         // enable react support
             "vue": false,
-            "html5Mode": false,    // enable html5 history api
+            "html5Mode": false,    // enable html5 history api of dev server
             "es7": false,          // support es7 async, object-rest-spread, flow-strip-types
             "copy": ["img/*"],
             "webpack": {

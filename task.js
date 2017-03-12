@@ -12,6 +12,7 @@ var spawn = require('cross-spawn'),
     moment = require('moment');
 
 const webpack = require('webpack');
+const configList = ['mock', 'test', 'vue', 'es7', 'react', 'jshint'];
 
 class Task {
 
@@ -23,18 +24,18 @@ class Task {
      */
     before(args) {
         var conf = config.init(args);
+
         return this.checkArgs(args).then(() => {
-            if (conf.vue) {
-                return this.checkDeps('vue');
-            }
-        }).then(() => {
-            if (conf.es7) {
-                return this.checkDeps('es7');
-            }
-        }).then(() => {
-            if (conf.react) {
-                return this.checkDeps('react');
-            }
+            var checklist = [];
+            configList.forEach((configKey) => {
+                if (conf[configKey]) {
+                    checklist.push(this.checkDeps(configKey));
+                }
+            });
+
+            return Promise.all(checklist).then(null).catch((err) => {
+                logger.error(err);
+            });
         });
     }
 
@@ -185,29 +186,21 @@ class Task {
             });
         }).then((pack) => {
             var checklist = [];
-            switch (conf) {
-                case 'mock':
-                case 'test':
-                case 'vue':
-                case 'es7':
-                case 'react':
-                    pack.dependencies = pack.dependencies || {};
-                    for (let key in deps[conf]) {
-                        pack.dependencies[key] = deps[conf][key];
-                        checklist.push(new Promise((res, reject) => {
-                            try {
-                                require(path.join(process.cwd(), 'node_modules',
-                                    key));
-                                res();
-                            } catch (err) {
-                                logger.info(` module ${key} not found! `);
-                                reject();
-                            }
-                        }));
-                    }
-                    break;
-                default:
-                    break;
+            if (configList.indexOf(conf) !== -1) {
+                pack.dependencies = pack.dependencies || {};
+                for (let key in deps[conf]) {
+                    pack.dependencies[key] = deps[conf][key];
+                    checklist.push(new Promise((res, reject) => {
+                        try {
+                            require(path.join(process.cwd(), 'node_modules',
+                                key));
+                            res();
+                        } catch (err) {
+                            logger.info(` module ${key} not found! `);
+                            reject();
+                        }
+                    }));
+                }
             }
 
             return Promise.all(checklist).then(null, () => {
@@ -242,7 +235,7 @@ class Task {
 
     /**
      * init config, check dependencies and exec task
-     * @method {EXEC} exec
+     * @method exec
      * @param  {Object} args :
      * @param  {String} task : task name
      */

@@ -1,7 +1,7 @@
 # kil
-kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps.
+* kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps.
 
-# kil 2.0
+# 2.0
 kil 2.0 is now ready for webpack 2.x. for old versions, please see [branch 1.x](https://github.com/lovelypig5/kil/tree/1.x).
 support long-term caching see [Caching](https://webpack.js.org/guides/caching/)
 
@@ -52,7 +52,9 @@ reports will be export at reports folder at your workspace
     kil build -s      // generate source map
     kil build -C      // build without clean
     kil build -m      // build with mock data, this option will disable sourcemap
+    kil build -J      // build without jshint
 ```
+<h4>now build will execute jshint by default.</h4>
 minify your js, less to target js and css to dist folder.
 
 ###release
@@ -139,6 +141,11 @@ otherwise
         var path = require('path');
         // var webpack = require(`${modulePath}/webpack`);
         // var HtmlWebpackPlugin = require(`${modulePath}/html-webpack-plugin`);
+        // var WebpackChunkHash = require(`${modulePath}/webpack-chunk-hash`);
+        /* extract the manifest to a separate JSON file */
+        // var ChunkManifestPlugin = require(`${modulePath}/chunk-manifest-webpack-plugin`);
+        /* inject manifest.json to index.html */
+        // var InlineChunkManifestHtmlWebpackPlugin = require(`${modulePath}/inline-chunk-manifest-html-webpack-plugin`);
 
         return {
             // if single entry is used, bundle name will be named as main.js
@@ -160,6 +167,20 @@ otherwise
                 // new webpack.optimize.CommonsChunkPlugin({
                 //     name: "common"
                 // })
+                /*** THIS IS SECTION FOR LONG-TERM CACHING ***/
+                //new HtmlWebpackPlugin({
+                //     template: './index.html',
+                //     filename: './index.html',
+                //     chunks: ['manifest', 'main', 'common']
+                // }),
+                // new webpack.optimize.CommonsChunkPlugin({
+                //     name: ["common", "manifest"]
+                // }),
+                // new webpack.HashedModuleIdsPlugin(),
+                // new WebpackChunkHash(),
+                // new ChunkManifestPlugin(),
+                // new InlineChunkManifestHtmlWebpackPlugin()
+                /*** THIS IS SECTION FOR LONG-TERM CACHING ***/
             ],
             module: {
                 rules: []
@@ -172,6 +193,26 @@ otherwise
             }
         }
     }
+```
+
+* index.ejs
+```html
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="warehouse management, taobao">
+    <meta name="author" content="out2man">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>EXAMPLE</title>
+    <%=htmlWebpackPlugin.files.webpackManifest%>
+</head>
+
+<body>
+    <app></app>
+</body>
+</html>
 ```
 
 * proxy

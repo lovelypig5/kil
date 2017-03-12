@@ -1,1 +1,1 @@
-document.getElementsByTagName('body')[0].innerHTML = 'It Works!'
+document.getElementsByTagName('body')[0].innerHTML = 'It Works!';

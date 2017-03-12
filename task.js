@@ -12,39 +12,40 @@ var spawn = require('cross-spawn'),
     moment = require('moment');
 
 const webpack = require('webpack');
+const configList = ['mock', 'test', 'vue', 'es7', 'react', 'jshint'];
 
 class Task {
 
     /**
-     * init config
+     * init config and check dependencies
      * @method before
-     * @param  {Object} args [description]
-     * @return {[type]}      [description]
+     * @param  {Object} args cmd options
+     * @return {Promise}
      */
     before(args) {
         var conf = config.init(args);
-        return this.checkArgs(args).then(() => {
-            if (conf.vue) {
-                return this.checkDeps('vue');
-            }
-        }).then(() => {
-            if (conf.es7) {
-                return this.checkDeps('es7');
-            }
-        }).then(() => {
-            if (conf.react) {
-                return this.checkDeps('react');
-            }
+
+        return this.checkMock(args).then(() => {
+            var checklist = [];
+            configList.forEach((configKey) => {
+                if (conf[configKey]) {
+                    checklist.push(this.checkDeps(configKey));
+                }
+            });
+
+            return Promise.all(checklist).then(null).catch((err) => {
+                logger.error(err);
+            });
         });
     }
 
     /**
-     * check args and install missing modules or dependencies
-     * @method checkArgs
-     * @param  {Object} args : process arguments
+     * check mock is enabled or not
+     * @method checkMock
+     * @param  {Object} args process arguments
      * @return {Promise}
      */
-    checkArgs(args) {
+    checkMock(args) {
         if (args.mock) {
             return new Promise((resolve, reject) => {
                 var mockPath = path.join(process.cwd(), 'mock', 'mock.js');
@@ -67,8 +68,8 @@ class Task {
     /**
      * init folders
      * @method initFolder
-     * @param  {List}    folders
-     * @return {[type]}                  [description]
+     * @param  {List} folders
+     * @return {Promise}
      */
     initFolder(folders) {
         var list = [];
@@ -94,8 +95,8 @@ class Task {
     /**
      * init files
      * @method initFile
-     * @param  {List}  files         [description]
-     * @return {Promise}                [description]
+     * @param  {List}  files
+     * @return {Promise}
      */
     initFile(files) {
         var list = [];
@@ -157,9 +158,9 @@ class Task {
     /**
      * init module: create folders and files
      * @method initModule
-     * @param  {List}   folders [description]
-     * @param  {List}   files   [description]
-     * @return {[type]}           [description]
+     * @param  {List}   folders
+     * @param  {List}   files
+     * @return {Promise}
      */
     initModule(folders, files) {
         return this.initFolder(folders).then(() => {
@@ -170,8 +171,8 @@ class Task {
     /**
      * check modules and install missing dependencies
      * @method checkDeps
-     * @param  {String}  conf : keys in deps
-     * @return {[type]}         [description]
+     * @param  {String}  conf  keys in deps
+     * @return {Promise}
      */
     checkDeps(conf) {
         var projectJson = path.join(process.cwd(), 'package.json');
@@ -185,29 +186,21 @@ class Task {
             });
         }).then((pack) => {
             var checklist = [];
-            switch (conf) {
-                case 'mock':
-                case 'test':
-                case 'vue':
-                case 'es7':
-                case 'react':
-                    pack.dependencies = pack.dependencies || {};
-                    for (let key in deps[conf]) {
-                        pack.dependencies[key] = deps[conf][key];
-                        checklist.push(new Promise((res, reject) => {
-                            try {
-                                require(path.join(process.cwd(), 'node_modules',
-                                    key));
-                                res();
-                            } catch (err) {
-                                logger.info(` module ${key} not found! `);
-                                reject();
-                            }
-                        }));
-                    }
-                    break;
-                default:
-                    break;
+            if (configList.indexOf(conf) !== -1) {
+                pack.dependencies = pack.dependencies || {};
+                for (let key in deps[conf]) {
+                    pack.dependencies[key] = deps[conf][key];
+                    checklist.push(new Promise((res, reject) => {
+                        try {
+                            require(path.join(process.cwd(), 'node_modules',
+                                key));
+                            res();
+                        } catch (err) {
+                            logger.info(` module ${key} not found! `);
+                            reject();
+                        }
+                    }));
+                }
             }
 
             return Promise.all(checklist).then(null, () => {
@@ -219,8 +212,8 @@ class Task {
     /**
      * install dependencies accoring to package.json
      * @method installDependencies
-     * @param  {JSON}            pack :
-     * @return {Promise}                 [description]
+     * @param  {JSON}  pack install new packages according to package.json
+     * @return {Promise}
      */
     installDependencies(pack) {
         return new Promise((resolve, reject) => {
@@ -242,9 +235,9 @@ class Task {
 
     /**
      * init config, check dependencies and exec task
-     * @method {EXEC} exec
-     * @param  {Object} args :
-     * @param  {String} task : task name
+     * @method exec
+     * @param  {Object} args
+     * @param  {String} task  task name
      */
     exec(args, task) {
         let promise = this.before(args);
@@ -263,9 +256,8 @@ class Task {
 
     /**
      * init a new project with mock and test module (default is not initilized)
-     * @method {TASK} init
+     * @method init
      * @param  {Object} args {test: false, mock: false}
-     * @return {[type]}      [description]
      */
     init(args) {
         var mock = !!args.mock;
@@ -315,7 +307,7 @@ class Task {
     /**
      * load webpack config and start webpack dev server
      * @method dev
-     * @param  {Object} args : {mock: true, port: 9000}
+     * @param  {Object} args {mock: true, port: 9000}
      */
     dev(args) {
         var pack_config = utils.loadWebpackCfg('dev', args);
@@ -352,7 +344,7 @@ class Task {
     /**
      * do unit tests with mocha and endless tests with phantom
      * @method test
-     * @param  {Object} args: {phantom: false, mocha: false}
+     * @param  {Object} args {phantom: false, mocha: false}
      */
     test(args) {
         var mocha = !!args.mocha;
@@ -403,8 +395,8 @@ class Task {
     /**
      * use webpack and build bundle
      * @method build
-     * @param  {Object} args  [description]
-     * @param  {Function} after : callback after build
+     * @param  {Object} args
+     * @param  {Function} after  callback after build
      */
     build(args, after) {
         var pack_config = utils.loadWebpackCfg('release', args);
@@ -446,8 +438,7 @@ class Task {
     }
 
     /**
-     * use webpack and build bundle
-     * @return {[type]} [description]
+     * build and release as a zip
      */
     release(args) {
         this.build(args, (config) => {

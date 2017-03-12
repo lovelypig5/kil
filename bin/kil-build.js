@@ -15,6 +15,7 @@ program
     .option('-S, --no-sourcemap', 'disable source map')
     .option('-U, --no-uglify', 'disable uglifyjs.')
     .option('-C, --no-clean', 'disable clean before a new build')
+    .option('-J, --no-jshint', 'disable jshint before a new build')
     .option('-m, --mock', 'enable mock')
     .on('-h', printHelp)
     .on('--help', printHelp)
@@ -31,7 +32,8 @@ var args = {
     sourcemap: program.sourcemap,
     clean: program.clean,
     uglify: program.uglify,
-    mock: program.mock
+    mock: program.mock,
+    jshint: program.jshint
 };
 
 if (program.clean) {

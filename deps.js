@@ -18,6 +18,14 @@ module.exports = {
     mock: {
         "mockjs": "^1.0.0"
     },
+    jshint: {
+        "jshint": "^2.9.4",
+        "jshint-loader": "^0.8.4",
+    },
+    doc: {
+        "jsdoc": "^3.4.3",
+        "jsdoc-webpack-plugin": "0.0.2"
+    },
     test: {
         "karma": "^0.13.19",
         "karma-chrome-launcher": "^0.2.2",

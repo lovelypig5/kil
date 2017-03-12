@@ -61,7 +61,6 @@ class Utils {
 
                 // add hot module replace plugin
                 pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
-
                 pack_config.output.publicPath = `http://127.0.0.1:${config.getPort()}/`;
 
                 break;
@@ -347,12 +346,6 @@ class Utils {
                 });
             }
 
-            // if (true || sysCfg.jsdoc) {
-            //     const JsDocPlugin = require('jsdoc-webpack-plugin');
-            //     pack_config.plugins.push(new JsDocPlugin({
-            //         conf: './jsdoc.json'
-            //     }));
-            // }
             pack_config.plugins.push(new webpack.LoaderOptionsPlugin(loaderOptions));
 
             if (pack_config.externals) {

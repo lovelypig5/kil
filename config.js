@@ -67,7 +67,7 @@ class Config {
                 logger.warn('Ignore passed error port! ');
             }
         }
-        conf.mock = !!conf.mock;
+        conf.mock = !!args.mock;
         conf.react = !!conf.react;
         conf.vue = !!conf.vue;
         conf.html5Mode = !!conf.html5Mode;

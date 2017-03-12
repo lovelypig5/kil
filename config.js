@@ -68,6 +68,7 @@ class Config {
             }
         }
         conf.mock = !!args.mock;
+        conf.jshint = !!args.jshint;
         conf.react = !!conf.react;
         conf.vue = !!conf.vue;
         conf.html5Mode = !!conf.html5Mode;

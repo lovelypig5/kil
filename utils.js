@@ -164,7 +164,7 @@ class Utils {
             pack_config.module.rules.push({
                 test: entryPath,
                 exclude: /(node_modules|bower_components)/,
-                loaders: [`imports?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
+                loaders: [`imports-loader?Mock=${mockPath}`, `babel-loader?${babelQueryStr}`]
             });
         }
 
@@ -306,7 +306,6 @@ class Utils {
                 loader: `babel-loader?${babel(isDebug)}`
             });
 
-
             if (pack_config.resolve) {
                 pack_config.resolve.modules = pack_def.resolve.modules;
             } else {
@@ -318,7 +317,6 @@ class Utils {
                 Array.prototype.push.apply(pack_def.plugins, pack_config.plugins);
             }
             pack_config.plugins = pack_def.plugins;
-
             let loaderOptions = {
                 debug: false,
                 options: {
@@ -333,13 +331,28 @@ class Utils {
                     exclude: /(node_modules|bower_components)/,
                     loader: 'vue-loader'
                 });
-
                 loaderOptions.options.vue = {
                     loaders: {
                         js: `babel-loader?${babel(isDebug)}`
                     }
                 };
             }
+
+            if (sysCfg.jshint) {
+                pack_config.module.rules.push({
+                    test: /\.jsx?$/,
+                    enforce: "pre",
+                    exclude: /(node_modules|bower_components)/,
+                    loader: "jshint-loader"
+                });
+            }
+
+            // if (true || sysCfg.jsdoc) {
+            //     const JsDocPlugin = require('jsdoc-webpack-plugin');
+            //     pack_config.plugins.push(new JsDocPlugin({
+            //         conf: './jsdoc.json'
+            //     }));
+            // }
             pack_config.plugins.push(new webpack.LoaderOptionsPlugin(loaderOptions));
 
             if (pack_config.externals) {

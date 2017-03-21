@@ -20,9 +20,9 @@ module.exports = (isDebug) => {
     }
 
     if (conf.react === true) {
-        babelQueryStr.presets.push(require.resolve('babel-preset-react'));
+        babelQueryStr.presets.push('react');
         if (isDebug) {
-            babelQueryStr.plugins.push([require.resolve('babel-plugin-react-transform'), {
+            babelQueryStr.plugins.push(['react-transform', {
                 transforms: [{
                     transform: 'react-transform-hmr',
                     imports: ['react'],

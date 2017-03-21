@@ -2,7 +2,9 @@ module.exports = {
     react: {
         "babel-plugin-react-transform": "^2.0.0",
         "babel-preset-react": "^6.11.1",
-        "react-transform-hmr": "^1.0.1"
+        "react-transform-hmr": "^1.0.1",
+        "react": "^15.4.2",
+        "react-dom": "^15.4.2"
     },
     vue: {
         "vue-hot-reload-api": "^1.3.3",

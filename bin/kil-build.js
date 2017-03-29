@@ -15,7 +15,7 @@ program
     .option('-S, --no-sourcemap', 'disable source map')
     .option('-U, --no-uglify', 'disable uglifyjs.')
     .option('-C, --no-clean', 'disable clean before a new build')
-    .option('-J, --no-jshint', 'disable jshint before a new build')
+    .option('-j, --jshint', 'en jshint before a new build')
     .option('-m, --mock', 'enable mock')
     .on('-h', printHelp)
     .on('--help', printHelp)

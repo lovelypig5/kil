@@ -52,6 +52,9 @@ module.exports = {
         }, {
             test: /\.tpl?$/,
             use: ['ejs-loader']
+        }, {
+            test: /\.txt?$/,
+            use: ['raw-loader']
         }]
     },
     resolve: {

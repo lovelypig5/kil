@@ -17,7 +17,7 @@ npm install -g kil  --phantomjs_cdnurl=http://cnpmjs.org/downloads --registry=ht
 # Usage
   support init, develop, test, mock data and release cmds
 
-###init
+### init
 ```javascript
     kil init          // init a project with default
     kil init -h       // get init help
@@ -27,7 +27,7 @@ npm install -g kil  --phantomjs_cdnurl=http://cnpmjs.org/downloads --registry=ht
 init the project with kil:
 kil will init package.json. install npm dependencies and create js, css, img, less, test folders with default index.js and index.html asynchronized
 
-###dev
+### dev
 ```javascript
     kil dev
     kil dev -p 9001    // specify the port of dev server
@@ -36,7 +36,7 @@ kil will init package.json. install npm dependencies and create js, css, img, le
 after project init, kil dev helps open the [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html).
 support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), [hot-module-replace](https://webpack.github.io/docs/hot-module-replacement.html), es6 is default support by [babel](https://babeljs.io/).
 
-###test
+### test
 ```javascript
     kil test                   // default run karma once and test with mocha framework
     kil test -M | --no-mocha   // disable mocha
@@ -46,7 +46,7 @@ support livereload, less compile, [data mock](https://github.com/nuysoft/Mock), 
 test is default support by phantomjs and mocha, [mocha](https://mochajs.org/) for unit tests and [phantomjs](http://phantomjs.org/) for page automation tests.
 reports will be export at reports folder at your workspace
 
-###build
+### build
 ```javascript
     kil build
     kil build -s      // generate source map
@@ -57,7 +57,7 @@ reports will be export at reports folder at your workspace
 <h4>now build will execute jshint by default.</h4>
 minify your js, less to target js and css to dist folder.
 
-###release
+### release
 ```javascript
     kil release
     kil release -s      // generate source map
@@ -65,7 +65,7 @@ minify your js, less to target js and css to dist folder.
 ```
 minify your js, less to target js and css. package to a zip file for production.
 
-###help
+### help
 show usage and help information
 
 #Configuration

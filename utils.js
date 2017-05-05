@@ -24,125 +24,125 @@ class Utils {
             node_env = '"development"';
 
         switch (target) {
-            case 'dev':
-                isDebug = true;
-                pack_config = this.mergeConfig(args, isDebug);
-                pack_config.devtool = '#eval';
+        case 'dev':
+            isDebug = true;
+            pack_config = this.mergeConfig(args, isDebug);
+            pack_config.devtool = '#eval';
 
-                // config css and less loader
-                pack_config.module.rules.push({
-                    test: /\.css$/,
+            // config css and less loader
+            pack_config.module.rules.push({
+                test: /\.css$/,
+                use: [{
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }]
+            });
+            pack_config.module.rules.push({
+                test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
+                loaders: [{
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }, {
+                    loader: "less-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }]
+            });
+
+            // add hot module replace plugin
+            pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
+            pack_config.output.publicPath = `http://127.0.0.1:${config.getPort()}/`;
+
+            break;
+        case 'release':
+            isDebug = false;
+            node_env = '"production"';
+            if (args.mock) {
+                args.sourcemap = "";
+            }
+            pack_config = this.mergeConfig(args);
+
+            var sourcemap = !!args.sourcemap ? "?source-map" : "";
+            if (sourcemap) {
+                pack_config.devtool = '#source-map';
+            } else {
+                pack_config.devtool = '#eval';
+            }
+
+            pack_config.module.rules.push({
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
                     use: [{
-                        loader: "style-loader"
-                    }, {
                         loader: "css-loader",
                         options: {
-                            sourceMap: true
+                            sourcemap: sourcemap
+                        }
+                    }, {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: function () {
+                                return [
+                                    require('autoprefixer')
+                                ];
+                            }
                         }
                     }]
-                });
-                pack_config.module.rules.push({
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loaders: [{
-                        loader: "style-loader"
-                    }, {
+                })
+            });
+            pack_config.module.rules.push({
+                test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: [{
                         loader: "css-loader",
                         options: {
-                            sourceMap: true
+                            sourcemap: sourcemap
+                        }
+                    }, {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: function () {
+                                return [
+                                    require('autoprefixer')
+                                ];
+                            }
                         }
                     }, {
                         loader: "less-loader",
                         options: {
-                            sourceMap: true
+                            sourcemap: sourcemap
                         }
                     }]
-                });
+                })
+            });
 
-                // add hot module replace plugin
-                pack_config.plugins.push(new webpack.HotModuleReplacementPlugin());
-                pack_config.output.publicPath = `http://127.0.0.1:${config.getPort()}/`;
-
-                break;
-            case 'release':
-                isDebug = false;
-                node_env = '"production"';
-                if (args.mock) {
-                    args.sourcemap = "";
-                }
-                pack_config = this.mergeConfig(args);
-
-                var sourcemap = !!args.sourcemap ? "?source-map" : "";
-                if (sourcemap) {
-                    pack_config.devtool = '#source-map';
-                } else {
-                    pack_config.devtool = '#eval';
-                }
-
-                pack_config.module.rules.push({
-                    test: /\.css$/,
-                    use: ExtractTextPlugin.extract({
-                        fallback: "style-loader",
-                        use: [{
-                            loader: "css-loader",
-                            options: {
-                                sourcemap: sourcemap
-                            }
-                        }, {
-                            loader: "postcss-loader",
-                            options: {
-                                plugins: function() {
-                                    return [
-                                        require('autoprefixer')
-                                    ];
-                                }
-                            }
-                        }]
-                    })
-                });
-                pack_config.module.rules.push({
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    use: ExtractTextPlugin.extract({
-                        fallback: "style-loader",
-                        use: [{
-                            loader: "css-loader",
-                            options: {
-                                sourcemap: sourcemap
-                            }
-                        }, {
-                            loader: "postcss-loader",
-                            options: {
-                                plugins: function() {
-                                    return [
-                                        require('autoprefixer')
-                                    ];
-                                }
-                            }
-                        }, {
-                            loader: "less-loader",
-                            options: {
-                                sourcemap: sourcemap
-                            }
-                        }]
-                    })
-                });
-
-                pack_config.plugins.push(new ExtractTextPlugin({
-                    filename: "[name].[chunkhash].css"
+            pack_config.plugins.push(new ExtractTextPlugin({
+                filename: "[name].[chunkhash].css"
+            }));
+            if (args.uglify) {
+                pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                    compress: {
+                        warnings: false
+                    },
+                    sourceMap: !!args.sourcemap
                 }));
-                if (args.uglify) {
-                    pack_config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-                        compress: {
-                            warnings: false
-                        },
-                        sourceMap: !!args.sourcemap
-                    }));
-                }
+            }
 
-                break;
-            default:
-                break;
+            break;
+        default:
+            break;
         }
 
         if (args.mock === true) {
@@ -328,13 +328,13 @@ class Utils {
                 pack_config.module.rules.push({
                     test: /\.vue$/,
                     exclude: /(node_modules|bower_components)/,
-                    loader: 'vue-loader'
-                });
-                loaderOptions.options.vue = {
-                    loaders: {
-                        js: `babel-loader?${babel(isDebug)}`
+                    loader: 'vue-loader',
+                    options: {
+                        loaders: {
+                            js: `babel-loader?${babel(isDebug)}`
+                        }
                     }
-                };
+                });
             }
 
             if (sysCfg.jshint) {

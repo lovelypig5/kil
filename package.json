@@ -55,6 +55,8 @@
     "rimraf": "^2.6.1",
     "style-loader": "^0.13.2",
     "template-html-loader": "0.0.3",
+    "ts-loader": "^2.2.2",
+    "typescript": "^2.4.1",
     "url-loader": "^0.5.8",
     "webpack": "^2.3.3",
     "webpack-chunk-hash": "^0.4.0",

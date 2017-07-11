@@ -1,9 +1,11 @@
 language: node_js
 node_js:
   - "7"
+sudo: false
+dist: trusty
 deploy:
   provider: pages
   skip_cleanup: true
-  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  github_token: b9d56a048af9289af1b992996ea7bf3f1216a4fa # Set in travis-ci.org dashboard
   on:
     branch: master

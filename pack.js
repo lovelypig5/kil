@@ -58,6 +58,9 @@ module.exports = {
         }, {
             test: /\.tsx?$/,
             use: [ 'ts-loader' ]
+        }, {
+            test: /\.json5?$/,
+            use: [ 'json5-loader' ]
         } ]
     },
     resolve: {

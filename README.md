@@ -1,3 +1,5 @@
+[![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/kil)
+[![Build Status](https://travis-ci.org/lovelypig5/kil.svg?branch=master)](https://travis-ci.org/lovelypig5/kil)
 # kil
 kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps.
 

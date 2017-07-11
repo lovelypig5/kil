@@ -11,10 +11,7 @@
   "author": "out2man",
   "email": "lovelypig5@163.com",
   "bugs": "https://github.com/lovelypig5/kil/issues",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lovelypig5/kil.git"
-  },
+  "repository": "https://github.com/lovelypig5/kil.git",
   "license": "MIT",
   "dependencies": {
     "archiver": "^1.3.0",

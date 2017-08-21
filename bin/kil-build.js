@@ -15,6 +15,7 @@ program
     .usage( '[options]' )
     .option( '-S, --no-sourcemap', 'disable source map' )
     .option( '-U, --no-uglify', 'disable uglifyjs.' )
+    .option( '-H, --no-hash', 'disable hash.' )
     .option( '-C, --no-clean', 'disable clean before a new build' )
     .option( '-j, --jshint', 'en jshint before a new build' )
     .option( '-m, --mock', 'enable mock' )
@@ -34,7 +35,8 @@ var args = {
     clean: program.clean,
     uglify: program.uglify,
     mock: program.mock,
-    jshint: program.jshint
+    jshint: program.jshint,
+    hash: program.hash
 };
 
 if ( program.clean ) {

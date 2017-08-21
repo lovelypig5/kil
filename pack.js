@@ -23,7 +23,7 @@ module.exports = {
     },
     module: {
         rules: [ {
-            test: /\.(eot|svg|ttf|woff|woff2)/i,
+            test: /\.(eot|svg|otf|ttf|woff|woff2)/i,
             use: [ {
                 loader: "url-loader",
                 options: {

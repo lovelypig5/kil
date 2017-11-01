@@ -54,6 +54,7 @@
         "template-html-loader": "0.0.3",
         "ts-loader": "^2.3.7",
         "typescript": "^2.6.1",
+        "uglifyjs-webpack-plugin": "^1.0.1",
         "url-loader": "^0.5.8",
         "webpack": "^3.8.1",
         "webpack-chunk-hash": "^0.4.0",

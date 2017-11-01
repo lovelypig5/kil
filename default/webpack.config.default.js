@@ -1,13 +1,8 @@
-module.exports = (modulePath) => {
+module.exports = ( modulePath ) => {
 
-    var path = require('path');
+    var path = require( 'path' );
     // const webpack = require(`${modulePath}/webpack`);
     // const HtmlWebpackPlugin = require(`${modulePath}/html-webpack-plugin`);
-    // const WebpackChunkHash = require(`${modulePath}/webpack-chunk-hash`);
-    /* extract the manifest to a separate JSON file */
-    // const ChunkManifestPlugin = require(`${modulePath}/chunk-manifest-webpack-plugin`);
-    /* inject manifest.json to index.html */
-    // const InlineChunkManifestHtmlWebpackPlugin = require(`${modulePath}/inline-chunk-manifest-html-webpack-plugin`);
 
     return {
         // if single entry is used, bundle name will be named as main.js
@@ -24,15 +19,12 @@ module.exports = (modulePath) => {
             // new HtmlWebpackPlugin({
             //     template: './index.html',
             //     filename: './index.html',
-            //     chunks: ['manifest', 'main', 'common']
+            //     chunks: ['runtime', 'main', 'common']
             // }),
             // new webpack.optimize.CommonsChunkPlugin({
-            //     name: ["common", "manifest"]
+            //     name: ["common", "runtime"]
             // }),
-            // new webpack.HashedModuleIdsPlugin(),
-            // new WebpackChunkHash(),
-            // new ChunkManifestPlugin(),
-            // new InlineChunkManifestHtmlWebpackPlugin()
+            // new webpack.HashedModuleIdsPlugin()
         ],
         module: {
             rules: []

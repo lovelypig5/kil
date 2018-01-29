@@ -26,6 +26,7 @@ class Utils {
         switch ( target ) {
             case 'dev':
                 isDebug = true;
+                process.env.NODE_ENV = node_env;
                 pack_config = this.mergeConfig( args, isDebug );
                 pack_config.devtool = '#eval';
 
@@ -67,6 +68,7 @@ class Utils {
             case 'release':
                 isDebug = false;
                 node_env = '"production"';
+                process.env.NODE_ENV = node_env;
                 if ( args.mock ) {
                     args.sourcemap = "";
                 }
@@ -175,10 +177,7 @@ class Utils {
 
         // add variables define
         pack_config.plugins.push( new webpack.DefinePlugin( {
-            WEBPACK_DEBUG: isDebug,
-            'process.env': {
-                NODE_ENV: node_env
-            }
+            WEBPACK_DEBUG: isDebug
         } ) );
 
         logger.debug( `kil ${target} with webpack config: ` );

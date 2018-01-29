@@ -21,7 +21,7 @@ class Utils {
             babelQueryStr,
             entryPath,
             isDebug,
-            node_env = '"development"';
+            node_env = 'development';
 
         switch ( target ) {
             case 'dev':
@@ -67,7 +67,7 @@ class Utils {
                 break;
             case 'release':
                 isDebug = false;
-                node_env = '"production"';
+                node_env = 'production';
                 process.env.NODE_ENV = node_env;
                 if ( args.mock ) {
                     args.sourcemap = "";

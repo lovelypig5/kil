@@ -421,10 +421,22 @@ class Task {
 
             var conf = config.getConfig();
             if (conf.copy && conf.copy.length > 0) {
-                conf.copy.forEach((key) => {
-                    let files = glob.sync(key);
+                conf.copy.forEach((item) => {
+                    let from, to;
+                    if (typeof item == "string") {
+                        from = item;
+                    } else if (typeof item == "object"){
+                        from = item.from;
+                    }
+                    let path = pack_config.output.path.replace(process.cwd()+"/", "");
+                    let files = glob.sync(from);
                     files.forEach((file) => {
-                        fs.copySync(file, `dist/${file}`);
+                        if (typeof item == "string") {
+                            to = `${path}/${file}`;
+                        } else if (typeof item == "object") {
+                            to = `${item.to}/${file.replace(path+"/", '')}`;
+                        }
+                        fs.copySync(file, to);
                     });
                 });
             }

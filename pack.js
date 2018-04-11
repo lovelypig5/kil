@@ -86,5 +86,5 @@ module.exports = {
      * @type {Array}
      */
     plugins: [],
-    externals: []
+    externals: {}
 };

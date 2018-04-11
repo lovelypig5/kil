@@ -354,10 +354,9 @@ class Utils {
             pack_config.plugins.push( new webpack.LoaderOptionsPlugin( loaderOptions ) );
 
             if ( pack_config.externals ) {
-                Array.prototype.push.apply( pack_def.externals, pack_config.externals );
+                pack_config.externals = Object.assign({}, pack_config.externals, pack_def.externals);
             }
 
-            pack_config.externals = pack_def.externals;
             if ( pack.devServer ) {
                 pack_config.devServer = pack.devServer;
             }

@@ -1,8 +1,8 @@
 {
     "name": "kil",
-    "version": "2.0.8",
+    "version": "2.0.9",
     "description": "kil is a tool based on nodejs and webpack, it helps improve the develop, test and release on web apps",
-    "keywords": "module bundler, js develop tools, frontend, web, test",
+    "keywords": ["module bundler", "js develop tools", "frontend", "web", "test"],
     "main": "index.js",
     "bin": "./bin/kil.js",
     "scripts": {

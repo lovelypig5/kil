@@ -28,7 +28,8 @@ module.exports = {
                 loader: "url-loader",
                 options: {
                     limit: 2048,
-                    name: "[path][name].[ext]"
+                    name: "[name].[hash].[ext]",
+                    outputPath: 'fonts/'
                 }
             } ]
         }, {
@@ -38,7 +39,8 @@ module.exports = {
                 options: {
                     limit: 8192,
                     useRelativePath: true,
-                    name: "[path][name].[ext]"
+                    name: "[name].[hash].[ext]",
+                    outputPath: 'images/'
                 }
             }, {
                 loader: "img-loader",

@@ -1,12 +1,13 @@
-'use strict';
+"use strict";
 
-var path = require( 'path' ),
-    fs = require( 'fs' ),
-    logger = require( './logger' ),
-    webpack = require( 'webpack' ),
-    ExtractTextPlugin = require( 'extract-text-webpack-plugin' ),
-    config = require( './config' ),
-    babel = require( './babel' );
+var path = require( "path" ),
+    fs = require( "fs" ),
+    logger = require( "./logger" ),
+    webpack = require( "webpack" ),
+    MiniCssExtractPlugin = require( "mini-css-extract-plugin" ),
+    UglifyJsPlugin = require( "uglifyjs-webpack-plugin" ),
+    config = require( "./config" ),
+    babel = require( "./babel" );
 
 class Utils {
 
@@ -21,137 +22,146 @@ class Utils {
             babelQueryStr,
             entryPath,
             isDebug,
-            node_env = 'development';
+            node_env = "development";
 
         switch ( target ) {
-            case 'dev':
-                isDebug = true;
-                process.env.NODE_ENV = node_env;
-                pack_config = this.mergeConfig( args, isDebug );
-                pack_config.devtool = '#eval';
+        case "dev": {
+            isDebug = true;
+            process.env.NODE_ENV = node_env;
+            pack_config = this.mergeConfig( args, isDebug );
+            pack_config.devtool = "#eval";
 
-                // config css and less loader
-                pack_config.module.rules.push( {
-                    test: /\.css$/,
-                    use: [ {
-                        loader: "style-loader"
-                    }, {
+            // config css and less loader
+            pack_config.module.rules.push( {
+                test: /\.css$/,
+                use: [ {
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                } ]
+            } );
+            pack_config.module.rules.push( {
+                test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
+                loaders: [ {
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }, {
+                    loader: "less-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                } ]
+            } );
+
+            // add hot module replace plugin
+            pack_config.plugins.push( new webpack.HotModuleReplacementPlugin() );
+            pack_config.output.publicPath = `http://localhost:${config.getPort()}/`;
+                
+
+            break;
+        }
+        case "release": {
+            isDebug = false;
+            node_env = "production";
+            process.env.NODE_ENV = node_env;
+            if ( args.mock ) {
+                args.sourcemap = "";
+            }
+            pack_config = this.mergeConfig( args );
+
+            var sourcemap = args.sourcemap ? "?source-map" : "";
+            if ( sourcemap ) {
+                pack_config.devtool = "#source-map";
+            } else {
+                pack_config.devtool = "#eval";
+            }
+
+            // hash control, add hash when release
+            let hash = "";
+            if ( !isDebug && args.hash ) {
+                hash = ".[chunkhash]";
+            }
+
+            pack_config.module.rules.push( {
+                test: /\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
                         loader: "css-loader",
                         options: {
-                            sourceMap: true
+                            sourcemap: sourcemap
                         }
-                    } ]
-                } );
-                pack_config.module.rules.push( {
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    loaders: [ {
-                        loader: "style-loader"
                     }, {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: function() {
+                                return [
+                                    require( "autoprefixer" )
+                                ];
+                            }
+                        }
+                    }
+                ]
+            } );
+            pack_config.module.rules.push( {
+                test: /\.less$/,
+                exclude: /(node_modules|bower_components)/,
+                use: [ 
+                    MiniCssExtractPlugin.loader,
+                    {
                         loader: "css-loader",
                         options: {
-                            sourceMap: true
+                            sourcemap: sourcemap
+                        }
+                    }, {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: function() {
+                                return [
+                                    require( "autoprefixer" )
+                                ];
+                            }
                         }
                     }, {
                         loader: "less-loader",
                         options: {
-                            sourceMap: true
+                            sourcemap: sourcemap
                         }
-                    } ]
-                } );
+                    } 
+                ]
+            } );
 
-                // add hot module replace plugin
-                pack_config.plugins.push( new webpack.HotModuleReplacementPlugin() );
-                pack_config.output.publicPath = `http://localhost:${config.getPort()}/`;
-
-                break;
-            case 'release':
-                isDebug = false;
-                node_env = 'production';
-                process.env.NODE_ENV = node_env;
-                if ( args.mock ) {
-                    args.sourcemap = "";
-                }
-                pack_config = this.mergeConfig( args );
-
-                var sourcemap = !!args.sourcemap ? "?source-map" : "";
-                if ( sourcemap ) {
-                    pack_config.devtool = '#source-map';
-                } else {
-                    pack_config.devtool = '#eval';
-                }
-
-                // hash control, add hash when release
-                let hash = '';
-                if ( !isDebug && args.hash ) {
-                    hash = '.[chunkhash]';
-                }
-
-                pack_config.module.rules.push( {
-                    test: /\.css$/,
-                    use: ExtractTextPlugin.extract( {
-                        fallback: "style-loader",
-                        use: [ {
-                            loader: "css-loader",
-                            options: {
-                                sourcemap: sourcemap
-                            }
-                        }, {
-                            loader: "postcss-loader",
-                            options: {
-                                plugins: function() {
-                                    return [
-                                        require( 'autoprefixer' )
-                                    ];
-                                }
-                            }
-                        } ]
-                    } )
-                } );
-                pack_config.module.rules.push( {
-                    test: /\.less$/,
-                    exclude: /(node_modules|bower_components)/,
-                    use: ExtractTextPlugin.extract( {
-                        fallback: "style-loader",
-                        use: [ {
-                            loader: "css-loader",
-                            options: {
-                                sourcemap: sourcemap
-                            }
-                        }, {
-                            loader: "postcss-loader",
-                            options: {
-                                plugins: function() {
-                                    return [
-                                        require( 'autoprefixer' )
-                                    ];
-                                }
-                            }
-                        }, {
-                            loader: "less-loader",
-                            options: {
-                                sourcemap: sourcemap
-                            }
-                        } ]
-                    } )
-                } );
-
-                pack_config.plugins.push( new ExtractTextPlugin( {
-                    filename: `[name]${hash}.css`
-                } ) );
-                if ( args.uglify ) {
-                    pack_config.plugins.push( new webpack.optimize.UglifyJsPlugin( {
+            pack_config.plugins.push( new MiniCssExtractPlugin( {
+                filename: `[name]${hash}.css`
+            } ) );
+            if ( args.uglify ) {
+                pack_config.optimization = pack_config.optimization || {};
+                pack_config.optimization.minimize = true;
+                pack_config.optimization.minimizer = [ new UglifyJsPlugin( {
+                    uglifyOptions: {
                         compress: {
                             warnings: false
-                        },
-                        sourceMap: !!args.sourcemap
-                    } ) );
-                }
+                        }
+                    },
+                    sourceMap: !!args.sourcemap
+                } ) ]
+            }
 
-                break;
-            default:
-                break;
+            break;
         }
+        default:
+            break;
+        }
+
+        pack_config.mode = node_env;
 
         if ( args.mock === true ) {
             babelQueryStr = babel( isDebug );
@@ -159,14 +169,14 @@ class Utils {
             for ( let key in pack_config.entry ) {
                 let entry = pack_config.entry[ key ];
                 let type = Object.prototype.toString.call( entry );
-                if ( type === '[object String]' ) {
-                    entryPath.push( path.resolve( process.cwd(), entry + '.js' ) );
-                } else if ( type === '[object Array]' ) {
-                    entryPath.push( path.resolve( process.cwd(), entry[ entry.length - 1 ] + '.js' ) );
+                if ( type === "[object String]" ) {
+                    entryPath.push( path.resolve( process.cwd(), entry + ".js" ) );
+                } else if ( type === "[object Array]" ) {
+                    entryPath.push( path.resolve( process.cwd(), entry[ entry.length - 1 ] + ".js" ) );
                 }
             }
 
-            let mockPath = path.resolve( process.cwd(), 'mock/mock.js' );
+            let mockPath = path.resolve( process.cwd(), "mock/mock.js" );
             //load mock.js before all
             pack_config.module.rules.push( {
                 test: entryPath,
@@ -196,16 +206,16 @@ class Utils {
     parseEntry( entry, dev, depth ) {
         if ( entry ) {
             var type = Object.prototype.toString.call( entry );
-            if ( type === '[object String]' ) {
+            if ( type === "[object String]" ) {
                 entry = [ entry ];
                 if ( dev ) {
                     entry.unshift( `webpack-dev-server/client?http://localhost:${config.getPort()}`,
-                        'webpack/hot/dev-server' );
+                        "webpack/hot/dev-server" );
                 }
-            } else if ( type === '[object Array]' ) {
+            } else if ( type === "[object Array]" ) {
                 if ( dev ) {
                     entry.unshift( `webpack-dev-server/client?http://localhost:${config.getPort()}`,
-                        'webpack/hot/dev-server' );
+                        "webpack/hot/dev-server" );
                 }
             } else {
                 for ( var key in entry ) {
@@ -215,7 +225,7 @@ class Utils {
 
             return entry;
         } else {
-            logger.error( 'No entry is found!' );
+            logger.error( "No entry is found!" );
         }
     }
 
@@ -226,8 +236,8 @@ class Utils {
      * @return
      */
     mergeConfig( args, isDebug ) {
-        var pack_def = require( './pack' );
-        var packPath = path.join( process.cwd(), 'webpack.config.js' );
+        var pack_def = require( "./pack" );
+        var packPath = path.join( process.cwd(), "webpack.config.js" );
         var sysCfg = config.init( args );
         var pack;
 
@@ -235,24 +245,24 @@ class Utils {
             pack = fs.statSync( packPath );
             pack = require( packPath );
             try {
-                pack = pack( path.resolve( __dirname, 'node_modules' ) );
+                pack = pack( path.resolve( __dirname, "node_modules" ) );
             } catch ( e ) {
-                logger.error( ' Error happens in webpack.config.js ' );
+                logger.error( " Error happens in webpack.config.js " );
                 logger.error( e );
 
                 process.exit( 1 );
             }
         } catch ( e ) {
             try {
-                packPath = path.join( process.cwd(), 'pack.js' );
+                packPath = path.join( process.cwd(), "pack.js" );
                 pack = fs.statSync( packPath );
                 pack = require( packPath );
                 logger.warn( "find pack.js, please change pack.js to webpack.config.js" );
 
                 try {
-                    pack = pack( path.resolve( __dirname, 'node_modules' ) );
+                    pack = pack( path.resolve( __dirname, "node_modules" ) );
                 } catch ( e ) {
-                    logger.error( ' Error happens in pack.js ' );
+                    logger.error( " Error happens in pack.js " );
                     logger.error( e );
 
                     process.exit( 1 );
@@ -265,7 +275,7 @@ class Utils {
         if ( !pack ) {
             var conf = sysCfg.webpack;
             pack = {
-                entry: conf.entry || 'main',
+                entry: conf.entry || "main",
                 plugins: conf.plugins,
                 devServer: conf.devServer,
                 resolve: conf.resolve,
@@ -291,9 +301,9 @@ class Utils {
             }
 
             // hash control, add hash when release
-            let hash = '';
+            let hash = "";
             if ( !isDebug && args.hash ) {
-                hash = '.[chunkhash]';
+                hash = ".[chunkhash]";
             }
             pack_config.output.filename = `[name]${hash}.js`;
             pack_config.output.chunkFilename = `[id]${hash}.js`;
@@ -307,7 +317,7 @@ class Utils {
             pack_config.module.rules.push( {
                 test: /\.jsx?$/,
                 exclude: /(node_modules|bower_components)/,
-                loader: `babel-loader?${babel(isDebug)}`
+                loader: `babel-loader?${babel( isDebug )}`
             } );
 
             if ( pack_config.resolve ) {
@@ -333,10 +343,10 @@ class Utils {
                 pack_config.module.rules.push( {
                     test: /\.vue$/,
                     exclude: /(node_modules|bower_components)/,
-                    loader: 'vue-loader',
+                    loader: "vue-loader",
                     options: {
                         loaders: {
-                            js: `babel-loader?${babel(isDebug)}`
+                            js: `babel-loader?${babel( isDebug )}`
                         }
                     }
                 } );
@@ -354,7 +364,7 @@ class Utils {
             pack_config.plugins.push( new webpack.LoaderOptionsPlugin( loaderOptions ) );
 
             if ( pack_config.externals ) {
-                pack_config.externals = Object.assign({}, pack_config.externals, pack_def.externals);
+                pack_config.externals = Object.assign( {}, pack_config.externals, pack_def.externals );
             }
 
             if ( pack.devServer ) {

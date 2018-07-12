@@ -1,7 +1,7 @@
-var path = require( 'path' ),
-    spawn = require( 'cross-spawn' );
+var path = require( "path" ),
+    spawn = require( "cross-spawn" );
 
-var npmRoot = spawn.sync( 'npm', [ 'root', '-g' ] );
+var npmRoot = spawn.sync( "npm", [ "root", "-g" ] );
 var paths = npmRoot.stdout.toString().split( path.sep );
 paths.length -= 1;
 
@@ -16,10 +16,10 @@ paths.length -= 1;
  *     externals
  */
 module.exports = {
-    entry: [ './index' ],
+    entry: [ "./index" ],
     output: {
-        path: path.resolve( process.cwd(), 'dist' ),
-        publicPath: '/dist/'
+        path: path.resolve( process.cwd(), "dist" ),
+        publicPath: "/dist/"
     },
     module: {
         rules: [ {
@@ -48,36 +48,36 @@ module.exports = {
             } ]
         }, {
             test: /\.html?$/,
-            use: [ 'html-loader' ]
+            use: [ "html-loader" ]
         }, {
             test: /\.tpl?$/,
-            use: [ 'ejs-loader' ]
+            use: [ "ejs-loader" ]
         }, {
             test: /\.txt?$/,
-            use: [ 'raw-loader' ]
+            use: [ "raw-loader" ]
         }, {
             test: /\.tsx?$/,
-            use: [ 'ts-loader' ]
+            use: [ "ts-loader" ]
         }, {
             test: /\.json5?$/,
-            use: [ 'json5-loader' ]
+            use: [ "json5-loader" ]
         } ]
     },
     resolve: {
         modules: [
             // project node modules
-            path.resolve( process.cwd(), 'node_modules' ),
+            path.resolve( process.cwd(), "node_modules" ),
             // kil node modules
-            path.resolve( __dirname, 'node_modules' ),
+            path.resolve( __dirname, "node_modules" ),
             // all global node modules
-            path.resolve( paths.join( path.sep ), 'node_modules' )
+            path.resolve( paths.join( path.sep ), "node_modules" )
         ]
     },
     resolveLoader: {
         modules: [
-            path.resolve( process.cwd(), 'node_modules' ),
-            path.resolve( __dirname, 'node_modules' ),
-            path.resolve( paths.join( path.sep ), 'node_modules' )
+            path.resolve( process.cwd(), "node_modules" ),
+            path.resolve( __dirname, "node_modules" ),
+            path.resolve( paths.join( path.sep ), "node_modules" )
         ]
     },
     /**

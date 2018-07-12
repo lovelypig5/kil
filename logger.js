@@ -1,4 +1,4 @@
-var logger = require('log4js').getLogger('[kil]');
-logger.setLevel('INFO');
+var logger = require( "log4js" ).getLogger( "[kil]" );
+logger.level = "DEBUG";
 
 module.exports = logger;

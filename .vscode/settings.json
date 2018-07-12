@@ -1,0 +1,26 @@
+{
+    "eslint.options": {
+        "configFile": ".eslintrc.js",
+        "plugins": [
+            "html"
+        ]
+    },
+    "eslint.autoFixOnSave": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        {
+            "language": "javascript",
+            "autoFix": true
+        },
+        {
+            "language": "vue",
+            "autoFix": true
+        },
+        {
+            "language": "html",
+            "autoFix": true
+        }
+    ],
+    "git.ignoreLimitWarning": true
+}

@@ -9,7 +9,6 @@ module.exports = {
     vue: {
         "vue-hot-reload-api": "^1.3.3",
         "vue-html-loader": "^1.2.3",
-        "vue-loader": "^8.5.3",
         "vue-style-loader": "^1.0.0"
     },
     es7: {

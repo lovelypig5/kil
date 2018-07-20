@@ -137,7 +137,8 @@ class Utils {
                 } );
 
                 pack_config.plugins.push( new ExtractTextPlugin( {
-                    filename: `[name]${hash}.css`
+                    filename: `[name]${hash}.css`,
+                    allChunks: true
                 } ) );
                 if ( args.uglify ) {
                     pack_config.plugins.push( new webpack.optimize.UglifyJsPlugin( {
@@ -336,10 +337,18 @@ class Utils {
                     loader: 'vue-loader',
                     options: {
                         loaders: {
-                            js: `babel-loader?${babel(isDebug)}`
+                            js: `babel-loader?${babel(isDebug)}`,
+                            css: ExtractTextPlugin.extract({
+                                use: 'css-loader',
+                                fallback: 'vue-style-loader' // <- 这是vue-loader的依赖，所以如果使用npm3，则不需要显式安装
+                            })
                         }
                     }
                 } );
+                // var VueLoaderPlugin = require('vue-loader/lib/plugin');
+                // pack_config.plugins.push(
+                //     new VueLoaderPlugin()
+                // )
             }
 
             if ( sysCfg.jshint ) {

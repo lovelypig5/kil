@@ -315,6 +315,7 @@ class Task {
         var WebpackDevServer = require('webpack-dev-server');
         var serverCfg = {
             hot: true,
+            disableHostCheck: true,
             stats: {
                 colors: true
             }

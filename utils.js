@@ -137,8 +137,7 @@ class Utils {
                 } );
 
                 pack_config.plugins.push( new ExtractTextPlugin( {
-                    filename: `[name]${hash}.css`,
-                    allChunks: true
+                    filename: `[name]${hash}.css`
                 } ) );
                 if ( args.uglify ) {
                     pack_config.plugins.push( new webpack.optimize.UglifyJsPlugin( {
